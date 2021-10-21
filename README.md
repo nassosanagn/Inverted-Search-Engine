@@ -1,4 +1,5 @@
-Inverted Search Engine
+
+## Information Systems Project - Inverted Search Engine
 
 This project uses an Inverted search engine. This
 
