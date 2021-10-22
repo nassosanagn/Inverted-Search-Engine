@@ -1,4 +1,4 @@
-Inverted Search Engine
+# Inverted Search Engine
 
 This project uses an Inverted search engine. This
 
