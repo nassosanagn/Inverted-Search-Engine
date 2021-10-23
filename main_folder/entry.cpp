@@ -1,25 +1,25 @@
 #include "entry.h"
 using namespace std;
 
-enum ::error_code create_entry(const word* w, entry** e){
+ErrorCode create_entry(const word* w, entry** e){
     (*e) = new entry(w->getword());
     if((*e)==NULL){
-        return FAIL;
+        return EC_FAIL;
     }
-    return SUCCESS;
+    return EC_SUCCESS;
 }
 
-enum ::error_code destroy_entry(entry **e){
+ErrorCode destroy_entry(entry **e){
     delete (*e);
-    return SUCCESS;
+    return EC_SUCCESS;
 }
 
-enum ::error_code create_entry_list(entry_list** el){
+ErrorCode create_entry_list(entry_list** el){
     (*el) = new entry_list;
     if((*el)==NULL){
-        return FAIL;
+        return EC_FAIL;
     }
-    return SUCCESS;
+    return EC_SUCCESS;
 }
 
 unsigned int get_number_entries(const entry_list* el){
@@ -36,9 +36,9 @@ unsigned int get_number_entries(const entry_list* el){
     return counter; 
 }
 
-enum ::error_code add_entry(entry_list* el, const entry* e){
+ErrorCode add_entry(entry_list* el, const entry* e){
     if(el == NULL || e == NULL){
-        return FAIL;
+        return EC_FAIL;
     }
     entry* entry_n = new entry(e->getword(),e->getpayload());
     entry* entry_tmp = el->getfirst();
@@ -46,7 +46,7 @@ enum ::error_code add_entry(entry_list* el, const entry* e){
     if(el->getfirst() == NULL){
         el->setfirst(entry_n);
         el->setcurrent(entry_n);
-        return SUCCESS;
+        return EC_SUCCESS;
     }
 
     while(entry_tmp->getnext() != NULL){
@@ -54,7 +54,7 @@ enum ::error_code add_entry(entry_list* el, const entry* e){
     }
     
     entry_tmp->setnext(entry_n);
-    return SUCCESS;
+    return EC_SUCCESS;
 }
 
 entry* get_first(const entry_list* el){
@@ -65,9 +65,9 @@ entry* get_next(const entry_list* el){
     return el->getcurrent()->getnext();
 }
 
-enum ::error_code destroy_entry_list(entry_list** el){
+ErrorCode destroy_entry_list(entry_list** el){
     if((*el)==NULL){
-        return FAIL;
+        return EC_FAIL;
     }
     entry* curr = (*el)->getfirst();
     entry* next = NULL;
@@ -78,7 +78,7 @@ enum ::error_code destroy_entry_list(entry_list** el){
     }
     delete (*el);
     (*el) = NULL;
-    return SUCCESS;
+    return EC_SUCCESS;
 }
 
 
