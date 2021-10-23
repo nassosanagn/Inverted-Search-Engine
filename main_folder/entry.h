@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <iostream>
 using namespace std;
-enum error_code
+
+typedef enum error_c
 {
     SUCCESS = 0,
-    FAIL = 1
-};
+    FAIL = 1,
+    OTHER = 2
+}error_c;
 
 class word {
     char* String;
@@ -71,18 +73,18 @@ class entry_list{
         }
 };
 
-enum ::error_code create_entry(const word* w, entry** e);//or entry *&
+error_c create_entry(const word* w, entry** e);
 
-enum ::error_code destroy_entry(entry **e);
+error_c destroy_entry(entry **e);
 
-enum ::error_code create_entry_list(entry_list** el);
+error_c create_entry_list(entry_list** el);
 
 unsigned int get_number_entries(const entry_list* el);
 
-enum ::error_code add_entry(entry_list* el, const entry* e);
+error_c add_entry(entry_list* el, const entry* e);
 
 entry* get_first(const entry_list* el);
 
 entry* get_next(const entry_list* el);
 
-enum ::error_code destroy_entry_list(entry_list** el);
+error_c destroy_entry_list(entry_list** el);

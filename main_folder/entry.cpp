@@ -1,7 +1,7 @@
 #include "entry.h"
 using namespace std;
 
-enum ::error_code create_entry(const word* w, entry** e){
+error_c create_entry(const word* w, entry** e){
     (*e) = new entry(w->getword());
     if((*e)==NULL){
         return FAIL;
@@ -9,12 +9,12 @@ enum ::error_code create_entry(const word* w, entry** e){
     return SUCCESS;
 }
 
-enum ::error_code destroy_entry(entry **e){
+error_c destroy_entry(entry **e){
     delete (*e);
     return SUCCESS;
 }
 
-enum ::error_code create_entry_list(entry_list** el){
+error_c create_entry_list(entry_list** el){
     (*el) = new entry_list;
     if((*el)==NULL){
         return FAIL;
@@ -36,7 +36,7 @@ unsigned int get_number_entries(const entry_list* el){
     return counter; 
 }
 
-enum ::error_code add_entry(entry_list* el, const entry* e){
+error_c add_entry(entry_list* el, const entry* e){
     if(el == NULL || e == NULL){
         return FAIL;
     }
@@ -65,7 +65,7 @@ entry* get_next(const entry_list* el){
     return el->getcurrent()->getnext();
 }
 
-enum ::error_code destroy_entry_list(entry_list** el){
+error_c destroy_entry_list(entry_list** el){
     if((*el)==NULL){
         return FAIL;
     }
