@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-int char_dif(char* word1,char* word2){
+int char_dif(const char* word1, const char* word2){
     int j = 0;
     for(int i=0;i<strlen(word1);i++){
         if(word1[i]!=word2[i]){
