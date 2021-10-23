@@ -40,6 +40,10 @@ class entry {
         ~entry(){
             delete myString;
         }
+
+        error_c create_entry(const word* w, entry** e);
+        error_c destroy_entry(entry **e);
+
         char* getword() const{
             return myString->getword();
         }
@@ -59,6 +63,18 @@ class entry_list{
     entry* first;
     entry* last;
     public:
+        error_c create_entry_list(entry_list** el);
+
+        unsigned int get_number_entries(const entry_list* el);
+        
+        error_c add_entry(entry_list* el, const entry* e);
+
+        entry* get_first(const entry_list* el);
+
+        entry* get_next(const entry_list* el);
+
+        error_c destroy_entry_list(entry_list** el);
+        
         entry* getfirst() const{
             return first;
         }
@@ -73,18 +89,9 @@ class entry_list{
         }
 };
 
-error_c create_entry(const word* w, entry** e);
 
-error_c destroy_entry(entry **e);
 
-error_c create_entry_list(entry_list** el);
 
-unsigned int get_number_entries(const entry_list* el);
 
-error_c add_entry(entry_list* el, const entry* e);
 
-entry* get_first(const entry_list* el);
 
-entry* get_next(const entry_list* el);
-
-error_c destroy_entry_list(entry_list** el);

@@ -1,7 +1,7 @@
 #include "entry.h"
 using namespace std;
 
-error_c create_entry(const word* w, entry** e){
+error_c entry::create_entry(const word* w, entry** e){
     (*e) = new entry(w->getword());
     if((*e)==NULL){
         return FAIL;
@@ -9,12 +9,12 @@ error_c create_entry(const word* w, entry** e){
     return SUCCESS;
 }
 
-error_c destroy_entry(entry **e){
+error_c entry::destroy_entry(entry **e){
     delete (*e);
     return SUCCESS;
 }
 
-error_c create_entry_list(entry_list** el){
+error_c entry_list::create_entry_list(entry_list** el){
     (*el) = new entry_list;
     if((*el)==NULL){
         return FAIL;
@@ -22,7 +22,7 @@ error_c create_entry_list(entry_list** el){
     return SUCCESS;
 }
 
-unsigned int get_number_entries(const entry_list* el){
+unsigned int entry_list::get_number_entries(const entry_list* el){
     unsigned int counter = 0;
     if(el == NULL){
         return 0;
@@ -36,7 +36,7 @@ unsigned int get_number_entries(const entry_list* el){
     return counter; 
 }
 
-error_c add_entry(entry_list* el, const entry* e){
+error_c entry_list::add_entry(entry_list* el, const entry* e){
     if(el == NULL || e == NULL){
         return FAIL;
     }
@@ -57,15 +57,15 @@ error_c add_entry(entry_list* el, const entry* e){
     return SUCCESS;
 }
 
-entry* get_first(const entry_list* el){
+entry* entry_list::get_first(const entry_list* el){
     return el->getfirst();
 }
 
-entry* get_next(const entry_list* el){
+entry* entry_list::get_next(const entry_list* el){
     return el->getcurrent()->getnext();
 }
 
-error_c destroy_entry_list(entry_list** el){
+error_c entry_list::destroy_entry_list(entry_list** el){
     if((*el)==NULL){
         return FAIL;
     }
