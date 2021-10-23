@@ -20,7 +20,7 @@ class treeNode{
             strcpy(myString, str);
 
             diff = tmpDiff;
-            
+
             nextNode = NULL;
             childNode = NULL;
         }
@@ -32,7 +32,7 @@ class treeNode{
 
 class BKTree{
 
-    private:
+    public:
         treeNode* root;
 
     public:
