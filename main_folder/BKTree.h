@@ -7,7 +7,7 @@ using namespace std;
 
 class treeNode{
 
-    public:
+    private:
         char* myString;
         int diff;
         treeNode* nextNode;
@@ -25,9 +25,15 @@ class treeNode{
             childNode = NULL;
         }
 
+        /* Getters */
         char* getString() const { return myString; }
+        int getDiff() const { return diff; }
         treeNode* getnextNode() const { return nextNode; }
         treeNode* getChildNode() const { return childNode; }
+
+        /* Setters */
+        void setChildNode(treeNode* tempNode) { this->childNode = tempNode; }
+        void setNextNode(treeNode* tempNode) { this->nextNode = tempNode; }
 };
 
 class BKTree{
