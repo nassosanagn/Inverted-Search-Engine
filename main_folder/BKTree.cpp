@@ -19,8 +19,8 @@ BKTree::~BKTree(){
 bool BKTree::destroyTree(treeNode* tempNode){
 
     if (tempNode != NULL){
-        destroyTree(tempNode->getRight());
-        destroyTree(tempNode->getLeft());
+        destroyTree(tempNode->getnextNode());
+        destroyTree(tempNode->getChildNode());
         delete tempNode;
     }
 
@@ -37,44 +37,40 @@ int BKTree::charDiff(const char* word1, const char* word2){
         return j;
 }
 
-bool BKTree::insertTree(char* str, treeNode* tempNode){
+bool BKTree::insertTree(char* str, char* cmpWord, treeNode* tempNode){
 
-    int tempDiff = charDiff(str, tempNode->getString());
+    int tempDiff = charDiff(str, cmpWord);
 
-    cout << "H diafora otan h leksh einai: " << str << " me thn: " << tempNode->getString() << " einai: " << tempDiff << endl;
+    cout << "H diafora otan h leksh einai: " << str << " me thn: " << cmpWord << " einai: " << tempDiff << endl;
 
-    // char* word = 
-
-    if (this->root->childNode == NULL){                     // Only for the first time 
-        root->childNode = new treeNode(str,tempDiff);
+    if (this->getRoot()->childNode == NULL){                     // Only for the first time 
+        getRoot()->childNode = new treeNode(str,tempDiff);
         cout << "Inserted help" << endl; 
         return true;
     }
 
-    if (tempNode == this->root){                /* Start from the root's child */
-        tempNode = this->root->childNode;
+    if (tempNode == this->getRoot()){                /* Start from the root's child */
+        tempNode = this->getRoot()->getChildNode();
     }
-
-    // tempNode->childNode->getString() to use 
 
     if ((tempDiff == tempNode->diff)) {        /* Go down on that node */
 
-        if (tempNode->childNode == NULL){
+        if (tempNode->getChildNode() == NULL){
             tempNode->childNode = new treeNode(str, tempDiff);
             cout << "Inserted " << str << " down after: " << tempNode->getString() << endl;
         }else{
             cout << "Paei katw sth leksh: " << tempNode->getString() << endl;
-            insertTree(str, tempNode->childNode);
+            insertTree(str, tempNode->getString(), tempNode->childNode);
         }
 
     }else{                              /* Go right on that node */
 
-        if (tempNode->nextNode == NULL){
+        if (tempNode->getnextNode() == NULL){
             tempNode->nextNode = new treeNode(str, tempDiff);
             cout << "Inserted " << str << " right after: " << tempNode->getString() << endl;
         }else{
             cout << "Paei deksia sth leksh: " << tempNode->getString() << endl;
-            insertTree(str, tempNode->nextNode);
+            insertTree(str, cmpWord, tempNode->getnextNode());
         }
     }
 
@@ -107,14 +103,14 @@ int main(){
 
     BKTree* BKTree1 = new BKTree(tmpStr);
     
-    BKTree1->insertTree(tmpStr2,BKTree1->root);
-    BKTree1->insertTree(tmpStr3,BKTree1->root);
-    BKTree1->insertTree(tmpStr4,BKTree1->root);
-    BKTree1->insertTree(tmpStr5,BKTree1->root);
-    cout << "----------------------------" << endl;
-    BKTree1->insertTree(tmpStr6,BKTree1->root);
-    cout << "----------------------------" << endl;
-    BKTree1->insertTree(tmpStr7,BKTree1->root);
+    BKTree1->insertTree(tmpStr2,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    BKTree1->insertTree(tmpStr3,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    BKTree1->insertTree(tmpStr4,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    BKTree1->insertTree(tmpStr5,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    cout << "-----------------------------" << endl;
+    BKTree1->insertTree(tmpStr6,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    cout << "------------------------>-----" << endl;
+    BKTree1->insertTree(tmpStr7,BKTree1->getRoot()->getString(),BKTree1->getRoot());
     cout << "----------------------------" << endl;
 
 

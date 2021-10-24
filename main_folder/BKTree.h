@@ -26,13 +26,13 @@ class treeNode{
         }
 
         char* getString() const { return myString; }
-        treeNode* getRight() const { return nextNode; }
-        treeNode* getLeft() const { return childNode; }
+        treeNode* getnextNode() const { return nextNode; }
+        treeNode* getChildNode() const { return childNode; }
 };
 
 class BKTree{
 
-    public:
+    private:
         treeNode* root;
 
     public:
@@ -41,7 +41,7 @@ class BKTree{
         ~BKTree();                  /* Destructor */
 
         bool destroyTree(treeNode* tempNode);               /* Destroy the tree by visiting and destroying each node */
-        bool insertTree(char* str, treeNode* tempNode);
+        bool insertTree(char* str, char* cmpWord, treeNode* tempNode);
 
         int charDiff(const char* word1, const char* word2);
 
