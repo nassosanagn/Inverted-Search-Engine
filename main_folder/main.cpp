@@ -39,7 +39,7 @@ int main(int argc, char* argv[]){
     
     destroy_entry_list(&el);
     cout<<get_number_entries(el)<<endl;
-    cout<<"B"<<endl;
+    cout<<"BBB"<<endl;
 
     return 0;
 }
