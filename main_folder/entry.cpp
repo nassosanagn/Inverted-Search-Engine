@@ -106,17 +106,4 @@ ErrorCode entry_list::destroy_entry_list(entry_list** el){
     return EC_SUCCESS;
 }
 
-entry* entry_list::entry_popleft()
-{
-    if (first == NULL)
-        return NULL;
-
-    entry* temp = first;
-    first = first->getnext();
- 
-    delete temp;
- 
-    return first;
-}
-
 
