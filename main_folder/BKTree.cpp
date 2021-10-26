@@ -78,6 +78,44 @@ bool BKTree::insertTree(char* str, char* cmpWord, treeNode* tempNode){
 }
 
 
+//TESTING FUNCTIONS
+
+void treeNode::print_all(){
+this->print_children();
+
+treeNode* next = this->getnextNode();
+treeNode* child= this->getChildNode();
+if (next!= NULL) next->print_all();
+if (child!= NULL) child->print_all();
+}
+void treeNode::print_children(){
+    treeNode* tempNode = this->getChildNode();
+    cout <<"Parent "<< this->getString() << endl;
+    if (tempNode == NULL)
+    {
+        cout<<"No children"<<endl;
+    }
+    else
+    {
+        cout <<"Children ";
+        while (tempNode!= NULL)
+        {
+            cout << tempNode->getString() <<" "<< tempNode->getDiff()<<"  ";
+            tempNode = tempNode->getnextNode();
+        }
+        cout << endl;
+    }
+    
+    
+}
+
+void BKTree::printTree(){
+
+    this->getRoot()->print_all();
+}
+
+
+
 int main(){
     
     char* tmpStr = new char[15];
@@ -115,5 +153,13 @@ int main(){
 
 
     cout << "To string einai " << BKTree1->getRoot()->getString() << endl;
+
+    //Testing
+    for (size_t i = 0; i < 10; i++)
+    {
+        cout<<endl;
+    }
+    BKTree1->printTree();
+
     return 0;
 }

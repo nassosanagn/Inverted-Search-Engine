@@ -34,6 +34,10 @@ class treeNode{
         /* Setters */
         void setChildNode(treeNode* tempNode) { this->childNode = tempNode; }
         void setNextNode(treeNode* tempNode) { this->nextNode = tempNode; }
+
+        /* Testing Functions */
+        void print_children();
+        void print_all();
 };
 
 class BKTree{
@@ -52,4 +56,7 @@ class BKTree{
         int charDiff(const char* word1, const char* word2);
 
         treeNode* getRoot() const { return root; }
+
+        /* Testing Functions*/
+        void printTree();
 };
