@@ -1,6 +1,25 @@
 #include "entry.h"
 using namespace std;
 
+
+word::word(char* tmp){
+    String = new char[strlen(tmp)]();
+    strcpy(String,tmp);
+}
+word::~word(){
+    delete String;
+}
+
+entry::entry(char * tmp,void *pload = NULL){
+    myString = new word(tmp);
+    payload = pload;
+    next = NULL;
+}
+
+entry::~entry(){
+    delete myString;
+}
+
 ErrorCode entry::create_entry(const word* w, entry** e){
     (*e) = new entry(w->getword());
     if((*e)==NULL){
@@ -61,8 +80,14 @@ entry* entry_list::get_first(const entry_list* el){
     return el->getfirst();
 }
 
-entry* entry_list::get_next(const entry_list* el){
-    return el->getcurrent()->getnext();
+entry* entry_list::get_next(const entry_list* el,const entry * e){
+    entry* curr = el->getfirst();
+    while(curr != NULL){
+        if(curr->getword() == e->getword()){
+            return curr->getnext();
+        }
+    } 
+    return NULL;
 }
 
 ErrorCode entry_list::destroy_entry_list(entry_list** el){

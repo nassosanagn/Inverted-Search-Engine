@@ -7,13 +7,8 @@ using namespace std;
 class word {
     char* String;
     public:
-        word(char* tmp){
-            String = new char[strlen(tmp)]();
-            strcpy(String,tmp);
-        }
-        ~word(){
-            delete String;
-        }
+        word(char* tmp);
+        ~word();
         char* getword() const{ 
             return String; 
         }
@@ -26,15 +21,8 @@ class entry {
     entry* next;
 
     public:
-        entry(char * tmp,void *pload = NULL){
-            myString = new word(tmp);
-            payload = pload;
-            next = NULL;
-        }
-        ~entry(){
-            delete myString;
-        }
-
+        entry(char * tmp,void *);
+        ~entry();
         ErrorCode create_entry(const word* w, entry** e);
         ErrorCode destroy_entry(entry **e);
 
@@ -65,7 +53,7 @@ class entry_list{
 
         entry* get_first(const entry_list* el);
 
-        entry* get_next(const entry_list* el);
+        entry* get_next(const entry_list* el,const entry* e);
 
         ErrorCode destroy_entry_list(entry_list** el);
         
