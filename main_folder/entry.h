@@ -55,6 +55,8 @@ class entry_list{
 
         entry* get_next(const entry_list* el,const entry* e);
 
+        entry * entry_popleft();
+        
         ErrorCode destroy_entry_list(entry_list** el);
         
         entry* getfirst() const{
