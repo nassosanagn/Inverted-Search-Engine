@@ -10,7 +10,7 @@ word::~word(){
     delete String;
 }
 
-entry::entry(char * tmp,void *pload = NULL){
+entry::entry(char * tmp,void *pload){
     myString = new word(tmp);
     payload = pload;
     next = NULL;

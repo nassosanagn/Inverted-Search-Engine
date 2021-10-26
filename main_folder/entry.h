@@ -21,7 +21,7 @@ class entry {
     entry* next;
 
     public:
-        entry(char * tmp,void *);
+        entry(char * tmp,void *pload=NULL);
         ~entry();
         ErrorCode create_entry(const word* w, entry** e);
         ErrorCode destroy_entry(entry **e);
