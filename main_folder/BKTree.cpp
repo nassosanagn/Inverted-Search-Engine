@@ -93,7 +93,7 @@ void treeNode::print_children(){
     cout <<"Parent "<< this->getString() << endl;
     if (tempNode == NULL)
     {
-        cout<<"No children"<<endl;
+        cout<<endl;
     }
     else
     {
