@@ -1,23 +1,14 @@
 #include <cstring>
 #include <stdlib.h>
 #include <iostream>
+#include "core.h"
 using namespace std;
-enum error_code
-{
-    SUCCESS = 0,
-    FAIL = 1
-};
 
 class word {
     char* String;
     public:
-        word(char* tmp){
-            String = new char[strlen(tmp)]();
-            strcpy(String,tmp);
-        }
-        ~word(){
-            delete String;
-        }
+        word(char* tmp);
+        ~word();
         char* getword() const{ 
             return String; 
         }
@@ -30,14 +21,11 @@ class entry {
     entry* next;
 
     public:
-        entry(char * tmp,void *pload = NULL){
-            myString = new word(tmp);
-            payload = pload;
-            next = NULL;
-        }
-        ~entry(){
-            delete myString;
-        }
+        entry(char * tmp,void *);
+        ~entry();
+        ErrorCode create_entry(const word* w, entry** e);
+        ErrorCode destroy_entry(entry **e);
+
         char* getword() const{
             return myString->getword();
         }
@@ -57,6 +45,18 @@ class entry_list{
     entry* first;
     entry* last;
     public:
+        ErrorCode create_entry_list(entry_list** el);
+
+        unsigned int get_number_entries(const entry_list* el);
+        
+        ErrorCode add_entry(entry_list* el, const entry* e);
+
+        entry* get_first(const entry_list* el);
+
+        entry* get_next(const entry_list* el,const entry* e);
+
+        ErrorCode destroy_entry_list(entry_list** el);
+        
         entry* getfirst() const{
             return first;
         }
@@ -71,18 +71,9 @@ class entry_list{
         }
 };
 
-enum ::error_code create_entry(const word* w, entry** e);//or entry *&
 
-enum ::error_code destroy_entry(entry **e);
 
-enum ::error_code create_entry_list(entry_list** el);
 
-unsigned int get_number_entries(const entry_list* el);
 
-enum ::error_code add_entry(entry_list* el, const entry* e);
 
-entry* get_first(const entry_list* el);
 
-entry* get_next(const entry_list* el);
-
-enum ::error_code destroy_entry_list(entry_list** el);
