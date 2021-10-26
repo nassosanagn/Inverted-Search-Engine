@@ -114,6 +114,60 @@ void BKTree::printTree(){
     this->getRoot()->print_all();
 }
 
+//TESTING FUNCTIONS OVER
+
+void BKList_node::add_node(treeNode* input){
+    if (nextnode == NULL)
+    {
+        nextnode = new BKList_node(input);
+    }
+    else
+    {
+        nextnode->add_node(input);
+    }
+}
+
+bool BKTree::lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_list* result){
+    BKList* cand_list = new BKList(new BKList_node(root));
+    // cand_list->create_entry_list(&cand_list);
+    // entry* root_entry=new entry(root->getString());
+    // cand_list->add_entry(cand_list,root_entry);
+    if (root==NULL)
+    {
+        return false;
+    }
+
+    while (cand_list->getfirst()!=NULL){
+        //remove first candidate from cand_list
+        
+        treeNode* current_candidate = cand_list->pop();
+        
+        int distance = charDiff(w->getword(),current_candidate->getString());
+        if (distance <= threshold)
+        {
+            result->add_entry(result,new entry(current_candidate->getString()));
+        }
+
+        int low_bound = distance - threshold;
+        if (low_bound<0){
+            low_bound=-low_bound;
+        }
+        int up_bound = distance + threshold;
+        treeNode* temp_tnode=current_candidate->getChildNode();
+        while (temp_tnode!= NULL)
+        {
+            if (low_bound<=temp_tnode->getDiff() && temp_tnode->getDiff()<=up_bound)
+            {
+                cand_list->add_node(temp_tnode);
+            }
+            temp_tnode=temp_tnode->getnextNode();
+        }
+        
+    }
+    
+
+}
+
 
 
 int main(){
