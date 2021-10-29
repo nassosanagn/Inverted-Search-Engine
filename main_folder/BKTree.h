@@ -1,9 +1,15 @@
 
 using namespace std;
 
+#ifndef BKTREE_H
+#define BKTREE_H
+
 #include <iostream>
 #include <cstring>
 #include <stdlib.h>
+
+#include "entry.h"
+
 
 class treeNode{
 
@@ -59,4 +65,51 @@ class BKTree{
 
         /* Testing Functions*/
         void printTree();
+
+        bool lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_list* result);
 };
+
+
+class BKList_node{
+
+    private:
+        treeNode* mynode;
+        BKList_node* nextnode;
+    public:
+        BKList_node(treeNode* input){ mynode=input;}
+        ~BKList_node();
+
+
+        treeNode* getnode() const { return mynode;}
+        BKList_node* getnext() const { return nextnode;}
+        void add_node(treeNode*);
+        void destoy_list(){if (nextnode) nextnode->destoy_list(); delete this;}
+};
+
+class BKList{
+    private:
+        BKList_node* first;
+    public:
+    BKList(BKList_node* input){first = input;}
+    treeNode* pop(){
+        BKList_node* temp = first->getnext();
+        treeNode* return_val=first->getnode();
+        delete first;
+        first = temp; 
+        return return_val;
+    };
+    BKList_node* getfirst() const { return first;}
+    void add_node(treeNode* input){
+        if (first==NULL)
+        {
+            first = new BKList_node(input);
+        }
+        else
+        {
+            first->add_node(input);
+        }
+    }
+    
+};
+
+#endif
