@@ -10,7 +10,7 @@ word::~word(){
     delete String;
 }
 
-entry::entry(char * tmp,void *pload = NULL){
+entry::entry(char * tmp,void *pload){
     myString = new word(tmp);
     payload = pload;
     next = NULL;
@@ -106,5 +106,17 @@ ErrorCode entry_list::destroy_entry_list(entry_list** el){
     return EC_SUCCESS;
 }
 
+entry* entry_list::entry_popleft()
+{
+    if (first == NULL)
+        return NULL;
+
+    entry* temp = first;
+    first = first->getnext();
+ 
+    delete temp;
+ 
+    return first;
+}
 
 
