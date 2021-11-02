@@ -77,7 +77,6 @@ class BKList_node{
         BKList_node* nextnode;
     public:
         BKList_node(treeNode* input){ mynode=input;}
-        ~BKList_node();
 
 
         treeNode* getnode() const { return mynode;}
@@ -91,13 +90,7 @@ class BKList{
         BKList_node* first;
     public:
     BKList(BKList_node* input){first = input;}
-    treeNode* pop(){
-        BKList_node* temp = first->getnext();
-        treeNode* return_val=first->getnode();
-        delete first;
-        first = temp; 
-        return return_val;
-    };
+    treeNode* popfirst();
     BKList_node* getfirst() const { return first;}
     void add_node(treeNode* input){
         if (first==NULL)

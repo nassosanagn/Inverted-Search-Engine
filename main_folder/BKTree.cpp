@@ -116,6 +116,8 @@ void BKTree::printTree(){
 
 //TESTING FUNCTIONS OVER
 
+
+
 void BKList_node::add_node(treeNode* input){
     if (nextnode == NULL)
     {
@@ -127,6 +129,19 @@ void BKList_node::add_node(treeNode* input){
     }
 }
 
+
+
+
+treeNode* BKList::popfirst(){
+    BKList_node* temp = first->getnext();
+    treeNode* return_val=first->getnode();
+    delete first;
+    first = temp; 
+    return return_val;
+}
+
+
+
 bool BKTree::lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_list* result){
     BKList* cand_list = new BKList(new BKList_node(root));
     // cand_list->create_entry_list(&cand_list);
@@ -136,22 +151,25 @@ bool BKTree::lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_
     {
         return false;
     }
-
+    char tmpStr[]="k";
+    entry* input_entry = new entry(tmpStr);
     while (cand_list->getfirst()!=NULL){
         //remove first candidate from cand_list
-        
-        treeNode* current_candidate = cand_list->pop();
-        
+
+        treeNode* current_candidate = cand_list->popfirst();
         int distance = charDiff(w->getword(),current_candidate->getString());
         if (distance <= threshold)
         {
-            result->add_entry(result,new entry(current_candidate->getString()));
+
+            // entry* input_entry = new entry(current_candidate->getString());
+            // cout << input_entry->getword()<< "\n";
+            input_entry->setword(current_candidate->getString());
+            
+            result->add_entry(result,input_entry);
+            // result->print_list();
         }
 
         int low_bound = distance - threshold;
-        if (low_bound<0){
-            low_bound=-low_bound;
-        }
         int up_bound = distance + threshold;
         treeNode* temp_tnode=current_candidate->getChildNode();
         while (temp_tnode!= NULL)
@@ -162,36 +180,42 @@ bool BKTree::lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_
             }
             temp_tnode=temp_tnode->getnextNode();
         }
-        
     }
     
-
+    return true;
 }
 
 
 
 int main(){
+
+    // char* tmpStr = new char[15];
+    // strcpy(tmpStr,"hell");
+    char tmpStr[]="hell";
+
+    // char* tmpStr2 = new char[15];
+    // strcpy(tmpStr2,"help");
+    char tmpStr2[]="help";
     
-    char* tmpStr = new char[15];
-    strcpy(tmpStr,"hell");
+    // char* tmpStr3 = new char[15];
+    // strcpy(tmpStr3,"fell");
+    char tmpStr3[]="fell";
 
-    char* tmpStr2 = new char[15];
-    strcpy(tmpStr2,"help");
+    // char* tmpStr4 = new char[15];
+    // strcpy(tmpStr4,"fall");
+    char tmpStr4[]="fall";
 
-    char* tmpStr3 = new char[15];
-    strcpy(tmpStr3,"fell");
+    // char* tmpStr5 = new char[15];
+    // strcpy(tmpStr5,"small");
+    char tmpStr5[]="small";
 
-    char* tmpStr4 = new char[15];
-    strcpy(tmpStr4,"fall");
+    // char* tmpStr6 = new char[15];
+    // strcpy(tmpStr6,"felt");
+    char tmpStr6[]="felt";
 
-    char* tmpStr5 = new char[15];
-    strcpy(tmpStr5,"small");
-
-    char* tmpStr6 = new char[15];
-    strcpy(tmpStr6,"felt");
-
-    char* tmpStr7 = new char[15];
-    strcpy(tmpStr7, "melt");
+    // char* tmpStr7 = new char[15];
+    // strcpy(tmpStr7, "melt");
+    char tmpStr7[]="melt";
 
     BKTree* BKTree1 = new BKTree(tmpStr);
     
@@ -208,12 +232,25 @@ int main(){
 
     cout << "To string einai " << BKTree1->getRoot()->getString() << endl;
 
-    //Testing
+    //Testing print
     for (size_t i = 0; i < 10; i++)
     {
         cout<<endl;
     }
     BKTree1->printTree();
 
+    //Testing lookup
+
+    
+    char testStr[]="henn";
+
+    word myword(testStr);
+    int threshold = 4;
+    entry_list* result= new entry_list();
+
+    BKTree1->lookup_entry_index(&myword,BKTree1,threshold,result);
+
+    cout<<"print start \n";
+    result->print_list();
     return 0;
 }

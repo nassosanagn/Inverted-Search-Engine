@@ -13,6 +13,9 @@ class word {
             return String; 
         }
 
+        void setword(char* input){ 
+            strcpy(String,input);
+        }
 };
 
 class entry {
@@ -37,6 +40,10 @@ class entry {
         }
         void setnext(entry *tmp){
             next = tmp;
+        }
+
+        void setword(char* input){
+            myString->setword(input);
         }
 };
 
@@ -69,6 +76,8 @@ class entry_list{
         void setcurrent(entry* tmp){
             current = tmp;
         }
+
+        void print_list()const;
 };
 
 

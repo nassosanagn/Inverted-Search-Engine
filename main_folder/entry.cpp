@@ -61,18 +61,17 @@ ErrorCode entry_list::add_entry(entry_list* el, const entry* e){
     }
     entry* entry_n = new entry(e->getword(),e->getpayload());
     entry* entry_tmp = el->getfirst();
-
     if(el->getfirst() == NULL){
         el->setfirst(entry_n);
         el->setcurrent(entry_n);
+        this->print_list();
         return EC_SUCCESS;
     }
-
     while(entry_tmp->getnext() != NULL){
         entry_tmp = entry_tmp->getnext();
     }
-    
     entry_tmp->setnext(entry_n);
+
     return EC_SUCCESS;
 }
 
@@ -106,4 +105,21 @@ ErrorCode entry_list::destroy_entry_list(entry_list** el){
     return EC_SUCCESS;
 }
 
+void entry_list::print_list()const{
+    if (first==NULL)
+    {
+        return;
+    }
+    else{
+        entry* temp = first;
+        cout << "Entry list print start:\n";
+        while (temp!= NULL)
+        {
+            
+            cout<< temp->getword() << " ";
+            temp = temp->getnext();
+        }
+        cout << "\nEntry list print end\n\n";
+    }
 
+}
