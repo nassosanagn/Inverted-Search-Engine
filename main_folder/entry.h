@@ -9,10 +9,15 @@ class word {
     public:
         word(char* tmp);
         ~word();
+        word(const word &ww){
+            this->String = strdup(ww.String);
+        }
+        void setword(const char *ww){
+            String = strdup(ww);
+        }
         char* getword() const{ 
             return String; 
         }
-
 };
 
 class entry {
@@ -25,7 +30,11 @@ class entry {
         ~entry();
         ErrorCode create_entry(const word* w, entry** e);
         ErrorCode destroy_entry(entry **e);
-
+        entry(const entry &ee){
+            myString->setword(ee.getword());
+            payload = ee.getpayload();
+            next = ee.getnext();
+        }
         char* getword() const{
             return myString->getword();
         }
@@ -37,6 +46,9 @@ class entry {
         }
         void setnext(entry *tmp){
             next = tmp;
+        }
+        void setword(char *tmp){
+            myString->setword(tmp);
         }
 };
 
@@ -57,6 +69,10 @@ class entry_list{
         
         ErrorCode destroy_entry_list(entry_list** el);
         
+        ErrorCode print_list(entry_list *el);
+
+        ErrorCode list_similarity(entry_list *el1,entry_list *el2);
+
         entry* getfirst() const{
             return first;
         }

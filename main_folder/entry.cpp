@@ -4,7 +4,7 @@ using namespace std;
 
 word::word(char* tmp){
     String = new char[strlen(tmp)]();
-    strcpy(String,tmp);
+    String = strdup(tmp);
 }
 word::~word(){
     delete String;
@@ -30,6 +30,7 @@ ErrorCode entry::create_entry(const word* w, entry** e){
 
 ErrorCode entry::destroy_entry(entry **e){
     delete (*e);
+    *e = NULL;
     return EC_SUCCESS;
 }
 
@@ -40,7 +41,18 @@ ErrorCode entry_list::create_entry_list(entry_list** el){
     }
     return EC_SUCCESS;
 }
-
+ErrorCode entry_list::print_list(entry_list *el){
+    if(el == NULL){
+        return EC_FAIL;
+    }
+    entry* entry_tmp = el->getfirst();
+    while(entry_tmp != NULL){
+        cout<<entry_tmp->getword()<<" ";
+        entry_tmp = entry_tmp->getnext();
+    }
+    cout<<endl;
+    return EC_SUCCESS;
+}
 unsigned int entry_list::get_number_entries(const entry_list* el){
     unsigned int counter = 0;
     if(el == NULL){
@@ -83,11 +95,25 @@ entry* entry_list::get_first(const entry_list* el){
 entry* entry_list::get_next(const entry_list* el,const entry * e){
     entry* curr = el->getfirst();
     while(curr != NULL){
-        if(curr->getword() == e->getword()){
+        if(!strcmp(curr->getword(),e->getword())){
             return curr->getnext();
         }
+        curr = curr->getnext();
     } 
     return NULL;
+}
+
+ErrorCode entry_list::list_similarity(entry_list* el1,entry_list* el2){
+    entry* curr1 = el1->getfirst();
+    entry* curr2 = el2->getfirst();
+    while(curr1!=NULL && curr2!=NULL){
+        if(strcmp(curr1->getword(),curr2->getword())){
+            return EC_FAIL;
+        }
+        curr1 = curr1->getnext();
+        curr2 = curr2->getnext();
+    }
+    return EC_SUCCESS;
 }
 
 ErrorCode entry_list::destroy_entry_list(entry_list** el){
