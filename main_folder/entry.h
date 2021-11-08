@@ -9,10 +9,9 @@ class word {
     public:
         word(char* tmp);
         ~word();
-        word(const word &ww){
-            this->String = strdup(ww.String);
-        }
+        word(const word &ww);
         void setword(const char *ww){
+            free(String);
             String = strdup(ww);
         }
         char* getword() const{ 
@@ -30,11 +29,7 @@ class entry {
         ~entry();
         ErrorCode create_entry(const word* w, entry** e);
         ErrorCode destroy_entry(entry **e);
-        entry(const entry &ee){
-            myString->setword(ee.getword());
-            payload = ee.getpayload();
-            next = ee.getnext();
-        }
+        entry(const entry &ee);
         char* getword() const{
             return myString->getword();
         }

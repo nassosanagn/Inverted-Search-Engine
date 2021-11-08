@@ -193,6 +193,5 @@ TEST_LIST = {
     { "test_get_first", test_get_first },
     { "test_get_next", test_get_next },
     { "test_destroy_entry_list", test_destroy_entry_list },
-
     { NULL, NULL }
 };

@@ -3,11 +3,20 @@ using namespace std;
 
 
 word::word(char* tmp){
-    String = new char[strlen(tmp)]();
     String = strdup(tmp);
 }
 word::~word(){
     delete String;
+}
+word::word(const word &ww){
+    free(this->String);
+    this->String = strdup(ww.String);
+}
+
+entry::entry(const entry &ee){
+    myString->setword(ee.getword());
+    payload = ee.getpayload();
+    next = ee.getnext();
 }
 
 entry::entry(char * tmp,void *pload){
