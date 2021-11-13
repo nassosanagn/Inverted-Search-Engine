@@ -181,7 +181,6 @@ bool BKTree::lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_
             temp_tnode=temp_tnode->getnextNode();
         }
     }
-    
     return true;
 }
 
@@ -245,7 +244,7 @@ int main(){
     char testStr[]="henn";
 
     word myword(testStr);
-    int threshold = 4;
+    int threshold = 2;
     entry_list* result= new entry_list();
 
     BKTree1->lookup_entry_index(&myword,BKTree1,threshold,result);

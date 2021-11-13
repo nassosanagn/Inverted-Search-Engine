@@ -82,7 +82,7 @@ class BKList_node{
         treeNode* getnode() const { return mynode;}
         BKList_node* getnext() const { return nextnode;}
         void add_node(treeNode*);
-        void destoy_list(){if (nextnode) nextnode->destoy_list(); delete this;}
+        void destroy_list(){if (nextnode) nextnode->destroy_list(); delete this;}
 };
 
 class BKList{
@@ -102,6 +102,8 @@ class BKList{
             first->add_node(input);
         }
     }
+
+    void destroy_list(){if (first) first->destroy_list();}
     
 };
 
