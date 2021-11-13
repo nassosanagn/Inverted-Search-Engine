@@ -23,8 +23,11 @@
 #### BKTree.cpp/h
 
 Tα αρχεία BKTree.cpp/h υλοποιούν τη δομή ενός BKTree, μαζί με τις λειτουργίες που χρειάζονται. 
+
 Το **BKTree** υλοποιείται μέσω των κλάσεων treeNode και BKTree. 
+
 Ένα treenode αποτελείται από ένα string myString, ένα int diff, ένα treeNode* nextNode και ένα treeNode* childNode. Το string έχει τη λέξη του treeNode, το int diff αναπαριστά τη διαφορά του treeNode από το treeNode γονέα, το treeNode* childNode είναι το παιδί ενώ το treeNode* nextNode υλοποιεί τη λίστα που χρειάζεται για το δενδρό αναζήτησης χωρίς συγκεκριμένο αριθμό παιδιών. 
+
 Το BKTree είναι η δομή διαχείρισης του δένδρου. Περιέχει μόνο τον δείκτη treeNode* root στη ρίζα του δένδρου καθώς και τις συναρτήσεις για τον υπολογισμό της διαφοράς δύο λέξεων (charDiff), την εισαγωγή καινούριων κόμβων(insertTree) και την αναζήτηση(lookup_entry_index) λέξεων.
 
 
