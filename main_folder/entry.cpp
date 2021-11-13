@@ -3,14 +3,20 @@ using namespace std;
 
 
 word::word(char* tmp){
-    String = strdup(tmp);
+    String = new char[strlen(tmp)+1];
+    strcpy(String,tmp);
+    // String = strdup(tmp);
 }
+
 word::~word(){
-    delete String;
+    delete[] String;
 }
+
 word::word(const word &ww){
-    free(this->String);
-    this->String = strdup(ww.String);
+    delete[] this->String;
+    String = new char[strlen(ww.String)+1];
+    strcpy(String,ww.String);
+    // this->String = strdup(ww.String);
 }
 
 entry::entry(const entry &ee){
@@ -133,7 +139,9 @@ ErrorCode entry_list::destroy_entry_list(entry_list** el){
     entry* next = NULL;
     while(curr != NULL){
         next = curr->getnext();
+
         delete curr;
+
         curr = next;
     }
     delete (*el);

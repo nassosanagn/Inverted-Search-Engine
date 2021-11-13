@@ -11,8 +11,12 @@ class word {
         ~word();
         word(const word &ww);
         void setword(const char *ww){
-            free(String);
-            String = strdup(ww);
+            if(String!=NULL){
+                delete[] String;
+            }
+            String = new char[strlen(ww)+1];
+            strcpy(String,ww);
+            // String = strdup(ww);
         }
         char* getword() const{ 
             return String; 
