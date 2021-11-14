@@ -51,6 +51,7 @@ ErrorCode entry::destroy_entry(entry **e){
 
 ErrorCode entry_list::create_entry_list(entry_list** el){
     (*el) = new entry_list;
+    (*el)->setfirst(NULL);
     if((*el)==NULL){
         return EC_FAIL;
     }
@@ -88,7 +89,6 @@ ErrorCode entry_list::add_entry(entry_list* el, const entry* e){
     }
     entry* entry_n = new entry(e->getword(),e->getpayload());
     entry* entry_tmp = el->getfirst();
-
     if(el->getfirst() == NULL){
         el->setfirst(entry_n);
         el->setcurrent(entry_n);

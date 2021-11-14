@@ -184,6 +184,8 @@ void test_destroy_entry_list(void){
     TEST_CHECK_(el_test == NULL,"Wrong first entry");
 }
 
+
+
 TEST_LIST = {
     { "test_create_entry", test_create_entry },
     { "test_destroy_entry", test_destroy_entry },

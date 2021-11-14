@@ -192,72 +192,98 @@ bool BKTree::lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_
 
 
 int main(){
+    char* tmpStr = new char[15];
+    strcpy(tmpStr,"help");
+    word* W = new word(tmpStr);
+    entry* E = new entry(tmpStr);
+    strcpy(tmpStr,"hell");
+    entry* E1 = new entry(tmpStr);
+    strcpy(tmpStr,"fall");
+    entry* E2 = new entry(tmpStr);
+    strcpy(tmpStr,"fell");
+    entry* E3 = new entry(tmpStr);
+    entry_list* El;
+    El->create_entry_list(&El);
+    El->add_entry(El,E);
+    El->add_entry(El,E1);
+    El->add_entry(El,E2);
+    El->add_entry(El,E3);
 
-    // char* tmpStr = new char[15];
-    // strcpy(tmpStr,"hell");
-    char tmpStr[]="hell";
-
-    // char* tmpStr2 = new char[15];
-    // strcpy(tmpStr2,"help");
-    char tmpStr2[]="help";
+    El->destroy_entry_list(&El);
     
-    // char* tmpStr3 = new char[15];
-    // strcpy(tmpStr3,"fell");
-    char tmpStr3[]="fell";
+    delete E;
+    delete W;
+    delete E1;
+    delete E2;
+    delete E3;
+    delete[] tmpStr;
+    delete El;
 
-    // char* tmpStr4 = new char[15];
-    // strcpy(tmpStr4,"fall");
-    char tmpStr4[]="fall";
+    // // char* tmpStr = new char[15];
+    // // strcpy(tmpStr,"hell");
+    // char tmpStr[]="hell";
 
-    // char* tmpStr5 = new char[15];
-    // strcpy(tmpStr5,"small");
-    char tmpStr5[]="small";
-
-    // char* tmpStr6 = new char[15];
-    // strcpy(tmpStr6,"felt");
-    char tmpStr6[]="felt";
-
-    // char* tmpStr7 = new char[15];
-    // strcpy(tmpStr7, "melt");
-    char tmpStr7[]="melt";
-
-    BKTree* BKTree1 = new BKTree(tmpStr);
+    // // char* tmpStr2 = new char[15];
+    // // strcpy(tmpStr2,"help");
+    // char tmpStr2[]="help";
     
-    BKTree1->insertTree(tmpStr2,BKTree1->getRoot()->getString(),BKTree1->getRoot());
-    BKTree1->insertTree(tmpStr3,BKTree1->getRoot()->getString(),BKTree1->getRoot());
-    BKTree1->insertTree(tmpStr4,BKTree1->getRoot()->getString(),BKTree1->getRoot());
-    BKTree1->insertTree(tmpStr5,BKTree1->getRoot()->getString(),BKTree1->getRoot());
-    cout << "-----------------------------" << endl;
-    BKTree1->insertTree(tmpStr6,BKTree1->getRoot()->getString(),BKTree1->getRoot());
-    cout << "------------------------>-----" << endl;
-    BKTree1->insertTree(tmpStr7,BKTree1->getRoot()->getString(),BKTree1->getRoot());
-    cout << "----------------------------" << endl;
+    // // char* tmpStr3 = new char[15];
+    // // strcpy(tmpStr3,"fell");
+    // char tmpStr3[]="fell";
+
+    // // char* tmpStr4 = new char[15];
+    // // strcpy(tmpStr4,"fall");
+    // char tmpStr4[]="fall";
+
+    // // char* tmpStr5 = new char[15];
+    // // strcpy(tmpStr5,"small");
+    // char tmpStr5[]="small";
+
+    // // char* tmpStr6 = new char[15];
+    // // strcpy(tmpStr6,"felt");
+    // char tmpStr6[]="felt";
+
+    // // char* tmpStr7 = new char[15];
+    // // strcpy(tmpStr7, "melt");
+    // char tmpStr7[]="melt";
+
+    // BKTree* BKTree1 = new BKTree(tmpStr);
+    
+    // BKTree1->insertTree(tmpStr2,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    // BKTree1->insertTree(tmpStr3,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    // BKTree1->insertTree(tmpStr4,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    // BKTree1->insertTree(tmpStr5,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    // cout << "-----------------------------" << endl;
+    // BKTree1->insertTree(tmpStr6,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    // cout << "------------------------>-----" << endl;
+    // BKTree1->insertTree(tmpStr7,BKTree1->getRoot()->getString(),BKTree1->getRoot());
+    // cout << "----------------------------" << endl;
 
 
-    cout << "To string einai " << BKTree1->getRoot()->getString() << endl;
+    // cout << "To string einai " << BKTree1->getRoot()->getString() << endl;
 
-    //Testing print
-    for (size_t i = 0; i < 10; i++)
-    {
-        cout<<endl;
-    }
-    BKTree1->printTree();
+    // //Testing print
+    // for (size_t i = 0; i < 10; i++)
+    // {
+    //     cout<<endl;
+    // }
+    // BKTree1->printTree();
 
-    //Testing lookup
+    // //Testing lookup
 
     
-    char testStr[]="henn";
+    // char testStr[]="henn";
 
-    word myword(testStr);
-    int threshold = 2;
-    entry_list* result= new entry_list();
+    // word myword(testStr);
+    // int threshold = 2;
+    // entry_list* result= new entry_list();
 
-    BKTree1->lookup_entry_index(&myword,BKTree1,threshold,result);
+    // BKTree1->lookup_entry_index(&myword,BKTree1,threshold,result);
 
-    cout<<"print start \n";
-    result->print_list(result);
-    result->destroy_entry_list(&result);
-    delete result;
-    delete BKTree1;
-    return 0;
+    // cout<<"print start \n";
+    // result->print_list(result);
+    // result->destroy_entry_list(&result);
+    // delete result;
+    // delete BKTree1;
+    // return 0;
 }
