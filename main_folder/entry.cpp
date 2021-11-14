@@ -5,7 +5,6 @@ using namespace std;
 word::word(char* tmp){
     String = new char[strlen(tmp)+1];
     strcpy(String,tmp);
-    // String = strdup(tmp);
 }
 
 word::~word(){
@@ -16,7 +15,6 @@ word::word(const word &ww){
     delete[] this->String;
     String = new char[strlen(ww.String)+1];
     strcpy(String,ww.String);
-    // this->String = strdup(ww.String);
 }
 
 entry::entry(const entry &ee){

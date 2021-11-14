@@ -181,6 +181,7 @@ void test_destroy_entry_list(void){
     el_test->add_entry(el_test,e_test);
 
     el_test->destroy_entry_list(&el_test);
+    TEST_CHECK_(el_test->get_number_entries(el_test) == 0,"Not empty entry list");
     TEST_CHECK_(el_test == NULL,"Wrong first entry");
 }
 

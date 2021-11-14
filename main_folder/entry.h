@@ -16,7 +16,6 @@ class word {
             }
             String = new char[strlen(ww)+1];
             strcpy(String,ww);
-            // String = strdup(ww);
         }
         char* getword() const{ 
             return String; 
