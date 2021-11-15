@@ -19,15 +19,15 @@ Index::~Index(){
 }
 
 //Diagrafei anadromika oloys toys komvoys toy dentroy
-ErrorCode Index::destroyTree(treeNode* tempNode){
-    if (tempNode != NULL){
+ErrorCode Index::destroyTree(treeNode* ix){
+    if (ix != NULL){
         //Gia kathe komvo sto idio epipedo
-        destroyTree(tempNode->getnextNode());
+        destroyTree(ix->getnextNode());
         //Gia kathe paidi toy
-        destroyTree(tempNode->getChildNode());
+        destroyTree(ix->getChildNode());
         //Diagrafei ton komvo
-        delete tempNode->getword();
-        delete tempNode;
+        delete ix->getword();
+        delete ix;
     }
     return EC_SUCCESS;
 }
