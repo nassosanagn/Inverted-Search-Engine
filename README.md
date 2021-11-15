@@ -8,6 +8,10 @@
 
 Σκοπός του project είναι η υλοποίηση μιας λειτουργικής Ανεστραμμένης Μηχανής Αναζήτησης. 
 
+## Οδηγίες Εκτέλεσης
+
+Για την εκτέκεση του πρ
+
 ## Μέρος Πρώτο
 
 Στο πρώτο μέρος του project υλοποιήθηκαν οι βασικές δομές.
@@ -34,9 +38,15 @@ Tα αρχεία BKTree.cpp/h υλοποιούν τη δομή ενός BKTree, 
 
 Η λειτουργία Lookup υλοποιείται μέσω της συνάρτησης lookup_entry_index(). Εάν δεν υπάρχει ρίζα η συνάρτηση επιστρέφει κωδικό αποτυχίας, αλλιώς εισάγει τη ρίζα στη στοίβα και αρχίζει να εκτελεί τον αλγόριθμο Lookup. Στο τέλος της εκτέλεσης οι λέξεις που έγιναν δεκτές βρίσκονται στην entry_list* result που μας δίνεται από την main μέσω των ορισμάτων της συνάρτησης.
 
+### Testing
+
+#### acutest.h/test.cpp
+
+Το πρόγραμμα χρησιμοποιεί το testing framework *acutest* για το testing, το οποίο σε συνδυασμό με το αρχείο test.cpp κάνει τον έλεγχο για όλες τις δομές του project.
+
 ## Contributors
 
-**Entry List:** [Apostolos Karvelas](https://github.com/TollisK)
+**Entry List and Testing:** [Apostolos Karvelas](https://github.com/TollisK)
 
 **BKTree:** [Nassos Anagnostopoulos](https://github.com/nassosanagn)
 
