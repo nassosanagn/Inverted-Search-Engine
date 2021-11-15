@@ -1,4 +1,3 @@
-
 using namespace std;
 
 #ifndef BKTREE_H
@@ -10,20 +9,26 @@ using namespace std;
 
 #include "entry.h"
 
-
+//Domh poy leitoyrgei ws komvos sto dentro-eyrethrio
 class treeNode{
 
     private:
-        char* myString;
+
+        //Le3h apo entry_list
+        word* myString;
+        //
         int diff;
+        //Deikths se epomeno struct gia thn dhmioyrgeia listas gia to idio epipedo
         treeNode* nextNode;
+        //Deikths sto prwto paidi
         treeNode* childNode;
     
     public:
+        //Contructor
         treeNode(char* str, int tmpDiff){
-
-            myString = new char[strlen(str) + 1];
-            strcpy(myString, str);
+            myString = new word(str);
+            // myString = new char[strlen(str) + 1];
+            // strcpy(myString, str);
 
             diff = tmpDiff;
 
@@ -31,13 +36,13 @@ class treeNode{
             childNode = NULL;
         }
 
-        /* Getters */
-        char* getString() const { return myString; }
+        //Getters - Setters
+        char* getString() const { return myString->getword(); }
         int getDiff() const { return diff; }
         treeNode* getnextNode() const { return nextNode; }
         treeNode* getChildNode() const { return childNode; }
 
-        /* Setters */
+
         void setChildNode(treeNode* tempNode) { this->childNode = tempNode; }
         void setNextNode(treeNode* tempNode) { this->nextNode = tempNode; }
 
@@ -56,17 +61,20 @@ class BKTree{
         BKTree(char* myStr);        /* Constructor */
         ~BKTree();                  /* Destructor */
 
-        bool destroyTree(treeNode* tempNode);               /* Destroy the tree by visiting and destroying each node */
-        bool insertTree(char* str, char* cmpWord, treeNode* tempNode);
+        ErrorCode destroyTree(treeNode* tempNode);               /* Destroy the tree by visiting and destroying each node */
+        ErrorCode insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype);
 
-        int charDiff(const char* word1, const char* word2);
+        int HammingDistance(const char* word1, const char* word2);
+        int EditDistance(char* a, int na, char* b, int nb);
 
+        //Getter
         treeNode* getRoot() const { return root; }
 
         /* Testing Functions*/
         void printTree();
 
-        bool lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_list* result);
+        //O deikths result deixnei se le3eis poy moiazoyn me thn le3h sto prwto orisma
+        ErrorCode lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_list* result);
 };
 
 
