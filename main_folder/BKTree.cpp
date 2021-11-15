@@ -211,9 +211,9 @@ treeNode* BKList::popfirst(){
 //Syanrthsh gia thn eyresh omoiwn le3ewn
 ErrorCode BKTree::lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_list* result){
     //Lista ypopshfiwn le3ewn
-    BKList* cand_list = new BKList(new BKList_node(root));
+    BKList* cand_list = new BKList(new BKList_node(ix->getRoot()));
     //An den yparxei dentro
-    if (root==NULL)
+    if (ix->getRoot()==NULL)
     {
         return EC_FAIL;
     }
@@ -226,20 +226,23 @@ ErrorCode BKTree::lookup_entry_index(const word* w, BKTree* ix, int threshold, e
     while (cand_list->getfirst()!=NULL){
         //Dexetai ton prwto komvo-le3h apo thn lista
         treeNode* current_candidate = cand_list->popfirst();
-        int distance = HammingDistance(w->getword(),current_candidate->getString());
-
-        if (distance <= threshold)
+        //Ypologizei thn apostash
+        int word_dis = HammingDistance(w->getword(),current_candidate->getString());
+        //An einai omoio me thn le3h
+        if (word_dis <= threshold)
         {
             input_entry->setword(current_candidate->getString());
             
             result->add_entry(result,input_entry);
         }
-        int low_bound = distance - threshold;
-        int up_bound = distance + threshold;
+        //Ypologizei ta oria twn apostasewn gia na elegthoyn
+        int left = word_dis - threshold;
+        int right = word_dis + threshold;
+        //Gia kathe paidi poy vrisketai endiamesa twn oriwn ta prosthetei san candidate
         treeNode* temp_tnode=current_candidate->getChildNode();
         while (temp_tnode!= NULL)
         {
-            if (low_bound<=temp_tnode->getDiff() && temp_tnode->getDiff()<=up_bound)
+            if (left<=temp_tnode->getDiff() && temp_tnode->getDiff()<=right)
             {
                 cand_list->add_node(temp_tnode);
             }
