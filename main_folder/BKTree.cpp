@@ -8,8 +8,8 @@ using namespace std;
 #include "BKTree.h"
 
 //constructor gia to Index
-Index::Index(char* myStr){ 
-    root = new treeNode(myStr,0);
+Index::Index(){ 
+    root = NULL;
 }
 
 //destructor
@@ -98,8 +98,26 @@ int Index::EditDistance(char* a, int na, char* b, int nb)
 	return ret;
 }
 
+ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* ix){
+
+    entry* currentEntry = el->getfirst();
+
+    if (currentEntry != NULL){
+        ix->root = new treeNode(currentEntry->getword(),0);
+        currentEntry = currentEntry->getnext();
+    }
+
+
+    while (currentEntry != NULL){
+        ix->insertTree(currentEntry->getword(), ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST);
+        currentEntry = currentEntry->getnext();
+    }
+
+    return EC_SUCCESS;
+}
+
 //Eisagwgh komvoy sto dentro
-ErrorCode Index::build_entry_index(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype){
+ErrorCode Index::insertTree(char* str, char* cmpWord, treeNode* tempNode, MatchType matchtype){
     setmatchtype(matchtype);
     int tempDiff;
     //Analoga to matchtype kalei kai thn katallhlh synarthsh metrhshs
@@ -132,7 +150,7 @@ ErrorCode Index::build_entry_index(char* str, char* cmpWord, treeNode* tempNode,
             cout << "Inserted " << str << " down after: " << tempNode->getString() << endl;
         }else{
             cout << "Paei katw sth leksh: " << tempNode->getString() << endl;
-            build_entry_index(str, tempNode->getString(), tempNode->getChildNode(),matchtype);
+            insertTree(str, tempNode->getString(), tempNode->getChildNode(),matchtype);
         }
 
     }else{                              /* Go right on that node */
@@ -142,7 +160,7 @@ ErrorCode Index::build_entry_index(char* str, char* cmpWord, treeNode* tempNode,
             cout << "Inserted " << str << " right after: " << tempNode->getString() << endl;
         }else{
             cout << "Paei deksia sth leksh: " << tempNode->getString() << endl;
-            build_entry_index(str, cmpWord, tempNode->getnextNode(),matchtype);
+            insertTree(str, cmpWord, tempNode->getnextNode(),matchtype);
         }
     }
 
@@ -267,21 +285,22 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
 
 
 int main(){
-
-    // // word* W = new word(tmpStr);
-    // // entry* E = new entry(tmpStr);
-    // // strcpy(tmpStr,"hell");
-    // // entry* E1 = new entry(tmpStr);
-    // // strcpy(tmpStr,"fall");
-    // // entry* E2 = new entry(tmpStr);
-    // // strcpy(tmpStr,"fell");
-    // // entry* E3 = new entry(tmpStr);
-    // // entry_list* El;
-    // // El->create_entry_list(&El);
-    // // El->add_entry(El,E);
-    // // El->add_entry(El,E1);
-    // // El->add_entry(El,E2);
-    // // El->add_entry(El,E3);
+    char tmpStr[20];
+    strcpy(tmpStr,"help");
+    word* W = new word(tmpStr);
+    entry* E = new entry(tmpStr);
+    strcpy(tmpStr,"fell");
+    entry* E1 = new entry(tmpStr);
+    strcpy(tmpStr,"fall");
+    entry* E2 = new entry(tmpStr);
+    strcpy(tmpStr,"small");
+    entry* E3 = new entry(tmpStr);
+    entry_list* El;
+    El->create_entry_list(&El);
+    El->add_entry(El,E);
+    El->add_entry(El,E1);
+    El->add_entry(El,E2);
+    El->add_entry(El,E3);
 
     // // El->destroy_entry_list(&El);
     
@@ -295,7 +314,7 @@ int main(){
 
     // char* tmpStr = new char[15];
     // strcpy(tmpStr,"hell");
-    char tmpStr[]="hell";
+    char tmpStr1[]="hell";
 
     // char* tmpStr2 = new char[15];
     // strcpy(tmpStr2,"help");
@@ -321,20 +340,22 @@ int main(){
     // strcpy(tmpStr7, "melt");
     char tmpStr7[]="melt";
 
-    Index* Index1 = new Index(tmpStr);
-    Index *in2;
-    Index1->build_entry_index(tmpStr2,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    Index1->build_entry_index(tmpStr3,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    Index1->build_entry_index(tmpStr4,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    Index1->build_entry_index(tmpStr5,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    cout << "-----------------------------" << endl;
-    Index1->build_entry_index(tmpStr6,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    cout << "------------------------>-----" << endl;
-    Index1->build_entry_index(tmpStr7,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    cout << "----------------------------" << endl;
+    Index* Index1 = new Index();
+    // Index *in2;
+    // Index1->insertTree(tmpStr2,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    // Index1->insertTree(tmpStr3,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    // Index1->insertTree(tmpStr4,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    // Index1->insertTree(tmpStr5,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    // cout << "-----------------------------" << endl;
+    // Index1->insertTree(tmpStr6,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    // cout << "------------------------>-----" << endl;
+    // Index1->insertTree(tmpStr7,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    // cout << "----------------------------" << endl;
 
-
+    // Index1->build_entry_index(El,MT_HAMMING_DIST,Index1);
     cout << "To string einai " << Index1->getRoot()->getString() << endl;
+
+    El->print_list(El);
 
     //Testing print
     for (size_t i = 0; i < 10; i++)

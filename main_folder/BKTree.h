@@ -43,7 +43,6 @@ class treeNode{
         treeNode* getnextNode() const { return nextNode; }
         treeNode* getChildNode() const { return childNode; }
 
-
         void setChildNode(treeNode* tempNode) { this->childNode = tempNode; }
         void setNextNode(treeNode* tempNode) { this->nextNode = tempNode; }
 
@@ -60,11 +59,12 @@ class Index{
 
     public:
         
-        Index(char* myStr);        /* Constructor */
+        Index();        /* Constructor */
         ~Index();                  /* Destructor */
 
         ErrorCode destroy_entry_index(treeNode* tempNode);               /* Destroy the tree by visiting and destroying each node */
-        ErrorCode build_entry_index(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype);
+        ErrorCode insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype);
+        ErrorCode build_entry_index(const entry_list* el, MatchType type, Index* ix);
 
         int HammingDistance(const char* word1, const char* word2);
         int EditDistance(char* a, int na, char* b, int nb);
@@ -88,8 +88,8 @@ class BKList_node{
         treeNode* mynode;
         BKList_node* nextnode;
     public:
-        BKList_node(treeNode* input){nextnode = NULL; mynode=input;}
 
+        BKList_node(treeNode* input){nextnode = NULL; mynode=input;}
 
         treeNode* getnode() const { return mynode;}
         BKList_node* getnext() const { return nextnode;}
