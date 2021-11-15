@@ -61,7 +61,7 @@ Tα αρχεία BKTree.cpp/h υλοποιούν τη δομή ενός BKTree, 
 
 #### acutest.h/test.cpp
 
-Το πρόγραμμα χρησιμοποιεί το testing framework *acutest* για το testing, το οποίο σε συνδυασμό με το αρχείο test.cpp κάνει τον έλεγχο για όλες τις δομές του project.
+Το πρόγραμμα χρησιμοποιεί το testing framework *acutest* για το testing, το οποίο σε συνδυασμό με το αρχείο test.cpp κάνει τον έλεγχο για όλες τις δομές και σημαντικές συναρτήσεις του project. Στη main και στα tests για τις build_entry_index, lookup_entry_index και destroy_entry_index χρησιμοποιείται το παράδειγμα της εκφώνησης. Για το testing των υπόλοιπων συναρτήσεων και δομών δημιουργείται entry_list με κόμβους ["first","second","third"].
 
 ## Contributors
 
