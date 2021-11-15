@@ -11,6 +11,7 @@ void test_create_entry(void){
     err = e_test->create_entry(word_test,&e_test);
 
     TEST_CHECK_(!strcmp(e_test->getword(),word_test->getword()),"Wrong word input");
+    delete word_test;
 } 
 
 void test_destroy_entry(void){
@@ -22,6 +23,7 @@ void test_destroy_entry(void){
     err = e_test->destroy_entry(&e_test);
 
     TEST_CHECK_(e_test==NULL,"Wrong word input");
+    delete word_test;
 }
 
 void test_create_entry_list(void){
@@ -41,20 +43,28 @@ void test_get_number_entries(void){
     entry * e_test;
 
     char* tmp;
-    tmp = strdup("first");
+    tmp = new char[strlen("first") ];
+    strcpy(tmp,"first");
 
     e_test = new entry(tmp);
     el_test->add_entry(el_test,e_test);
 
-    tmp = strdup("second");
+    delete[] tmp;
+    tmp = new char[strlen("second") ];
+    strcpy(tmp,"second"); 
+
     e_test->setword(tmp);
     el_test->add_entry(el_test,e_test);
 
-    tmp = strdup("third");
+    delete[] tmp;
+    tmp = new char[strlen("third") ];
+    strcpy(tmp,"third");
+
     e_test->setword(tmp);
     el_test->add_entry(el_test,e_test);
 
     TEST_CHECK_(el_test->get_number_entries(el_test)==3,"Wrong number of entries");
+    delete[] tmp;
 }
 
 void test_add_entry(void){
@@ -66,16 +76,23 @@ void test_add_entry(void){
     entry * e_test;
 
     char* tmp;
-    tmp = strdup("first");
+    tmp = new char[strlen("first") ];
+    strcpy(tmp,"first");
 
     e_test = new entry(tmp);
     el_test->add_entry(el_test,e_test);
 
-    tmp = strdup("second");
+    delete[] tmp;
+    tmp = new char[strlen("second") ];
+    strcpy(tmp,"second");
+
     e_test->setword(tmp);
     el_test->add_entry(el_test,e_test);
 
-    tmp = strdup("third");
+    delete[] tmp;
+    tmp = new char[strlen("third") ];
+    strcpy(tmp,"third"); 
+
     e_test->setword(tmp);
     el_test->add_entry(el_test,e_test);
 
@@ -102,6 +119,7 @@ void test_add_entry(void){
         i++;
         e_test = e_test->getnext();
     }
+    delete[] tmp;
 }
 
 void test_get_first(void){
@@ -113,20 +131,28 @@ void test_get_first(void){
     entry * e_test;
 
     char* tmp;
-    tmp = strdup("first");
+    tmp = new char[strlen("first") ];
+    strcpy(tmp,"first"); 
 
     e_test = new entry(tmp);
     el_test->add_entry(el_test,e_test);
 
-    tmp = strdup("second");
+    delete[] tmp;
+    tmp = new char[strlen("second") ];
+    strcpy(tmp,"second"); 
+
     e_test->setword(tmp);
     el_test->add_entry(el_test,e_test);
 
-    tmp = strdup("third");
+    delete[] tmp;
+    tmp = new char[strlen("third") ];
+    strcpy(tmp,"third");
+    
     e_test->setword(tmp);
     el_test->add_entry(el_test,e_test);
 
     TEST_CHECK_(!strcmp(el_test->get_first(el_test)->getword(),"first"),"Wrong first entry");
+    delete[] tmp;
 }
 
 void test_get_next(void){
@@ -140,22 +166,30 @@ void test_get_next(void){
     entry * e_test2;
 
     char* tmp;
-    tmp = strdup("first");
+    tmp = new char[strlen("first") ];
+    strcpy(tmp,"first"); 
 
     e_test = new entry(tmp);
     e_test2 = new entry(tmp);
     
     el_test->add_entry(el_test,e_test);
 
-    tmp = strdup("second");
+    delete[] tmp;
+    tmp = new char[strlen("second") ];
+    strcpy(tmp,"second");
+
     e_test2->setword(tmp);
     el_test->add_entry(el_test,e_test2);
 
-    tmp = strdup("third");
+    delete[] tmp;
+    tmp = new char[strlen("third") ];
+    strcpy(tmp,"third");
+
     e_test->setword(tmp);
     el_test->add_entry(el_test,e_test);
 
     TEST_CHECK_(!strcmp(el_test->get_next(el_test,e_test2)->getword(),"third"),"Wrong first entry");
+    delete[] tmp;
 }
 
 void test_destroy_entry_list(void){
@@ -167,22 +201,30 @@ void test_destroy_entry_list(void){
     entry * e_test;
 
     char* tmp;
-    tmp = strdup("first");
+    tmp = new char[strlen("first") ];
+    strcpy(tmp,"first");
 
     e_test = new entry(tmp);
     el_test->add_entry(el_test,e_test);
 
-    tmp = strdup("second");
+    delete[] tmp;
+    tmp = new char[strlen("second") ];
+    strcpy(tmp,"second");
+
     e_test->setword(tmp);
     el_test->add_entry(el_test,e_test);
 
-    tmp = strdup("third");
+    delete[] tmp;
+    tmp = new char[strlen("third") ];
+    strcpy(tmp,"third");
+
     e_test->setword(tmp);
     el_test->add_entry(el_test,e_test);
 
     el_test->destroy_entry_list(&el_test);
     TEST_CHECK_(el_test->get_number_entries(el_test) == 0,"Not empty entry list");
     TEST_CHECK_(el_test == NULL,"Wrong first entry");
+    delete[] tmp;
 }
 
 

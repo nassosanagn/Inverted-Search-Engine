@@ -52,7 +52,7 @@ class treeNode{
         void print_all();
 };
 
-class BKTree{
+class Index{
 
     private:
         MatchType matchtype;
@@ -60,8 +60,8 @@ class BKTree{
 
     public:
         
-        BKTree(char* myStr);        /* Constructor */
-        ~BKTree();                  /* Destructor */
+        Index(char* myStr);        /* Constructor */
+        ~Index();                  /* Destructor */
 
         ErrorCode destroyTree(treeNode* tempNode);               /* Destroy the tree by visiting and destroying each node */
         ErrorCode insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype);
@@ -78,7 +78,7 @@ class BKTree{
         void printTree();
 
         //O deikths result deixnei se le3eis poy moiazoyn me thn le3h sto prwto orisma
-        ErrorCode lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_list* result);
+        ErrorCode lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result);
 };
 
 

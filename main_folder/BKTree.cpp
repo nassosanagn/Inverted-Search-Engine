@@ -7,19 +7,19 @@ using namespace std;
 
 #include "BKTree.h"
 
-//constructor gia to BKTree
-BKTree::BKTree(char* myStr){ 
+//constructor gia to Index
+Index::Index(char* myStr){ 
     root = new treeNode(myStr,0);
 }
 
 //destructor
-BKTree::~BKTree(){
+Index::~Index(){
     //kalei synarthsh diagrafhs kathe komvoy toy dentroy
     destroyTree(root); 
 }
 
 //Diagrafei anadromika oloys toys komvoys toy dentroy
-ErrorCode BKTree::destroyTree(treeNode* tempNode){
+ErrorCode Index::destroyTree(treeNode* tempNode){
     if (tempNode != NULL){
         //Gia kathe komvo sto idio epipedo
         destroyTree(tempNode->getnextNode());
@@ -33,7 +33,7 @@ ErrorCode BKTree::destroyTree(treeNode* tempNode){
 }
 
 //Synarthsh gia eyresh hamming distance 
-int BKTree::HammingDistance(const char* word1, const char* word2){
+int Index::HammingDistance(const char* word1, const char* word2){
         int j = 0;
         for(int i=0;i<(strlen(word1) > strlen(word2) ? strlen(word1) : strlen(word2));i++){
             if(word1[i]!=word2[i]){
@@ -44,7 +44,7 @@ int BKTree::HammingDistance(const char* word1, const char* word2){
 }
 
 //EditDistance apo core.cpp
-int BKTree::EditDistance(char* a, int na, char* b, int nb)
+int Index::EditDistance(char* a, int na, char* b, int nb)
 {
 	int oo=0x7FFFFFFF;
 
@@ -99,7 +99,7 @@ int BKTree::EditDistance(char* a, int na, char* b, int nb)
 }
 
 //Eisagwgh komvoy sto dentro
-ErrorCode BKTree::insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype){
+ErrorCode Index::insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype){
     setmatchtype(matchtype);
     int tempDiff;
     //Analoga to matchtype kalei kai thn katallhlh synarthsh metrhshs
@@ -180,7 +180,7 @@ void treeNode::print_children(){
     
 }
 
-void BKTree::printTree(){
+void Index::printTree(){
     this->getRoot()->print_all();
 }
 
@@ -210,7 +210,7 @@ treeNode* BKList::popfirst(){
 
 
 //Syanrthsh gia thn eyresh omoiwn le3ewn
-ErrorCode BKTree::lookup_entry_index(const word* w, BKTree* ix, int threshold, entry_list* result){
+ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result){
     //Lista ypopshfiwn le3ewn
     BKList* cand_list = new BKList(new BKList_node(ix->getRoot()));
     //An den yparxei dentro
@@ -321,27 +321,27 @@ int main(){
     // strcpy(tmpStr7, "melt");
     char tmpStr7[]="melt";
 
-    BKTree* BKTree1 = new BKTree(tmpStr);
-    
-    BKTree1->insertTree(tmpStr2,BKTree1->getRoot()->getString(),BKTree1->getRoot(),MT_HAMMING_DIST);
-    BKTree1->insertTree(tmpStr3,BKTree1->getRoot()->getString(),BKTree1->getRoot(),MT_HAMMING_DIST);
-    BKTree1->insertTree(tmpStr4,BKTree1->getRoot()->getString(),BKTree1->getRoot(),MT_HAMMING_DIST);
-    BKTree1->insertTree(tmpStr5,BKTree1->getRoot()->getString(),BKTree1->getRoot(),MT_HAMMING_DIST);
+    Index* Index1 = new Index(tmpStr);
+    Index *in2;
+    Index1->insertTree(tmpStr2,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    Index1->insertTree(tmpStr3,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    Index1->insertTree(tmpStr4,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    Index1->insertTree(tmpStr5,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
     cout << "-----------------------------" << endl;
-    BKTree1->insertTree(tmpStr6,BKTree1->getRoot()->getString(),BKTree1->getRoot(),MT_HAMMING_DIST);
+    Index1->insertTree(tmpStr6,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
     cout << "------------------------>-----" << endl;
-    BKTree1->insertTree(tmpStr7,BKTree1->getRoot()->getString(),BKTree1->getRoot(),MT_HAMMING_DIST);
+    Index1->insertTree(tmpStr7,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
     cout << "----------------------------" << endl;
 
 
-    cout << "To string einai " << BKTree1->getRoot()->getString() << endl;
+    cout << "To string einai " << Index1->getRoot()->getString() << endl;
 
     //Testing print
     for (size_t i = 0; i < 10; i++)
     {
         cout<<endl;
     }
-    BKTree1->printTree();
+    Index1->printTree();
 
     //Testing lookup
 
@@ -351,7 +351,7 @@ int main(){
     int threshold = 2;
     entry_list* result= new entry_list();
 
-    BKTree1->lookup_entry_index(&myword,BKTree1,threshold,result);
+    Index1->lookup_entry_index(&myword,Index1,threshold,result);
 
     cout<<"print start \n";
     result->print_list(result);
@@ -359,6 +359,6 @@ int main(){
     result->destroy_entry_list(&result);
 
     delete result;
-    delete BKTree1;
+    delete Index1;
     return 0;
 }
