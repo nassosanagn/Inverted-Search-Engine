@@ -71,6 +71,6 @@ Tα αρχεία BKTree.cpp/h υλοποιούν τη δομή ενός BKTree, 
 
 **BKTree:** [Nassos Anagnostopoulos](https://github.com/nassosanagn) Branches: [BKTree](https://github.com/nassosanagn/Inverted-Search-Engine/tree/BKTree)
 
-**Lookup:** [Giannis-Papadimitriou](https://github.com/Giannis-Papadimitriou) Branches: [BKextended](https://github.com/nassosanagn/Inverted-Search-Engine/tree/BKextended)
+**Lookup και README:** [Giannis-Papadimitriou](https://github.com/Giannis-Papadimitriou) Branches: [BKextended](https://github.com/nassosanagn/Inverted-Search-Engine/tree/BKextended)
 
 
