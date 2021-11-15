@@ -56,19 +56,11 @@ int main(){
     El->add_entry(El,E7);
 
 
-
     Index* Index1 = new Index();
     Index1->build_entry_index(El,MT_HAMMING_DIST,Index1);
 
-
-    //Testing print
-    for (size_t i = 0; i < 10; i++)
-    {
-        cout<<endl;
-    }
+    cout<<"Print Tree:"<<endl<<endl;
     Index1->printTree();
-
-    //Testing lookup
 
     char testStr[]="henn";
 
@@ -78,7 +70,8 @@ int main(){
 
     Index1->lookup_entry_index(&myword,Index1,threshold,result);
 
-    cout<<"print start \n";
+    cout<<"Result from lookup with word: "<<testStr<<" and threshhold : "<<threshold<<endl;
+
     result->print_list(result);
 
     result->destroy_entry_list(&result);

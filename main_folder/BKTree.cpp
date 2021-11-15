@@ -130,12 +130,9 @@ ErrorCode Index::insertTree(char* str, char* cmpWord, treeNode* tempNode, MatchT
             break;
     }
 
-    cout << "H diafora otan h leksh einai: " << str << " me thn: " << cmpWord << " einai: " << tempDiff << endl;
-
     //An den yparxei allo paidi ths rizas 
     if (this->getRoot()->getChildNode() == NULL){                     // Only for the first time 
         getRoot()->setChildNode(new treeNode(str,tempDiff));
-        cout << "Inserted help returning" << endl; 
         return EC_SUCCESS;
     }
 
@@ -155,9 +152,7 @@ ErrorCode Index::insertTree(char* str, char* cmpWord, treeNode* tempNode, MatchT
                     break;
             }
             tempNode->setChildNode(new treeNode(str, tempDiff));
-            cout << "Inserted " << str << " down after: " << tempNode->getString() << endl;
         }else{
-            cout << "Paei katw sth leksh: " << tempNode->getString() << endl;
             insertTree(str, tempNode->getString(), tempNode->getChildNode(),matchtype);
         }
 
@@ -165,9 +160,7 @@ ErrorCode Index::insertTree(char* str, char* cmpWord, treeNode* tempNode, MatchT
 
         if (tempNode->getnextNode() == NULL){
             tempNode->setNextNode(new treeNode(str, tempDiff));
-            cout << "Inserted " << str << " right after: " << tempNode->getString() << endl;
         }else{
-            cout << "Paei deksia sth leksh: " << tempNode->getString() << endl;
             insertTree(str, cmpWord, tempNode->getnextNode(),matchtype);
         }
     }

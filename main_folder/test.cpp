@@ -1,5 +1,5 @@
 #include "acutest.h"
-#include "entry.h"
+#include "BKTree.h"
 #include <iostream>
 using namespace std;
 
@@ -227,6 +227,186 @@ void test_destroy_entry_list(void){
     delete[] tmp;
 }
 
+void test_build_entry_index(void){
+    entry_list* El;
+    
+    char* tmpStr = new char[strlen("hell")];
+    strcpy(tmpStr,"hell");
+    entry* E = new entry(tmpStr);
+
+    char* tmpStr1 = new char[strlen("help")];
+    strcpy(tmpStr1,"help");
+    entry* E1 = new entry(tmpStr1);
+
+
+    char* tmpStr2 = new char[strlen("fall")];
+    strcpy(tmpStr2,"fall");
+    entry* E2 = new entry(tmpStr2);
+
+
+    char* tmpStr3 = new char[strlen("felt")];
+    strcpy(tmpStr3,"felt");
+    entry* E3 = new entry(tmpStr3);
+
+
+    char* tmpStr4 = new char[strlen("fell")];
+    strcpy(tmpStr4,"fell");
+    entry* E4 = new entry(tmpStr4);
+
+
+    char* tmpStr5 = new char[strlen("small")];
+    strcpy(tmpStr5,"small");
+    entry* E5 = new entry(tmpStr5);
+
+
+    char* tmpStr6 = new char[strlen("melt")];
+    strcpy(tmpStr6,"melt");
+    entry* E6 = new entry(tmpStr6);
+
+    char* tmpStr7 = new char[strlen("small")];
+    strcpy(tmpStr7,"small");
+    entry* E7 = new entry(tmpStr7);
+
+
+    El->create_entry_list(&El);
+    El->add_entry(El,E);
+    El->add_entry(El,E1);
+    El->add_entry(El,E2);
+    El->add_entry(El,E3);
+    El->add_entry(El,E4);
+    El->add_entry(El,E5);
+    El->add_entry(El,E6);
+    El->add_entry(El,E7);
+
+
+    Index* Index1 = new Index();
+
+    TEST_CHECK_(Index1->build_entry_index(El,MT_HAMMING_DIST,Index1) == EC_SUCCESS,"Not empty entry list");
+
+    delete[] tmpStr;
+    delete[] tmpStr1;
+    delete[] tmpStr2;
+    delete[] tmpStr3;
+    delete[] tmpStr4;
+    delete[] tmpStr5;
+    delete[] tmpStr6;
+    delete[] tmpStr7;
+    delete E;
+    delete E1;
+    delete E2;
+    delete E3;
+    delete E4;
+    delete E5;
+    delete E6;
+    delete E7;
+    El->destroy_entry_list(&El);
+    delete El;
+    delete Index1;
+}
+
+void test_lookup_entry_index(void){
+    entry_list* El;
+    
+    char* tmpStr = new char[strlen("hell")];
+    strcpy(tmpStr,"hell");
+    entry* E = new entry(tmpStr);
+
+    char* tmpStr1 = new char[strlen("help")];
+    strcpy(tmpStr1,"help");
+    entry* E1 = new entry(tmpStr1);
+
+
+    char* tmpStr2 = new char[strlen("fall")];
+    strcpy(tmpStr2,"fall");
+    entry* E2 = new entry(tmpStr2);
+
+
+    char* tmpStr3 = new char[strlen("felt")];
+    strcpy(tmpStr3,"felt");
+    entry* E3 = new entry(tmpStr3);
+
+
+    char* tmpStr4 = new char[strlen("fell")];
+    strcpy(tmpStr4,"fell");
+    entry* E4 = new entry(tmpStr4);
+
+
+    char* tmpStr5 = new char[strlen("small")];
+    strcpy(tmpStr5,"small");
+    entry* E5 = new entry(tmpStr5);
+
+
+    char* tmpStr6 = new char[strlen("melt")];
+    strcpy(tmpStr6,"melt");
+    entry* E6 = new entry(tmpStr6);
+
+    char* tmpStr7 = new char[strlen("small")];
+    strcpy(tmpStr7,"small");
+    entry* E7 = new entry(tmpStr7);
+
+
+    El->create_entry_list(&El);
+    El->add_entry(El,E);
+    El->add_entry(El,E1);
+    El->add_entry(El,E2);
+    El->add_entry(El,E3);
+    El->add_entry(El,E4);
+    El->add_entry(El,E5);
+    El->add_entry(El,E6);
+    El->add_entry(El,E7);
+
+
+    Index* Index1 = new Index();
+    TEST_CHECK_(Index1->build_entry_index(El,MT_HAMMING_DIST,Index1) == EC_SUCCESS,"Not empty entry list");
+
+
+
+    char testStr[]="henn";
+
+    word myword(testStr);
+    int threshold = 2;
+    entry_list* result= new entry_list();
+
+    Index1->lookup_entry_index(&myword,Index1,threshold,result);
+
+    char* tmpStr8 = new char[strlen("hell")];
+    strcpy(tmpStr8,"hell");
+    entry* E8 = new entry(tmpStr8);
+
+    char* tmpStr9 = new char[strlen("help")];
+    strcpy(tmpStr9,"help");
+    entry* E9 = new entry(tmpStr9);
+
+    entry_list* El_tmp;
+    El_tmp->create_entry_list(&El_tmp);
+    El_tmp->add_entry(El_tmp,E8);
+    El_tmp->add_entry(El_tmp,E9);
+
+    TEST_CHECK_( El_tmp->list_similarity(El_tmp,result) == EC_SUCCESS,"Not empty entry list");
+
+
+    result->destroy_entry_list(&result);
+    delete[] tmpStr;
+    delete[] tmpStr1;
+    delete[] tmpStr2;
+    delete[] tmpStr3;
+    delete[] tmpStr4;
+    delete[] tmpStr5;
+    delete[] tmpStr6;
+    delete[] tmpStr7;
+    delete E;
+    delete E1;
+    delete E2;
+    delete E3;
+    delete E4;
+    delete E5;
+    delete E6;
+    delete E7;
+    El->destroy_entry_list(&El);
+    delete El;
+    delete result;
+    delete Index1;
+}
 
 TEST_LIST = {
     { "test_create_entry", test_create_entry },
@@ -237,5 +417,7 @@ TEST_LIST = {
     { "test_get_first", test_get_first },
     { "test_get_next", test_get_next },
     { "test_destroy_entry_list", test_destroy_entry_list },
+    { "test_build_entry_index", test_build_entry_index },
+    { "test_lookup_entry_index", test_lookup_entry_index },
     { NULL, NULL }
 };
