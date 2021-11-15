@@ -40,9 +40,6 @@ int main(){
     strcpy(tmpStr6,"melt");
     entry* E6 = new entry(tmpStr6);
 
-    char* tmpStr7 = new char[strlen("small")];
-    strcpy(tmpStr7,"small");
-    entry* E7 = new entry(tmpStr7);
 
 
     El->create_entry_list(&El);
@@ -53,7 +50,6 @@ int main(){
     El->add_entry(El,E4);
     El->add_entry(El,E5);
     El->add_entry(El,E6);
-    El->add_entry(El,E7);
 
 
     Index* Index1 = new Index();
@@ -83,7 +79,6 @@ int main(){
     delete[] tmpStr4;
     delete[] tmpStr5;
     delete[] tmpStr6;
-    delete[] tmpStr7;
     delete E;
     delete E1;
     delete E2;
@@ -91,7 +86,6 @@ int main(){
     delete E4;
     delete E5;
     delete E6;
-    delete E7;
     El->destroy_entry_list(&El);
     delete El;
     delete result;
