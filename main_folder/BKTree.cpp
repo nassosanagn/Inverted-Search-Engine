@@ -99,7 +99,7 @@ int Index::EditDistance(char* a, int na, char* b, int nb)
 }
 
 //Eisagwgh komvoy sto dentro
-ErrorCode Index::insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype){
+ErrorCode Index::build_entry_index(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype){
     setmatchtype(matchtype);
     int tempDiff;
     //Analoga to matchtype kalei kai thn katallhlh synarthsh metrhshs
@@ -132,7 +132,7 @@ ErrorCode Index::insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchTy
             cout << "Inserted " << str << " down after: " << tempNode->getString() << endl;
         }else{
             cout << "Paei katw sth leksh: " << tempNode->getString() << endl;
-            insertTree(str, tempNode->getString(), tempNode->getChildNode(),matchtype);
+            build_entry_index(str, tempNode->getString(), tempNode->getChildNode(),matchtype);
         }
 
     }else{                              /* Go right on that node */
@@ -142,7 +142,7 @@ ErrorCode Index::insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchTy
             cout << "Inserted " << str << " right after: " << tempNode->getString() << endl;
         }else{
             cout << "Paei deksia sth leksh: " << tempNode->getString() << endl;
-            insertTree(str, cmpWord, tempNode->getnextNode(),matchtype);
+            build_entry_index(str, cmpWord, tempNode->getnextNode(),matchtype);
         }
     }
 
@@ -323,14 +323,14 @@ int main(){
 
     Index* Index1 = new Index(tmpStr);
     Index *in2;
-    Index1->insertTree(tmpStr2,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    Index1->insertTree(tmpStr3,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    Index1->insertTree(tmpStr4,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    Index1->insertTree(tmpStr5,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    Index1->build_entry_index(tmpStr2,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    Index1->build_entry_index(tmpStr3,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    Index1->build_entry_index(tmpStr4,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    Index1->build_entry_index(tmpStr5,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
     cout << "-----------------------------" << endl;
-    Index1->insertTree(tmpStr6,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    Index1->build_entry_index(tmpStr6,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
     cout << "------------------------>-----" << endl;
-    Index1->insertTree(tmpStr7,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
+    Index1->build_entry_index(tmpStr7,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
     cout << "----------------------------" << endl;
 
 
