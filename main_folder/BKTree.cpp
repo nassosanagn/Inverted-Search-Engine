@@ -107,7 +107,6 @@ ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* 
         currentEntry = currentEntry->getnext();
     }
 
-
     while (currentEntry != NULL){
         ix->insertTree(currentEntry->getword(), ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST);
         currentEntry = currentEntry->getnext();
@@ -285,77 +284,54 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
 
 
 int main(){
+
     char tmpStr[20];
-    strcpy(tmpStr,"help");
-    word* W = new word(tmpStr);
+
+    strcpy(tmpStr,"hell");
     entry* E = new entry(tmpStr);
-    strcpy(tmpStr,"fell");
+    entry_list* El;
+
+    strcpy(tmpStr,"help");
     entry* E1 = new entry(tmpStr);
+
     strcpy(tmpStr,"fall");
     entry* E2 = new entry(tmpStr);
-    strcpy(tmpStr,"small");
+
+    strcpy(tmpStr,"felt");
     entry* E3 = new entry(tmpStr);
-    entry_list* El;
+
+    strcpy(tmpStr,"fell");
+    entry* E4 = new entry(tmpStr);
+
+    strcpy(tmpStr,"small");
+    entry* E5 = new entry(tmpStr);
+
+    strcpy(tmpStr,"melt");
+    entry* E6 = new entry(tmpStr);
+
+
     El->create_entry_list(&El);
     El->add_entry(El,E);
     El->add_entry(El,E1);
     El->add_entry(El,E2);
     El->add_entry(El,E3);
+    El->add_entry(El,E4);
+    El->add_entry(El,E5);
+    El->add_entry(El,E6);
 
-    // // El->destroy_entry_list(&El);
-    
-    // // delete E;
-    // // delete W;
-    // // delete E1;
-    // // delete E2;
-    // // delete E3;
-    // // delete[] tmpStr;
-    // // delete El;
-
-    // char* tmpStr = new char[15];
-    // strcpy(tmpStr,"hell");
-    char tmpStr1[]="hell";
-
-    // char* tmpStr2 = new char[15];
-    // strcpy(tmpStr2,"help");
-    char tmpStr2[]="help";
-    
-    // char* tmpStr3 = new char[15];
-    // strcpy(tmpStr3,"fell");
-    char tmpStr3[]="fell";
-
-    // char* tmpStr4 = new char[15];
-    // strcpy(tmpStr4,"fall");
-    char tmpStr4[]="fall";
-
-    // char* tmpStr5 = new char[15];
-    // strcpy(tmpStr5,"small");
-    char tmpStr5[]="small";
-
-    // char* tmpStr6 = new char[15];
-    // strcpy(tmpStr6,"felt");
-    char tmpStr6[]="felt";
-
-    // char* tmpStr7 = new char[15];
-    // strcpy(tmpStr7, "melt");
-    char tmpStr7[]="melt";
+    delete E;
+    delete E1;
+    delete E2;
+    delete E3;
+    delete E4;
+    delete E5;
+    delete E6;
 
     Index* Index1 = new Index();
-    // Index *in2;
-    // Index1->insertTree(tmpStr2,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    // Index1->insertTree(tmpStr3,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    // Index1->insertTree(tmpStr4,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    // Index1->insertTree(tmpStr5,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    // cout << "-----------------------------" << endl;
-    // Index1->insertTree(tmpStr6,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    // cout << "------------------------>-----" << endl;
-    // Index1->insertTree(tmpStr7,Index1->getRoot()->getString(),Index1->getRoot(),MT_HAMMING_DIST);
-    // cout << "----------------------------" << endl;
-
-    // Index1->build_entry_index(El,MT_HAMMING_DIST,Index1);
-    cout << "To string einai " << Index1->getRoot()->getString() << endl;
-
-    El->print_list(El);
+    Index1->build_entry_index(El,MT_HAMMING_DIST,Index1);
+    
+    El->destroy_entry_list(&El);
+    delete El;
 
     //Testing print
     for (size_t i = 0; i < 10; i++)
@@ -372,7 +348,7 @@ int main(){
     int threshold = 2;
     entry_list* result= new entry_list();
 
-    Index1->lookup_entry_index(&myword,Index1,threshold,result);
+    // Index1->lookup_entry_index(&myword,Index1,threshold,result);
 
     cout<<"print start \n";
     result->print_list(result);
