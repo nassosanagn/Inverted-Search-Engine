@@ -26,7 +26,7 @@ ErrorCode BKTree::destroyTree(treeNode* tempNode){
         //Gia kathe paidi toy
         destroyTree(tempNode->getChildNode());
         //Diagrafei ton komvo
-        delete[] tempNode->getString();
+        delete tempNode->getword();
         delete tempNode;
     }
     return EC_SUCCESS;
@@ -347,7 +347,9 @@ int main(){
 
     cout<<"print start \n";
     result->print_list(result);
+
     result->destroy_entry_list(&result);
+
     delete result;
     delete BKTree1;
     return 0;

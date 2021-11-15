@@ -38,6 +38,7 @@ class treeNode{
 
         //Getters - Setters
         char* getString() const { return myString->getword(); }
+        word* getword() const { return myString; }
         int getDiff() const { return diff; }
         treeNode* getnextNode() const { return nextNode; }
         treeNode* getChildNode() const { return childNode; }
