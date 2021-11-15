@@ -63,7 +63,7 @@ class Index{
         Index(char* myStr);        /* Constructor */
         ~Index();                  /* Destructor */
 
-        ErrorCode destroyTree(treeNode* tempNode);               /* Destroy the tree by visiting and destroying each node */
+        ErrorCode destroy_entry_index(treeNode* tempNode);               /* Destroy the tree by visiting and destroying each node */
         ErrorCode insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype);
 
         int HammingDistance(const char* word1, const char* word2);

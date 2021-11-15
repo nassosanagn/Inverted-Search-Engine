@@ -15,16 +15,16 @@ Index::Index(char* myStr){
 //destructor
 Index::~Index(){
     //kalei synarthsh diagrafhs kathe komvoy toy dentroy
-    destroyTree(root); 
+    destroy_entry_index(root); 
 }
 
 //Diagrafei anadromika oloys toys komvoys toy dentroy
-ErrorCode Index::destroyTree(treeNode* ix){
+ErrorCode Index::destroy_entry_index(treeNode* ix){
     if (ix != NULL){
         //Gia kathe komvo sto idio epipedo
-        destroyTree(ix->getnextNode());
+        destroy_entry_index(ix->getnextNode());
         //Gia kathe paidi toy
-        destroyTree(ix->getChildNode());
+        destroy_entry_index(ix->getChildNode());
         //Diagrafei ton komvo
         delete ix->getword();
         delete ix;
