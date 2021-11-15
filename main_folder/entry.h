@@ -14,7 +14,7 @@ class word {
     public:
 
         //Constructor - Destructor
-        word(char* tmp);
+        word(char* tmp=NULL);
         ~word();
 
         //Copy contructor

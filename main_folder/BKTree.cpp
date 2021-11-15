@@ -100,6 +100,7 @@ int BKTree::EditDistance(char* a, int na, char* b, int nb)
 
 //Eisagwgh komvoy sto dentro
 ErrorCode BKTree::insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype){
+    setmatchtype(matchtype);
     int tempDiff;
     //Analoga to matchtype kalei kai thn katallhlh synarthsh metrhshs
     switch(matchtype){
@@ -227,7 +228,15 @@ ErrorCode BKTree::lookup_entry_index(const word* w, BKTree* ix, int threshold, e
         //Dexetai ton prwto komvo-le3h apo thn lista
         treeNode* current_candidate = cand_list->popfirst();
         //Ypologizei thn apostash
-        int word_dis = HammingDistance(w->getword(),current_candidate->getString());
+        int word_dis;
+        switch(matchtype){
+            case MT_HAMMING_DIST:
+                word_dis = HammingDistance(w->getword(),current_candidate->getString());
+                break;
+            case MT_EDIT_DIST:
+                word_dis = EditDistance(w->getword(),strlen(w->getword()),current_candidate->getString(),strlen(current_candidate->getString()));
+                break;
+        }
         //An einai omoio me thn le3h
         if (word_dis <= threshold)
         {
@@ -336,7 +345,6 @@ int main(){
 
     //Testing lookup
 
-    
     char testStr[]="henn";
 
     word myword(testStr);

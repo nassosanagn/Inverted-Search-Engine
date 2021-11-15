@@ -55,6 +55,7 @@ class treeNode{
 class BKTree{
 
     private:
+        MatchType matchtype;
         treeNode* root;
 
     public:
@@ -70,7 +71,9 @@ class BKTree{
 
         //Getter
         treeNode* getRoot() const { return root; }
+        MatchType getmatchtype() const { return matchtype; }
 
+        void setmatchtype(MatchType tmp){ matchtype = tmp;}
         /* Testing Functions*/
         void printTree();
 
