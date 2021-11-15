@@ -16,6 +16,14 @@
 
 Στο πρώτο μέρος του project υλοποιήθηκαν οι δομές Word, Entry, Entry list και BK Tree/Index μαζί με τις λειτουργίες που απαιτούν.
 
+### MatchType και ErrorCode
+
+Στο πρόγραμμα χρησιμοποιούνται τα enums MatchType και ErrorCode του core.h. 
+
+To MatchType αντιστοιχεί στις συναρτήσεις σύγκρισης λέξεων HammingDistance και EditDistance. Το HammingDistance που χρησιμοποιείται είναι υλοποιημένο από την αρχή ενώ το EditDistance είναι αυτό που παρέχεται από το core.cpp.
+
+Τα ErrorCodes είναι κωδικοί που επιστρέφουν οι συναρτήσεις και μας ενημερώνουν ως προς την επιτυχή ή μη εκτέλεση της συνάρτησης. 
+
 ### Λεξεις, Entries και Queries
 
 #### Entry.cpp/h
