@@ -67,10 +67,10 @@ Tα αρχεία BKTree.cpp/h υλοποιούν τη δομή ενός BKTree, 
 
 Κάθε μέλος της ομάδας δούλεψε και έκανε testing σε κάθε δομή του προγράμματος με κύρια έμφαση:
 
-**Entry List και Testing:** [Apostolos Karvelas](https://github.com/TollisK) Branches: [main](https://github.com/nassosanagn/Inverted-Search-Engine/tree/main) και [entry](https://github.com/nassosanagn/Inverted-Search-Engine/tree/entry)
+**Entry List και Testing:** [Apostolos Karvelas](https://github.com/TollisK) A.M.: 1115201800312 Branches: [main](https://github.com/nassosanagn/Inverted-Search-Engine/tree/main) και [entry](https://github.com/nassosanagn/Inverted-Search-Engine/tree/entry)
 
-**BKTree:** [Nassos Anagnostopoulos](https://github.com/nassosanagn) Branches: [BKTree](https://github.com/nassosanagn/Inverted-Search-Engine/tree/BKTree)
+**BKTree:** [Nassos Anagnostopoulos](https://github.com/nassosanagn) A.M.: 1115201800006 Branches: [BKTree](https://github.com/nassosanagn/Inverted-Search-Engine/tree/BKTree)
 
-**Lookup και README:** [Giannis-Papadimitriou](https://github.com/Giannis-Papadimitriou) Branches: [BKextended](https://github.com/nassosanagn/Inverted-Search-Engine/tree/BKextended)
+**Lookup και README:** [Giannis-Papadimitriou](https://github.com/Giannis-Papadimitriou) A.M.: 1115201800150 Branches: [BKextended](https://github.com/nassosanagn/Inverted-Search-Engine/tree/BKextended)
 
 
