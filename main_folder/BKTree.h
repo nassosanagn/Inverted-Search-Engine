@@ -107,7 +107,6 @@ class BKList{
     void add_node(treeNode* input){
         if (first==NULL)
         {
-
             first = new BKList_node(input);
         }
         else

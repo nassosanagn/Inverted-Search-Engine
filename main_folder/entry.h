@@ -119,7 +119,6 @@ class entry_list{
             last = tmp;
         }
 };
-
 #endif
 
 

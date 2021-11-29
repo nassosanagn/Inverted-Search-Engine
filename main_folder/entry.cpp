@@ -170,4 +170,3 @@ ErrorCode entry_list::destroy_entry_list(entry_list** el){
     return EC_SUCCESS;
 }
 
-
