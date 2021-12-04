@@ -28,9 +28,8 @@ class word {
             String = new char[strlen(ww)+1];
             strcpy(String,ww);
         }
-        char* getword() const{ 
-            return String; 
-        }
+
+        char* getword() const{ return String; }
 };
 
 //Struct entry poy antistoixei se mia le3h
@@ -43,7 +42,7 @@ class entry {
     public:
 
         //Constructor - Destructor
-        entry(char * tmp,void *pload=NULL);
+        entry(char * tmp, void *pload=NULL);
         ~entry();
 
         //Dhmioyrgia ths domhs
@@ -55,22 +54,14 @@ class entry {
         //Copy constructor
         entry(const entry &ee);
 
-        //Getters - Setters
-        char* getword() const{
-            return myString->getword();
-        }
-        void* getpayload() const{
-            return payload;
-        }
-        entry* getnext() const{
-            return next;
-        }
-        void setnext(entry *tmp){
-            next = tmp;
-        }
-        void setword(char *tmp){
-            myString->setword(tmp);
-        }
+        /* Getters */
+        char* getword() const    { return myString->getword(); }
+        void* getpayload() const { return payload; }
+        entry* getnext() const   { return next; }
+        
+        /* Setters */
+        void setnext(entry *tmp) { next = tmp; }
+        void setword(char *tmp)  { myString->setword(tmp); }
 };
 
 //Lista apo komvoys entries

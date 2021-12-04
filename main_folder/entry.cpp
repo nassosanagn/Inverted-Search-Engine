@@ -1,7 +1,6 @@
 #include "entry.h"
 using namespace std;
 
-
 //Constructor
 word::word(char* tmp){
     String = new char[strlen(tmp)+1];
