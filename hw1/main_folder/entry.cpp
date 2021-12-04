@@ -3,6 +3,10 @@ using namespace std;
 
 //Constructor
 word::word(char* tmp){
+    if(tmp==NULL){
+        String = NULL;
+        return;
+    }
     String = new char[strlen(tmp)+1];
     strcpy(String,tmp);
 }
