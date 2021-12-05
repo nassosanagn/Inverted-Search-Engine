@@ -116,6 +116,20 @@ ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* 
     return EC_SUCCESS;
 }
 
+ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt){
+
+    entry* tempentry = new entry(W->getword());
+    if(ix->getRoot() == NULL){
+        ix->root = new treeNode(tempentry,0);
+        return EC_SUCCESS;
+    }
+    ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST);
+        
+    return EC_SUCCESS;
+    
+    
+}
+
 //Eisagwgh komvoy sto dentro
 ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype){
     
@@ -203,7 +217,11 @@ void treeNode::print_children(){
 }
 
 void Index::printTree(){
-    this->getRoot()->print_all();
+    if (this->getRoot()!=NULL)
+    {
+        this->getRoot()->print_all();
+    }
+    
 }
 
 //TESTING FUNCTIONS OVER

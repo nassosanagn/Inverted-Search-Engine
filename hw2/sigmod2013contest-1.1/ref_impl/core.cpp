@@ -30,8 +30,9 @@
 #include <cstdlib>
 #include <cstdio>
 #include <vector>
+#include "../../hw1/main_folder/entry.h"
+#include "../../hw1/main_folder/BKTree.h"
 using namespace std;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 // Computes edit distance between a null-terminated string "a" with length "na"
@@ -136,7 +137,54 @@ vector<Document> docs;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-ErrorCode InitializeIndex(){return EC_SUCCESS;}
+ErrorCode InitializeIndex(){
+	cout <<"Hello world!" << endl;
+	entry_list* El;
+    
+    // char* tmpStr = new char[strlen("hell")+1];
+    // strcpy(tmpStr,"hell");
+    // entry* E = new entry(tmpStr);
+
+    // char* tmpStr1 = new char[strlen("help")+1];
+    // strcpy(tmpStr1,"help");
+    // entry* E1 = new entry(tmpStr1);
+
+
+    // char* tmpStr2 = new char[strlen("fall")+1];
+    // strcpy(tmpStr2,"fall");
+    // entry* E2 = new entry(tmpStr2);
+
+
+    // char* tmpStr3 = new char[strlen("felt")+1];
+    // strcpy(tmpStr3,"felt");
+    // entry* E3 = new entry(tmpStr3);
+
+
+    // char* tmpStr4 = new char[strlen("fell")+1];
+    // strcpy(tmpStr4,"fell");
+    // entry* E4 = new entry(tmpStr4);
+
+
+    // char* tmpStr5 = new char[strlen("small")+1];
+    // strcpy(tmpStr5,"small");
+    // entry* E5 = new entry(tmpStr5);
+
+
+    // char* tmpStr6 = new char[strlen("melt")];
+    // strcpy(tmpStr6,"melt");
+    // entry* E6 = new entry(tmpStr6);
+	// El->create_entry_list(&El);
+    // El->add_entry(El,E);
+    // El->add_entry(El,E1);
+    // El->add_entry(El,E2);
+    // El->add_entry(El,E3);
+    // El->add_entry(El,E4);
+    // El->add_entry(El,E5);
+    // El->add_entry(El,E6);
+	// Index* Index1 = new Index();
+    // Index1->build_entry_index(El,MT_HAMMING_DIST,Index1);
+	// Index1->printTree();
+	return EC_SUCCESS;}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 

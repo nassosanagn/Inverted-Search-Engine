@@ -82,6 +82,8 @@ class Index{
 
         //O deikths result deixnei se le3eis poy moiazoyn me thn le3h sto prwto orisma
         ErrorCode lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result);
+
+        ErrorCode insertWord(word* W, Index* ix, MatchType mt);
 };
 
 
