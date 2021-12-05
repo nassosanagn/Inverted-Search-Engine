@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include "core.h"
+#include "../../hw2/payload.h"
 using namespace std;
 
 //Struct word poy leitoyrgei ws String
@@ -36,13 +37,13 @@ class word {
 class entry {
 
     word* myString;
-    int* payload;
+    payload_list* list;
     entry* next;
 
     public:
 
         //Constructor - Destructor
-        entry(char * tmp, int *pload=NULL);
+        entry(char * tmp);
         ~entry();
 
         //Dhmioyrgia ths domhs
@@ -56,7 +57,7 @@ class entry {
 
         /* Getters */
         char* getword() const    { return myString->getword(); }
-        int* getpayload() const { return payload; }
+        payload_list* getpayload() const { return list; }
         entry* getnext() const   { return next; }
         
         /* Setters */

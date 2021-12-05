@@ -49,7 +49,7 @@ int main(){
     El->add_entry(El,E6);
 
     Index* Index1 = new Index();
-    Index1->build_entry_index(El,MT_HAMMING_DIST,Index1);
+    Index1->build_entry_index(El,MT_HAMMING_DIST,Index1,777);
 
     cout<<"Print Tree:"<<endl<<endl;
     Index1->printTree();

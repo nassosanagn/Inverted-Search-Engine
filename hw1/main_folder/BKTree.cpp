@@ -99,7 +99,7 @@ int Index::EditDistance(char* a, int na, char* b, int nb)
 	return ret;
 }
 
-ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* ix){
+ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* ix, int qid){
 
     entry* currentEntry = el->getfirst();
 
@@ -109,21 +109,22 @@ ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* 
     }
 
     while (currentEntry != NULL){
-        ix->insertTree(currentEntry, ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST);
+        ix->insertTree(currentEntry, ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST,qid);
         currentEntry = currentEntry->getnext();
     }
 
     return EC_SUCCESS;
 }
 
-ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt){
+ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt, int qid){
 
     entry* tempentry = new entry(W->getword());
     if(ix->getRoot() == NULL){
         ix->root = new treeNode(tempentry,0);
+        ix->root->getEntry()->getpayload()->payload_insert(qid);
         return EC_SUCCESS;
     }
-    ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST);
+    ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST, qid);
         
     return EC_SUCCESS;
     
@@ -131,7 +132,7 @@ ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt){
 }
 
 //Eisagwgh komvoy sto dentro
-ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype){
+ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype, int qid){
     
     setmatchtype(matchtype);
     int tempDiff;
@@ -149,7 +150,7 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
 
     // An den yparxei allo paidi ths rizas 
     if (this->getRoot()->getChildNode() == NULL){                     // Only for the first time 
-        getRoot()->setChildNode(new treeNode(entry, tempDiff));
+        getRoot()->setChildNode(new treeNode(entry, tempDiff),qid);
         return EC_SUCCESS;
     }
 
@@ -168,17 +169,17 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
                     tempDiff = EditDistance(str,strlen(str),tempNode->getString(),strlen(tempNode->getString()));
                     break;
             }
-            tempNode->setChildNode(new treeNode(entry, tempDiff));
+            tempNode->setChildNode(new treeNode(entry, tempDiff),qid);
         }else{
-            insertTree(entry, tempNode->getString(), tempNode->getChildNode(),matchtype);
+            insertTree(entry, tempNode->getString(), tempNode->getChildNode(),matchtype,qid);
         }
 
     }else{                              /* Go right on that node */
 
         if (tempNode->getnextNode() == NULL){
-            tempNode->setNextNode(new treeNode(entry, tempDiff));
+            tempNode->setNextNode(new treeNode(entry, tempDiff),qid);
         }else{
-            insertTree(entry, cmpWord, tempNode->getnextNode(),matchtype);
+            insertTree(entry, cmpWord, tempNode->getnextNode(),matchtype,qid);
         }
     }
 
@@ -200,7 +201,9 @@ void treeNode::print_all(){
 //Ektypwsh paidiwn
 void treeNode::print_children(){
     treeNode* tempNode = this->getChildNode();
-    cout <<"Parent "<< this->getString() << endl;
+    cout <<"Parent "<< this->getString() << " with payload ";
+    this->getEntry()->getpayload()->print_list();
+    cout<< endl;
     if (tempNode == NULL)
     {
         cout<<endl;

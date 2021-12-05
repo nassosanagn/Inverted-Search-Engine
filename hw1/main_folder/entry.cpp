@@ -22,14 +22,14 @@ word::word(const word &ww){
 //Copy contructor
 entry::entry(const entry &ee){
     myString->setword(ee.getword());
-    payload = ee.getpayload();
+    list = ee.getpayload();
     next = ee.getnext();
 }
 
 //contructor
-entry::entry(char * tmp, int* pload){
+entry::entry(char * tmp){
     myString = new word(tmp);
-    payload = pload;
+    list = new payload_list();
     next = NULL;
 }
 //destructor
@@ -100,7 +100,7 @@ ErrorCode entry_list::add_entry(entry_list* el, const entry* e){
         return EC_FAIL;
     }
     //Dhmioyrgei ton komvo poy tha prosthethei
-    entry* entry_n = new entry(e->getword(),e->getpayload());
+    entry* entry_n = new entry(e->getword());
     entry* entry_tmp = el->getfirst();
     //An den yparxei allos komvos
     if(el->getfirst() == NULL){
