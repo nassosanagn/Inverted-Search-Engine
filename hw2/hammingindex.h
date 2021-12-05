@@ -17,10 +17,10 @@ class HammingIndex{
     public:
         Index mytrees[TREECOUNT];
 
-        ErrorCode insert(word* input){
+        ErrorCode insert(word* input,int qid){
             int treepos = strlen(input->getword())-MIN_WORD_LENGTH;
-            cout <<"Length is "<<treepos<<endl;
-            mytrees[treepos].insertWord(input,&(mytrees[treepos]),MT_HAMMING_DIST);
+            cout <<"Position is "<<treepos<<endl;
+            mytrees[treepos].insertWord(input,&(mytrees[treepos]),MT_HAMMING_DIST,qid);
             return EC_SUCCESS;
         }
 

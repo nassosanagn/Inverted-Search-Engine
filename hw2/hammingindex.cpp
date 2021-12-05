@@ -20,13 +20,13 @@ int main(){
     strcpy(tmpStr1,"helr");
     word* myword1 = new word(tmpStr1);
 
-    char* tmpStr2 = new char[strlen("hellf")];
-    strcpy(tmpStr2,"helldsaf");
+    char* tmpStr2 = new char[strlen("helldsaffdsa")];
+    strcpy(tmpStr2,"helldsaffdsa");
     word* myword2 = new word(tmpStr2);
 
-    myindex.insert(myword);
-    myindex.insert(myword1);
-    myindex.insert(myword2);
+    myindex.insert(myword,1);
+    myindex.insert(myword1,2);
+    myindex.insert(myword2,3);
     myindex.printall();
     return 0;
 }

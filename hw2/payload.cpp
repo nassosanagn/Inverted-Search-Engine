@@ -68,16 +68,3 @@ ErrorCode payload_list::payload_insert(int tmpId){
     return EC_SUCCESS;
 }
 
-int main(){
-
-    payload_list* myList = new payload_list();
-
-    myList->payload_insert(5);
-    myList->payload_insert(8);
-
-    myList->payload_insert(7);
-    myList->payload_insert(5);
-
-    myList->print_list();
-
-}
