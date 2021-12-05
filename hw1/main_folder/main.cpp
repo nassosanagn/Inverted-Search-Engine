@@ -1,7 +1,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+
 #include "BKTree.h"
+
+#define THRESHOLD 2
+
 using namespace std;
 
 int main(){
@@ -52,8 +56,9 @@ int main(){
 
     char testStr[]="henn";
 
+    int threshold = THRESHOLD;
+
     word myword(testStr);
-    int threshold = 2;
     entry_list* result= new entry_list();
 
     Index1->lookup_entry_index(&myword,Index1,threshold,result);

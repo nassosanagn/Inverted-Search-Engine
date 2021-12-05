@@ -27,7 +27,7 @@ entry::entry(const entry &ee){
 }
 
 //contructor
-entry::entry(char * tmp,void *pload){
+entry::entry(char * tmp, int* pload){
     myString = new word(tmp);
     payload = pload;
     next = NULL;

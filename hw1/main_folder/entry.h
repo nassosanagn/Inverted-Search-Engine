@@ -36,13 +36,13 @@ class word {
 class entry {
 
     word* myString;
-    void* payload;
+    int* payload;
     entry* next;
 
     public:
 
         //Constructor - Destructor
-        entry(char * tmp, void *pload=NULL);
+        entry(char * tmp, int *pload=NULL);
         ~entry();
 
         //Dhmioyrgia ths domhs
@@ -56,7 +56,7 @@ class entry {
 
         /* Getters */
         char* getword() const    { return myString->getword(); }
-        void* getpayload() const { return payload; }
+        int* getpayload() const { return payload; }
         entry* getnext() const   { return next; }
         
         /* Setters */
