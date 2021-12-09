@@ -7,8 +7,6 @@ using namespace std;
 #include "hammingindex.h"
 
 
-
-
 int main(){
     HammingIndex myindex;
 
