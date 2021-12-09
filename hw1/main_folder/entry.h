@@ -57,6 +57,7 @@ class entry {
 
         /* Getters */
         char* getword() const    { return myString->getword(); }
+        word* getmyword() const {return myString;}
         payload_list* getpayload() const { return list; }
         entry* getnext() const   { return next; }
         
@@ -80,7 +81,7 @@ class entry_list{
         unsigned int get_number_entries(const entry_list* el);
         
         //Prosthetei ena entry sto telos ths listas
-        ErrorCode add_entry(entry_list* el, const entry* e);
+        ErrorCode add_entry(entry_list* el, const entry* e,int id);
 
         //epistrefei to prwto entry
         entry* get_first(const entry_list* el);
@@ -97,6 +98,17 @@ class entry_list{
         //Epistrefei success otan oi listes einai karivws idies
         ErrorCode list_similarity(entry_list *el1,entry_list *el2);
         
+        entry* search_word(word* W){
+            entry * e = first;
+            while(e!=NULL){
+                if(!strcmp(e->getword(),W->getword())){
+                    return e;
+                }
+                e = e->getnext();
+            }
+            return NULL;
+        }
+
         //Getters - Setters
         entry* getfirst() const{
             return first;

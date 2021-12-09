@@ -76,6 +76,8 @@ ErrorCode entry_list::print_list(entry_list *el){
     entry* entry_tmp = el->getfirst();
     while(entry_tmp != NULL){
         cout<<entry_tmp->getword()<<" ";
+        entry_tmp->getpayload()->print_list();
+        cout<<endl;
         entry_tmp = entry_tmp->getnext();
     }
     cout<<endl;
@@ -99,26 +101,29 @@ unsigned int entry_list::get_number_entries(const entry_list* el){
 }
 
 //Prosthetei ena entry sto telos ths listas
-ErrorCode entry_list::add_entry(entry_list* el, const entry* e){
+ErrorCode entry_list::add_entry(entry_list* el, const entry* e,int id){
     if(el == NULL || e == NULL){
         return EC_FAIL;
     }
     //Dhmioyrgei ton komvo poy tha prosthethei
     entry* entry_n = new entry(e->getword());
-    entry* entry_tmp = el->getfirst();
+    if(id == -1){
+        payload_node* pn = e->getpayload()->getFirst();
+        while(pn!=NULL){
+            entry_n->getpayload()->payload_insert(pn->getId());
+            pn = pn->getNext();
+        }
+    }
+    else
+        entry_n->getpayload()->payload_insert(id);
     //An den yparxei allos komvos
     if(el->getfirst() == NULL){
         el->setfirst(entry_n);
         el->setlast(entry_n);
         return EC_SUCCESS;
     }
-    //Phgainei sto telos ths listas
-    while(entry_tmp->getnext() != NULL){
-        entry_tmp = entry_tmp->getnext();
-    }
-    //Prosthetei ton komvo san epomeno
+    el->getlast()->setnext(entry_n);
     el->setlast(entry_n);
-    entry_tmp->setnext(entry_n);
     return EC_SUCCESS;
 }
 
