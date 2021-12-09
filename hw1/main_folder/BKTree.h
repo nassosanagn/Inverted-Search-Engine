@@ -1,4 +1,3 @@
-using namespace std;
 
 #ifndef BKTREE_H
 #define BKTREE_H
@@ -9,13 +8,15 @@ using namespace std;
 
 #include "entry.h"
 
+using namespace std;
+
 //Domh poy leitoyrgei ws komvos sto dentro-eyrethrio
 class treeNode{
 
     private:
 
         //Le3h apo entry_list
-        word* myString;
+        entry* myEntry;
         //
         int diff;
         //Deikths se epomeno struct gia thn dhmioyrgeia listas gia to idio epipedo
@@ -25,8 +26,8 @@ class treeNode{
     
     public:
         //Contructor
-        treeNode(char* str, int tmpDiff){
-            myString = new word(str);
+        treeNode(entry* entry, int tmpDiff){
+            myEntry = new ::entry(entry->getword());
             // myString = new char[strlen(str) + 1];
             // strcpy(myString, str);
 
@@ -36,15 +37,23 @@ class treeNode{
             childNode = NULL;
         }
 
-        //Getters - Setters
-        char* getString() const { return myString->getword(); }
-        word* getword() const { return myString; }
+        // Getters - Setters
+        char* getString() const { return myEntry->getword(); }
+        entry* getEntry() const { return myEntry; }
+
         int getDiff() const { return diff; }
+
         treeNode* getnextNode() const { return nextNode; }
         treeNode* getChildNode() const { return childNode; }
 
-        void setChildNode(treeNode* tempNode) { this->childNode = tempNode; }
-        void setNextNode(treeNode* tempNode) { this->nextNode = tempNode; }
+        void setChildNode(treeNode* tempNode, int qid) {
+            this->childNode = tempNode;
+            this->childNode->getEntry()->getpayload()->payload_insert(qid);
+        }
+        void setNextNode(treeNode* tempNode, int qid) { 
+            this->nextNode = tempNode;
+            this->nextNode->getEntry()->getpayload()->payload_insert(qid);
+         }
 
         /* Testing Functions */
         void print_children();
@@ -63,8 +72,8 @@ class Index{
         ~Index();                  /* Destructor */
 
         ErrorCode destroy_entry_index(treeNode* tempNode);               /* Destroy the tree by visiting and destroying each node */
-        ErrorCode insertTree(char* str, char* cmpWord, treeNode* tempNode,MatchType matchtype);
-        ErrorCode build_entry_index(const entry_list* el, MatchType type, Index* ix);
+        ErrorCode insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype, int qid);
+        ErrorCode build_entry_index(const entry_list* el, MatchType type, Index* ix, int qid);
 
         int HammingDistance(const char* word1, const char* word2);
         int EditDistance(char* a, int na, char* b, int nb);
@@ -79,6 +88,8 @@ class Index{
 
         //O deikths result deixnei se le3eis poy moiazoyn me thn le3h sto prwto orisma
         ErrorCode lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result);
+
+        ErrorCode insertWord(word* W, Index* ix, MatchType mt,int qid);
 };
 
 

@@ -26,7 +26,7 @@ ErrorCode Index::destroy_entry_index(treeNode* ix){
         //Gia kathe paidi toy
         destroy_entry_index(ix->getChildNode());
         //Diagrafei ton komvo
-        delete ix->getword();
+        delete ix->getEntry();
         delete ix;
     }
     return EC_SUCCESS;
@@ -99,40 +99,58 @@ int Index::EditDistance(char* a, int na, char* b, int nb)
 	return ret;
 }
 
-ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* ix){
+ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* ix, int qid){
 
     entry* currentEntry = el->getfirst();
 
     if (currentEntry != NULL){
-        ix->root = new treeNode(currentEntry->getword(),0);
+        ix->root = new treeNode(currentEntry,0);
         currentEntry = currentEntry->getnext();
     }
 
     while (currentEntry != NULL){
-        ix->insertTree(currentEntry->getword(), ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST);
+        ix->insertTree(currentEntry, ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST,qid);
         currentEntry = currentEntry->getnext();
     }
 
     return EC_SUCCESS;
 }
 
+ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt, int qid){
+
+    entry* tempentry = new entry(W->getword());
+    if(ix->getRoot() == NULL){
+        ix->root = new treeNode(tempentry,0);
+        ix->root->getEntry()->getpayload()->payload_insert(qid);
+        return EC_SUCCESS;
+    }
+    ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST, qid);
+        
+    return EC_SUCCESS;
+    
+    
+}
+
 //Eisagwgh komvoy sto dentro
-ErrorCode Index::insertTree(char* str, char* cmpWord, treeNode* tempNode, MatchType matchtype){
+ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype, int qid){
+    
     setmatchtype(matchtype);
     int tempDiff;
+    char* str = entry->getword();
+
     //Analoga to matchtype kalei kai thn katallhlh synarthsh metrhshs
     switch(matchtype){
         case MT_HAMMING_DIST:
             tempDiff = HammingDistance(str, cmpWord);
             break;
         case MT_EDIT_DIST:
-            tempDiff = EditDistance(str,strlen(str),cmpWord,strlen(cmpWord));
+            tempDiff = EditDistance(str, strlen(str),cmpWord, strlen(cmpWord));
             break;
     }
 
-    //An den yparxei allo paidi ths rizas 
+    // An den yparxei allo paidi ths rizas 
     if (this->getRoot()->getChildNode() == NULL){                     // Only for the first time 
-        getRoot()->setChildNode(new treeNode(str,tempDiff));
+        getRoot()->setChildNode(new treeNode(entry, tempDiff),qid);
         return EC_SUCCESS;
     }
 
@@ -151,17 +169,17 @@ ErrorCode Index::insertTree(char* str, char* cmpWord, treeNode* tempNode, MatchT
                     tempDiff = EditDistance(str,strlen(str),tempNode->getString(),strlen(tempNode->getString()));
                     break;
             }
-            tempNode->setChildNode(new treeNode(str, tempDiff));
+            tempNode->setChildNode(new treeNode(entry, tempDiff),qid);
         }else{
-            insertTree(str, tempNode->getString(), tempNode->getChildNode(),matchtype);
+            insertTree(entry, tempNode->getString(), tempNode->getChildNode(),matchtype,qid);
         }
 
     }else{                              /* Go right on that node */
 
         if (tempNode->getnextNode() == NULL){
-            tempNode->setNextNode(new treeNode(str, tempDiff));
+            tempNode->setNextNode(new treeNode(entry, tempDiff),qid);
         }else{
-            insertTree(str, cmpWord, tempNode->getnextNode(),matchtype);
+            insertTree(entry, cmpWord, tempNode->getnextNode(),matchtype,qid);
         }
     }
 
@@ -183,7 +201,9 @@ void treeNode::print_all(){
 //Ektypwsh paidiwn
 void treeNode::print_children(){
     treeNode* tempNode = this->getChildNode();
-    cout <<"Parent "<< this->getString() << endl;
+    cout <<"Parent "<< this->getString() << " with payload ";
+    this->getEntry()->getpayload()->print_list();
+    cout<< endl;
     if (tempNode == NULL)
     {
         cout<<endl;
@@ -200,7 +220,11 @@ void treeNode::print_children(){
 }
 
 void Index::printTree(){
-    this->getRoot()->print_all();
+    if (this->getRoot()!=NULL)
+    {
+        this->getRoot()->print_all();
+    }
+    
 }
 
 //TESTING FUNCTIONS OVER

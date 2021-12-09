@@ -1,14 +1,13 @@
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-
-#include "BKTree.h"
-
-#define THRESHOLD 2
-
 using namespace std;
 
+#include <iostream>
+#include <cstring>
+#include <stdlib.h>
+
+#include "editDistBkTree.h"
+
 int main(){
+
     entry_list* El;
     
     char* tmpStr = new char[strlen("hell")];
@@ -49,7 +48,7 @@ int main(){
     El->add_entry(El,E6);
 
     Index* Index1 = new Index();
-    Index1->build_entry_index(El,MT_HAMMING_DIST,Index1,777);
+    Index1->build_entry_index(El,MT_EDIT_DIST,Index1,777);
 
     cout<<"Print Tree:"<<endl<<endl;
     Index1->printTree();
