@@ -30,11 +30,19 @@
 # Build targets (your implementation targets should go in IMPL_O)
 TEST_O=test_driver/test.o 
 IMPL_O=ref_impl/core.o
+BKTREE_O=../../hw1/main_folder/BKTree.o
+ENTRY_O=../../hw1/main_folder/entry.o
+DOC_O=../doc.o
+HAMMINGINDEX_O=../hammingindex.o
+HASHTABLE_O=../hashtable.o
+EDITDISTBKTREE_O=../editDistBkTree.o
+PAYLOAD_O=../payload.o
+QUERY_O=../query.o
 
 # Compiler flags
 CC  = gcc
 CXX = g++
-CFLAGS=-O3 -fPIC -g -I. -I./include
+CFLAGS=-O3 -fPIC -Wall -g -I. -I./include
 CXXFLAGS=$(CFLAGS)
 LDFLAGS=-lpthread
 
@@ -47,8 +55,8 @@ LIBRARY=core
 # Build all programs
 all: $(PROGRAMS)
 
-lib: $(IMPL_O)
-	$(CXX) $(CXXFLAGS) -shared -o lib$(LIBRARY).so $(IMPL_O)
+lib: $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O)
+	$(CXX) $(CXXFLAGS) -shared -o lib$(LIBRARY).so  $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O)
 
 testdriver: lib $(TEST_O)
 	$(CXX) $(CXXFLAGS) -o testdriver $(TEST_O) ./lib$(LIBRARY).so

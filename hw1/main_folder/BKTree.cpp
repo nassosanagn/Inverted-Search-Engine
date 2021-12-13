@@ -285,7 +285,7 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
         {
             input_entry->setword(current_candidate->getString());
             
-            result->add_entry(result,input_entry);
+            result->add_entry(result,input_entry,0);
         }
         //Ypologizei ta oria twn apostasewn gia na elegthoyn
         int left = word_dis - threshold;

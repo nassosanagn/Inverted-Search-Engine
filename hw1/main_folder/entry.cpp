@@ -16,19 +16,20 @@ word::~word(){
     delete[] String;
 }
 
-//Copy contructor
-word::word(const word &ww){
-    delete[] this->String;
-    String = new char[strlen(ww.String)+1];
-    strcpy(String,ww.String);
-}
+// //Copy contructor
+// word::word(const word &ww){
+//     String = NULL;
+//     delete[] String;
+//     String = new char[strlen(ww.String)+1];
+//     strcpy(String,ww.String);
+// }
 
 //Copy contructor
-entry::entry(const entry &ee){
-    myString->setword(ee.getword());
-    list = ee.getpayload();
-    next = ee.getnext();
-}
+// entry::entry(const entry &ee){
+//     myString->setword(ee.getword());
+//     list = ee.getpayload();
+//     next = ee.getnext();
+// }
 
 //contructor
 entry::entry(char * tmp){

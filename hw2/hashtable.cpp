@@ -39,15 +39,13 @@ unsigned long Hashtable::hash_function(char* str,int size_tmp){
     return i % size_tmp;
 }
 
-ErrorCode Hashtable::create_hashtable(){
+Hashtable::Hashtable(){
     size = SIZE;
     counter = 0 ;
-    // buckets = new (size*sizeof(entry_list *));
     buckets = new entry_list*[size];
     for(int i =0;i<size;i++){
         buckets[i] = new entry_list();
     }
-    return EC_SUCCESS;
 }
 
 ErrorCode Hashtable::insert(entry* entry_tmp,int id){

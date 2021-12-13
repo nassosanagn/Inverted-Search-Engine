@@ -11,7 +11,7 @@ class Hashtable {
     int counter;
     public:
         unsigned long hash_function(char* str,int size);
-        ErrorCode create_hashtable();
+        Hashtable();
         ErrorCode insert(entry *,int);
         ErrorCode print();
         entry* search(word *);

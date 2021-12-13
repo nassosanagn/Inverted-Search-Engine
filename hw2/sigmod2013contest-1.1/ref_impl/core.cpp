@@ -30,8 +30,12 @@
 #include <cstdlib>
 #include <cstdio>
 #include <vector>
-#include "../../hw1/main_folder/entry.h"
-#include "../../hw1/main_folder/BKTree.h"
+#include "../query.h"
+#include "../doc.h"
+#include "../payload.h"
+#include "../hashtable.h"
+#include "../hammingindex.h"
+#include "../editDistBkTree.h"
 using namespace std;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -132,59 +136,27 @@ struct Document
 // Keeps all currently active queries
 vector<Query> queries;
 
+query_list* Q_list;
+doc_list* D_list;
+HammingIndex* ham_index;
+Hashtable* hash_index;
+EditBKTree* edit_index;
+int flg = 1;
+doc* D_tmp;
 // Keeps all currently available results that has not been returned yet
 vector<Document> docs;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode InitializeIndex(){
-	cout <<"Hello world!" << endl;
-	entry_list* El;
-    
-    // char* tmpStr = new char[strlen("hell")+1];
-    // strcpy(tmpStr,"hell");
-    // entry* E = new entry(tmpStr);
 
-    // char* tmpStr1 = new char[strlen("help")+1];
-    // strcpy(tmpStr1,"help");
-    // entry* E1 = new entry(tmpStr1);
-
-
-    // char* tmpStr2 = new char[strlen("fall")+1];
-    // strcpy(tmpStr2,"fall");
-    // entry* E2 = new entry(tmpStr2);
-
-
-    // char* tmpStr3 = new char[strlen("felt")+1];
-    // strcpy(tmpStr3,"felt");
-    // entry* E3 = new entry(tmpStr3);
-
-
-    // char* tmpStr4 = new char[strlen("fell")+1];
-    // strcpy(tmpStr4,"fell");
-    // entry* E4 = new entry(tmpStr4);
-
-
-    // char* tmpStr5 = new char[strlen("small")+1];
-    // strcpy(tmpStr5,"small");
-    // entry* E5 = new entry(tmpStr5);
-
-
-    // char* tmpStr6 = new char[strlen("melt")];
-    // strcpy(tmpStr6,"melt");
-    // entry* E6 = new entry(tmpStr6);
-	// El->create_entry_list(&El);
-    // El->add_entry(El,E);
-    // El->add_entry(El,E1);
-    // El->add_entry(El,E2);
-    // El->add_entry(El,E3);
-    // El->add_entry(El,E4);
-    // El->add_entry(El,E5);
-    // El->add_entry(El,E6);
-	// Index* Index1 = new Index();
-    // Index1->build_entry_index(El,MT_HAMMING_DIST,Index1);
-	// Index1->printTree();
-	return EC_SUCCESS;}
+    Q_list = new query_list();
+    D_list = new doc_list();
+	ham_index = new HammingIndex();
+	hash_index = new Hashtable();
+	edit_index = new EditBKTree();
+	return EC_SUCCESS;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -194,13 +166,30 @@ ErrorCode DestroyIndex(){return EC_SUCCESS;}
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist)
 {
-	Query query;
-	query.query_id=query_id;
-	strcpy(query.str, query_str);
-	query.match_type=match_type;
-	query.match_dist=match_dist;
-	// Add this query to the active query set
-	queries.push_back(query);
+	query* Q;
+	// cout<<"START "<<query_id<<endl;
+	Q = Q_list->add_query(Q_list,query_id, query_str, match_type, match_dist);
+	switch(match_type){
+        case MT_HAMMING_DIST:
+			for(unsigned int i=0;i<Q->get_word_count();i++){
+				ham_index->insert(&(Q->get_word_arr()[i]),query_id);
+			}
+            break;
+        case MT_EDIT_DIST:
+			for(unsigned int i=0;i<Q->get_word_count();i++){
+				edit_index->getBKtree()->insertWord(&(Q->get_word_arr()[i]),edit_index->getBKtree(),match_type,query_id);
+			}
+            break;
+        case MT_EXACT_MATCH:
+			char* Str = new char[strlen("small")+1];
+    		strcpy(Str,"small");
+			entry* E = new entry(Str);
+			for(unsigned int i=0;i<Q->get_word_count();i++){
+				E->setword(&(Q->get_word_arr()[i]));
+				hash_index->insert(E,query_id);
+			}
+            break;
+    }
 	return EC_SUCCESS;
 }
 
@@ -209,15 +198,7 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 ErrorCode EndQuery(QueryID query_id)
 {
 	// Remove this query from the active query set
-	unsigned int i, n=queries.size();
-	for(i=0;i<n;i++)
-	{
-		if(queries[i].query_id==query_id)
-		{
-			queries.erase(queries.begin()+i);
-			break;
-		}
-	}
+	Q_list->delete_query(query_id);
 	return EC_SUCCESS;
 }
 
@@ -225,33 +206,20 @@ ErrorCode EndQuery(QueryID query_id)
 
 ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 {
+	// cout<<"test "<<doc_id<<endl;
 	char cur_doc_str[MAX_DOC_LENGTH];
 	strcpy(cur_doc_str, doc_str);
 
-	unsigned int i, n=queries.size();
+	int r_num = 0;
 	vector<unsigned int> query_ids;
 
+	payload_list* q_result = new payload_list();
 	// Iterate on all active queries to compare them with this new document
-	for(i=0;i<n;i++)
-	{
+	query* Q = Q_list->getfirst();
+	while(Q!=NULL){
 		bool matching_query=true;
-		Query* quer=&queries[i];
-
-		int iq=0;
-		while(quer->str[iq] && matching_query)
-		{
-			while(quer->str[iq]==' ') iq++;
-			if(!quer->str[iq]) break;
-			char* qword=&quer->str[iq];
-
-			int lq=iq;
-			while(quer->str[iq] && quer->str[iq]!=' ') iq++;
-			char qt=quer->str[iq];
-			quer->str[iq]=0;
-			lq=iq-lq;
-
+		for(int i=0;(i<int(Q->get_word_count())) && matching_query;i++){
 			bool matching_word=false;
-
 			int id=0;
 			while(cur_doc_str[id] && !matching_word)
 			{
@@ -266,25 +234,23 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 
 				ld=id-ld;
 
-				if(quer->match_type==MT_EXACT_MATCH)
+				if(Q->get_match_type()==MT_EXACT_MATCH)
 				{
-					if(strcmp(qword, dword)==0) matching_word=true;
+					if(strcmp(((Q->get_word_arr())[i]).getword(), dword)==0) matching_word=true;
 				}
-				else if(quer->match_type==MT_HAMMING_DIST)
+				else if(Q->get_match_type()==MT_HAMMING_DIST)
 				{
-					unsigned int num_mismatches=HammingDistance(qword, lq, dword, ld);
-					if(num_mismatches<=quer->match_dist) matching_word=true;
+					unsigned int num_mismatches=HammingDistance(((Q->get_word_arr())[i]).getword(), strlen(((Q->get_word_arr())[i]).getword()), dword, ld);
+					if(num_mismatches<=Q->get_dist()) matching_word=true;
 				}
-				else if(quer->match_type==MT_EDIT_DIST)
+				else if(Q->get_match_type()==MT_EDIT_DIST)
 				{
-					unsigned int edit_dist=EditDistance(qword, lq, dword, ld);
-					if(edit_dist<=quer->match_dist) matching_word=true;
+					unsigned int edit_dist=EditDistance(((Q->get_word_arr())[i]).getword(), strlen(((Q->get_word_arr())[i]).getword()), dword, ld);
+					if(edit_dist<=Q->get_dist()) matching_word=true;
 				}
 
 				cur_doc_str[id]=dt;
 			}
-
-			quer->str[iq]=qt;
 
 			if(!matching_word)
 			{
@@ -296,19 +262,23 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 		if(matching_query)
 		{
 			// This query matches the document
-			query_ids.push_back(quer->query_id);
+			q_result->payload_insert(Q->get_id());
+			r_num++;
 		}
+		Q = Q->get_next();
 	}
-
-	Document doc;
-	doc.doc_id=doc_id;
-	doc.num_res=query_ids.size();
-	doc.query_ids=0;
-	if(doc.num_res) doc.query_ids=(unsigned int*)malloc(doc.num_res*sizeof(unsigned int));
-	for(i=0;i<doc.num_res;i++) doc.query_ids[i]=query_ids[i];
+	doc* D;
+	D = new doc(doc_id);
+	D->set_num_res(r_num);
+	D->set_query_ids(q_result,r_num);
 	// Add this result to the set of undelivered results
-	docs.push_back(doc);
-
+	doc* D_tt;
+	D_tt = D_list->add_doc(D_list,D,q_result);
+	if(flg==1){
+		flg = 0;
+		// cout<<"DADAS"<<endl;
+		D_tmp = D_tt;
+	}
 	return EC_SUCCESS;
 }
 
@@ -318,9 +288,25 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 {
 	// Get the first undeliverd resuilt from "docs" and return it
 	*p_doc_id=0; *p_num_res=0; *p_query_ids=0;
-	if(docs.size()==0) return EC_NO_AVAIL_RES;
-	*p_doc_id=docs[0].doc_id; *p_num_res=docs[0].num_res; *p_query_ids=docs[0].query_ids;
-	docs.erase(docs.begin());
+	flg = 1;
+	if(D_tmp==NULL){
+		// cout<<"HEY SISTES"<<endl;
+		return EC_NO_AVAIL_RES;
+	}
+	// cout<<"D_t "<<D_tmp->get_id()<<endl;
+
+	// cout<<"get_num_res "<<D_tmp->get_num_res()<<endl;
+
+	*p_doc_id = D_tmp->get_id();
+	*p_num_res=D_tmp->get_num_res();
+	*p_query_ids = D_tmp->get_query_ids();
+
+	// cout<<"id "<<*p_doc_id<<" num "<<*p_num_res<<endl;
+	// for(int i = 0 ; i < *p_num_res;i++){
+	// 	cout<<"idqqq "<<(*p_query_ids)[i]<<endl;
+	// }
+	// cout<<"das"<<endl;
+	D_tmp = D_tmp->get_next();
 	return EC_SUCCESS;
 }
 

@@ -19,7 +19,7 @@ class word {
         ~word();
 
         //Copy contructor
-        word(const word &ww);
+        // word(const word &ww);
 
         //Setters - Getters
         void setword(const char *ww){
@@ -53,7 +53,7 @@ class entry {
         ErrorCode destroy_entry(entry **e);
 
         //Copy constructor
-        entry(const entry &ee);
+        // entry(const entry &ee);
 
         /* Getters */
         char* getword() const    { return myString->getword(); }
@@ -64,6 +64,9 @@ class entry {
         /* Setters */
         void setnext(entry *tmp) { next = tmp; }
         void setword(char *tmp)  { myString->setword(tmp); }
+        void setword(word *W){
+            myString->setword(W->getword());
+        }
 };
 
 //Lista apo komvoys entries
