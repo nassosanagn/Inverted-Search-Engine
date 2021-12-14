@@ -67,6 +67,23 @@ class entry {
         void setword(word *W){
             myString->setword(W->getword());
         }
+        void setpayload(payload_list* pl){
+            payload_node* pn = pl->getFirst();
+            while(pn!=NULL){
+                list->payload_insert(pn->getId());
+                pn = pn->getNext();
+            }
+        }
+        payload_node* search_payload(int id){
+            payload_node* pn = list->getFirst();
+            while(pn!=NULL){
+                if(pn->getId()==id){
+                    return pn;
+                }
+                pn = pn->getNext();
+            }
+            return NULL;
+        }
 };
 
 //Lista apo komvoys entries
@@ -95,6 +112,7 @@ class entry_list{
         //Diagrafei kathe komvo ths listas
         ErrorCode destroy_entry_list(entry_list** el);
         
+        ErrorCode destroy_entrys(entry_list** el);
         //Ektypwnei kathe komvo
         ErrorCode print_list(entry_list *el);
 

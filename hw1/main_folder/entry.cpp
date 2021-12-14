@@ -77,8 +77,8 @@ ErrorCode entry_list::print_list(entry_list *el){
     entry* entry_tmp = el->getfirst();
     while(entry_tmp != NULL){
         cout<<entry_tmp->getword()<<" ";
-        entry_tmp->getpayload()->print_list();
-        cout<<endl;
+        // entry_tmp->getpayload()->print_list();
+        // cout<<endl;
         entry_tmp = entry_tmp->getnext();
     }
     cout<<endl;
@@ -176,6 +176,23 @@ ErrorCode entry_list::destroy_entry_list(entry_list** el){
     }
     delete (*el);
     (*el) = NULL;
+    return EC_SUCCESS;
+}
+
+ErrorCode entry_list::destroy_entrys(entry_list** el){
+    if((*el)==NULL){
+        return EC_FAIL;
+    }
+    entry* curr = (*el)->getfirst();
+    entry* next = NULL;
+    //Diatrexei thn lista kai diagrafei toys komvoys
+    while(curr != NULL){
+        next = curr->getnext();
+
+        delete curr;
+
+        curr = next;
+    }
     return EC_SUCCESS;
 }
 

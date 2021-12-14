@@ -59,7 +59,22 @@ class query_list{
         //Diagrafei kathe komvo ths listas
         ErrorCode destroy_query_list(query_list** el);
         
-        
+        ErrorCode print_list(){
+    
+            if (first == NULL){
+                return EC_FAIL;
+            }
+
+            query* current = first;
+
+            while (current != NULL){
+                cout << current->get_id() << " ";
+                current = current->get_next();
+            }
+
+            cout << endl;
+            return EC_SUCCESS;
+        }
         //Getters - Setters
         query* getfirst() const{
             return first;

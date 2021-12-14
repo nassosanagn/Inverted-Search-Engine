@@ -170,6 +170,7 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 	// cout<<"START "<<query_id<<endl;
 	Q = Q_list->add_query(Q_list,query_id, query_str, match_type, match_dist);
 	switch(match_type){
+
         case MT_HAMMING_DIST:
 			for(unsigned int i=0;i<Q->get_word_count();i++){
 				ham_index->insert(&(Q->get_word_arr()[i]),query_id);
@@ -211,14 +212,23 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 	strcpy(cur_doc_str, doc_str);
 
 	int r_num = 0;
-	vector<unsigned int> query_ids;
+
+	entry_list* result= new entry_list();
+
+	
+	word* myword = new word();
 
 	payload_list* q_result = new payload_list();
 	// Iterate on all active queries to compare them with this new document
 	query* Q = Q_list->getfirst();
 	while(Q!=NULL){
 		bool matching_query=true;
-		for(int i=0;(i<int(Q->get_word_count())) && matching_query;i++){
+		if(Q->get_id()==8){
+			cout<<"DADASDASDAS"<<endl;
+		}
+		for(int i=0;i<int(Q->get_word_count());i++){
+			if(!matching_query)
+				break;
 			bool matching_word=false;
 			int id=0;
 			while(cur_doc_str[id] && !matching_word)
@@ -245,8 +255,37 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 				}
 				else if(Q->get_match_type()==MT_EDIT_DIST)
 				{
-					unsigned int edit_dist=EditDistance(((Q->get_word_arr())[i]).getword(), strlen(((Q->get_word_arr())[i]).getword()), dword, ld);
-					if(edit_dist<=Q->get_dist()) matching_word=true;
+					myword->setword(dword);
+					result = NULL;
+					result = new entry_list();
+					edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result);
+
+					entry* e = result->search_word(&((Q->get_word_arr())[i]));
+					// if(doc_id == 15&&Q->get_id()==81){
+					// 	result->print_list(result);
+					// }
+					if(e != NULL){
+						if(e->search_payload(Q->get_id())!=NULL){
+							if(Q->get_id()==8){
+								cout<<"word ocunt "<<Q->get_word_count()<<endl;
+								cout<<"q word "<<(Q->get_word_arr())[i].getword()<<endl;
+								cout<<"d word "<<e->getword()<<endl;
+								cout<<"i = "<<i<<endl;
+							}
+							// if(result->get_first(result)!=NULL)
+							// 	result->get_first(result)->getpayload()->print_list();
+							// e->getpayload()->print_list();
+							// if(doc_id == 15){
+							// 	// cout<<"DAS "<<dword<<"   "<<((Q->get_word_arr())[i]).getword()<<" "<<Q->get_dist()<<endl;
+							// 	cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA "<<dword<<" "<<((Q->get_word_arr())[i]).getword()<<" "<<Q->get_id()<<" "<<endl;
+							// 	result->print_list(result);
+							// }
+							matching_word=true;
+						}
+					}
+
+					// unsigned int edit_dist=EditDistance(((Q->get_word_arr())[i]).getword(), strlen(((Q->get_word_arr())[i]).getword()), dword, ld);
+					// if(edit_dist<=Q->get_dist()) matching_word=true;
 				}
 
 				cur_doc_str[id]=dt;
@@ -254,6 +293,10 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 
 			if(!matching_word)
 			{
+				// if(doc_id == 15&&Q->get_match_type() ==MT_EDIT_DIST ){
+				// 	cout<<"DASDADAS"<<endl;
+				// 	cout<<Q->get_word_count()<<" "<<Q->get_id()<<endl;
+				// }
 				// This query has a word that does not match any word in the document
 				matching_query=false;
 			}
@@ -300,11 +343,13 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 	*p_doc_id = D_tmp->get_id();
 	*p_num_res=D_tmp->get_num_res();
 	*p_query_ids = D_tmp->get_query_ids();
-
+	
 	// cout<<"id "<<*p_doc_id<<" num "<<*p_num_res<<endl;
+	// cout<<"doc id = "<<*p_doc_id<<" ";
 	// for(int i = 0 ; i < *p_num_res;i++){
-	// 	cout<<"idqqq "<<(*p_query_ids)[i]<<endl;
+	// 	cout<<(*p_query_ids)[i]<<" ";
 	// }
+	// cout<<endl;
 	// cout<<"das"<<endl;
 	D_tmp = D_tmp->get_next();
 	return EC_SUCCESS;

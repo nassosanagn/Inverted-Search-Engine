@@ -133,11 +133,15 @@ ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt, int qid){
 
 //Eisagwgh komvoy sto dentro
 ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype, int qid){
-    
     setmatchtype(matchtype);
     int tempDiff;
     char* str = entry->getword();
-
+    if(tempNode == root){
+        if(!strcmp(str,tempNode->getString())){
+            tempNode->getEntry()->getpayload()->payload_insert(qid);
+            return EC_FAIL;
+        }
+    }
     //Analoga to matchtype kalei kai thn katallhlh synarthsh metrhshs
     switch(matchtype){
         case MT_HAMMING_DIST:
@@ -147,7 +151,7 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
             tempDiff = EditDistance(str, strlen(str),cmpWord, strlen(cmpWord));
             break;
     }
-
+    
     // An den yparxei allo paidi ths rizas 
     if (this->getRoot()->getChildNode() == NULL){                     // Only for the first time 
         getRoot()->setChildNode(new treeNode(entry, tempDiff),qid);
@@ -159,7 +163,10 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
     }
 
     if ((tempDiff == tempNode->getDiff())) {        /* Go down on that node */
-
+        if(!strcmp(str,tempNode->getString())){
+            tempNode->getEntry()->getpayload()->payload_insert(qid);
+            return EC_FAIL;
+        }
         if (tempNode->getChildNode() == NULL){
             switch(matchtype){
                 case MT_HAMMING_DIST:
@@ -171,15 +178,17 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
             }
             tempNode->setChildNode(new treeNode(entry, tempDiff),qid);
         }else{
-            insertTree(entry, tempNode->getString(), tempNode->getChildNode(),matchtype,qid);
+            if(insertTree(entry, tempNode->getString(), tempNode->getChildNode(),matchtype,qid)==EC_FAIL){
+                return EC_FAIL;
+            }
         }
-
     }else{                              /* Go right on that node */
-
         if (tempNode->getnextNode() == NULL){
             tempNode->setNextNode(new treeNode(entry, tempDiff),qid);
         }else{
-            insertTree(entry, cmpWord, tempNode->getnextNode(),matchtype,qid);
+            if(insertTree(entry, cmpWord, tempNode->getnextNode(),matchtype,qid)==EC_FAIL){
+                return EC_FAIL;
+            }
         }
     }
 
@@ -284,8 +293,8 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
         if (word_dis <= threshold)
         {
             input_entry->setword(current_candidate->getString());
-            
-            result->add_entry(result,input_entry,0);
+            input_entry->setpayload(current_candidate->getEntry()->getpayload());
+            result->add_entry(result,input_entry,-1);
         }
         //Ypologizei ta oria twn apostasewn gia na elegthoyn
         int left = word_dis - threshold;
@@ -301,6 +310,10 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
             temp_tnode=temp_tnode->getnextNode();
         }
     }
+    // if(result->getfirst()!=NULL){
+    //     cout<<"PRINT LIST  + ";
+    //     result->print_list(result);
+    // }
     delete cand_list;
     delete input_entry;
     delete[] tmpStr; 
