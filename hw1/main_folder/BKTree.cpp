@@ -210,8 +210,8 @@ void treeNode::print_all(){
 //Ektypwsh paidiwn
 void treeNode::print_children(){
     treeNode* tempNode = this->getChildNode();
-    cout <<"Parent "<< this->getString() << " with payload ";
-    this->getEntry()->getpayload()->print_list();
+    cout <<"Parent "<< this->getString()/* << " with payload "*/;
+    // this->getEntry()->getpayload()->print_list();
     cout<< endl;
     if (tempNode == NULL)
     {
@@ -262,7 +262,7 @@ treeNode* BKList::popfirst(){
 
 
 //Syanrthsh gia thn eyresh omoiwn le3ewn
-ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result){
+ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result, MatchType m_type, int test){
     //Lista ypopshfiwn le3ewn
     BKList* cand_list = new BKList(new BKList_node(ix->getRoot()));
     //An den yparxei dentro
@@ -273,15 +273,24 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
     //proswrinh le3h gia thn dimhoyrgia entry struct
     char *tmpStr = new char[strlen("tmp")+1];
     strcpy(tmpStr,"k");
+
+
+    char* Strmy = new char[strlen("arlines")+1];
+    strcpy(Strmy,"arlines");
     //entry gia thn dhmioyrgia listas le3ewn gia epistrofh
     entry* input_entry = new entry(tmpStr);
     //Oso den yparxoyn alles ypopshfies le3eis
     while (cand_list->getfirst()!=NULL){
         //Dexetai ton prwto komvo-le3h apo thn lista
         treeNode* current_candidate = cand_list->popfirst();
+        // if (test == 1 )
+        // {
+        //     cout << "Current candidate "<<current_candidate->getString();
+        // }
+        
         //Ypologizei thn apostash
         int word_dis;
-        switch(matchtype){
+        switch(m_type){
             case MT_HAMMING_DIST:
                 word_dis = HammingDistance(w->getword(),current_candidate->getString());
                 break;
@@ -289,13 +298,28 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
                 word_dis = EditDistance(w->getword(),strlen(w->getword()),current_candidate->getString(),strlen(current_candidate->getString()));
                 break;
         }
+                // if (test==1){
+                //     if (!strcmp(Strmy,w->getword())){
+                //             cout << "Char dif between "<< w->getword() <<" with "<< current_candidate->getString() <<" is "<< word_dis <<endl;
+                //     }
+                // }
         //An einai omoio me thn le3h
         if (word_dis <= threshold)
         {
+                    // if (test == 1 )
+                    // {
+                    //     cout << " Candidate accepted\n";
+                    // }
             input_entry->setword(current_candidate->getString());
             input_entry->setpayload(current_candidate->getEntry()->getpayload());
             result->add_entry(result,input_entry,-1);
         }
+                // else{
+                //     if (test == 1)
+                //     {
+                //         cout << " Candidate rejected\n";
+                //     }  
+                // }
         //Ypologizei ta oria twn apostasewn gia na elegthoyn
         int left = word_dis - threshold;
         int right = word_dis + threshold;
@@ -310,10 +334,6 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
             temp_tnode=temp_tnode->getnextNode();
         }
     }
-    // if(result->getfirst()!=NULL){
-    //     cout<<"PRINT LIST  + ";
-    //     result->print_list(result);
-    // }
     delete cand_list;
     delete input_entry;
     delete[] tmpStr; 

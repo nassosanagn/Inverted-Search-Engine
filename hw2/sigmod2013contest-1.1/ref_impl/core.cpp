@@ -223,9 +223,6 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 	query* Q = Q_list->getfirst();
 	while(Q!=NULL){
 		bool matching_query=true;
-		if(Q->get_id()==8){
-			cout<<"DADASDASDAS"<<endl;
-		}
 		for(int i=0;i<int(Q->get_word_count());i++){
 			if(!matching_query)
 				break;
@@ -258,20 +255,22 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 					myword->setword(dword);
 					result = NULL;
 					result = new entry_list();
-					edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result);
-
+					
+					if(doc_id == 3 && Q->get_id()==8 ){
+						edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result,MT_EDIT_DIST,1);
+					}
+					else{
+						edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result,MT_EDIT_DIST);
+					}
+					
 					entry* e = result->search_word(&((Q->get_word_arr())[i]));
-					// if(doc_id == 15&&Q->get_id()==81){
-					// 	result->print_list(result);
-					// }
+					if(doc_id == 3&&Q->get_id()==8 && i==2 && result->get_first(result)!=NULL){
+
+						// edit_index->getBKtree()->printTree();
+						result->print_list(result);
+					}
 					if(e != NULL){
 						if(e->search_payload(Q->get_id())!=NULL){
-							if(Q->get_id()==8){
-								cout<<"word ocunt "<<Q->get_word_count()<<endl;
-								cout<<"q word "<<(Q->get_word_arr())[i].getword()<<endl;
-								cout<<"d word "<<e->getword()<<endl;
-								cout<<"i = "<<i<<endl;
-							}
 							// if(result->get_first(result)!=NULL)
 							// 	result->get_first(result)->getpayload()->print_list();
 							// e->getpayload()->print_list();
