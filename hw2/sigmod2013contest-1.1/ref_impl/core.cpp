@@ -205,9 +205,9 @@ ErrorCode EndQuery(QueryID query_id)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
+ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 {
-	// cout<<"test "<<doc_id<<endl;
+	// cout<<"Document "<<doc_id<<endl;
 	char cur_doc_str[MAX_DOC_LENGTH];
 	strcpy(cur_doc_str, doc_str);
 
@@ -221,14 +221,20 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 	payload_list* q_result = new payload_list();
 	// Iterate on all active queries to compare them with this new document
 	query* Q = Q_list->getfirst();
-	while(Q!=NULL){
+	while(Q!=NULL){								// for each query
+		if(doc_id == 3) cout << "Query "<<Q->get_id() <<endl;
 		bool matching_query=true;
-		for(int i=0;i<int(Q->get_word_count());i++){
+		for(int i=0;i<int(Q->get_word_count());i++){	// for each query word
+			
+
+			// if (Q->get_id()==8 ){
+			// 	cout <<"Current word is "<< (Q->get_word_arr()[i]).getword() <<" which is word "<<i << " out of "<<Q->get_word_count() << endl;
+			// }
 			if(!matching_query)
 				break;
-			bool matching_word=false;
+			bool matching_word=false;	//false if word not found true if word found
 			int id=0;
-			while(cur_doc_str[id] && !matching_word)
+			while(cur_doc_str[id] && !matching_word)	// for each doc word
 			{
 				while(cur_doc_str[id]==' ') id++;
 				if(!cur_doc_str[id]) break;
@@ -255,30 +261,32 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 					myword->setword(dword);
 					result = NULL;
 					result = new entry_list();
+
+					char* teststr = new char[strlen("airliyes")+1];
+    				strcpy(teststr,"airliyes");
 					
-					if(doc_id == 3 && Q->get_id()==8 ){
-						edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result,MT_EDIT_DIST,1);
-					}
-					else{
+					// if(doc_id == 3 && Q->get_id()==8 && !strcmp(teststr,dword) ){
+						// cout << "Index is \n";
+						// edit_index->getBKtree()->printTree();
+						// edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result,MT_EDIT_DIST,1);
+					// }
+					
 						edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result,MT_EDIT_DIST);
-					}
+					
 					
 					entry* e = result->search_word(&((Q->get_word_arr())[i]));
 					if(doc_id == 3&&Q->get_id()==8 && i==2 && result->get_first(result)!=NULL){
 
 						// edit_index->getBKtree()->printTree();
-						result->print_list(result);
 					}
-					if(e != NULL){
-						if(e->search_payload(Q->get_id())!=NULL){
-							// if(result->get_first(result)!=NULL)
-							// 	result->get_first(result)->getpayload()->print_list();
-							// e->getpayload()->print_list();
-							// if(doc_id == 15){
-							// 	// cout<<"DAS "<<dword<<"   "<<((Q->get_word_arr())[i]).getword()<<" "<<Q->get_dist()<<endl;
-							// 	cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA "<<dword<<" "<<((Q->get_word_arr())[i]).getword()<<" "<<Q->get_id()<<" "<<endl;
-							// 	result->print_list(result);
-							// }
+					if(e != NULL){	// if the doc word is in the query 
+						if(e->search_payload(Q->get_id())!=NULL){ //if query is in payload
+							if (doc_id==3)
+							{
+								// result->print_list(result);
+								// cout << "word found"<<endl;
+							}
+							
 							matching_word=true;
 						}
 					}
@@ -290,13 +298,12 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 				cur_doc_str[id]=dt;
 			}
 
-			if(!matching_word)
+			if(!matching_word)	//
 			{
-				// if(doc_id == 15&&Q->get_match_type() ==MT_EDIT_DIST ){
-				// 	cout<<"DASDADAS"<<endl;
-				// 	cout<<Q->get_word_count()<<" "<<Q->get_id()<<endl;
-				// }
-				// This query has a word that does not match any word in the document
+				if(doc_id==3)
+				cout << "word " << ((Q->get_word_arr())[i]).getword() <<" not found\n";
+				
+				
 				matching_query=false;
 			}
 		}

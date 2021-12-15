@@ -124,7 +124,7 @@ ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt, int qid){
         ix->root->getEntry()->getpayload()->payload_insert(qid);
         return EC_SUCCESS;
     }
-    ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST, qid);
+    ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),mt, qid);
         
     return EC_SUCCESS;
     
@@ -275,8 +275,11 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
     strcpy(tmpStr,"k");
 
 
-    char* Strmy = new char[strlen("arlines")+1];
-    strcpy(Strmy,"arlines");
+    char* Strmy = new char[strlen("airliyes")+1];
+    strcpy(Strmy,"airliyes");
+    if(test == 1 && !strcmp(Strmy,w->getword()) ){
+        this->printTree();
+    }
     //entry gia thn dhmioyrgia listas le3ewn gia epistrofh
     entry* input_entry = new entry(tmpStr);
     //Oso den yparxoyn alles ypopshfies le3eis
@@ -298,11 +301,11 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
                 word_dis = EditDistance(w->getword(),strlen(w->getword()),current_candidate->getString(),strlen(current_candidate->getString()));
                 break;
         }
-                // if (test==1){
-                //     if (!strcmp(Strmy,w->getword())){
-                //             cout << "Char dif between "<< w->getword() <<" with "<< current_candidate->getString() <<" is "<< word_dis <<endl;
-                //     }
-                // }
+                if (test==1){
+                    if (!strcmp(Strmy,w->getword())){
+                            cout << "Char dif between "<< w->getword() <<" with "<< current_candidate->getString() <<" is "<< word_dis <<endl;
+                    }
+                }
         //An einai omoio me thn le3h
         if (word_dis <= threshold)
         {
@@ -330,6 +333,12 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
             if (left<=temp_tnode->getDiff() && temp_tnode->getDiff()<=right)
             {
                 cand_list->add_node(temp_tnode);
+            }
+            else{
+            if(test == 1 && !strcmp(Strmy,w->getword()) )
+                {
+                    cout << "Candidate "<< temp_tnode->getString() <<"' rejected\n";
+                }
             }
             temp_tnode=temp_tnode->getnextNode();
         }
