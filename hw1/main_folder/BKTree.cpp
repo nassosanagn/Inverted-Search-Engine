@@ -127,27 +127,17 @@ ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt, int qid){
     ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST, qid);
         
     return EC_SUCCESS;
-    
-    
 }
 
 //Eisagwgh komvoy sto dentro
 ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype, int qid){
     
-    setmatchtype(matchtype);
     int tempDiff;
     char* str = entry->getword();
 
     //Analoga to matchtype kalei kai thn katallhlh synarthsh metrhshs
-    switch(matchtype){
-        case MT_HAMMING_DIST:
-            tempDiff = HammingDistance(str, cmpWord);
-            break;
-        case MT_EDIT_DIST:
-            tempDiff = EditDistance(str, strlen(str),cmpWord, strlen(cmpWord));
-            break;
-    }
-
+    tempDiff = HammingDistance(str, cmpWord);
+          
     // An den yparxei allo paidi ths rizas 
     if (this->getRoot()->getChildNode() == NULL){                     // Only for the first time 
         getRoot()->setChildNode(new treeNode(entry, tempDiff),qid);
@@ -161,14 +151,9 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
     if ((tempDiff == tempNode->getDiff())) {        /* Go down on that node */
 
         if (tempNode->getChildNode() == NULL){
-            switch(matchtype){
-                case MT_HAMMING_DIST:
-                    tempDiff = HammingDistance(str, tempNode->getString());
-                    break;
-                case MT_EDIT_DIST:
-                    tempDiff = EditDistance(str,strlen(str),tempNode->getString(),strlen(tempNode->getString()));
-                    break;
-            }
+           
+            tempDiff = HammingDistance(str, tempNode->getString());
+                    
             tempNode->setChildNode(new treeNode(entry, tempDiff),qid);
         }else{
             insertTree(entry, tempNode->getString(), tempNode->getChildNode(),matchtype,qid);
@@ -272,14 +257,8 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
         treeNode* current_candidate = cand_list->popfirst();
         //Ypologizei thn apostash
         int word_dis;
-        switch(matchtype){
-            case MT_HAMMING_DIST:
-                word_dis = HammingDistance(w->getword(),current_candidate->getString());
-                break;
-            case MT_EDIT_DIST:
-                word_dis = EditDistance(w->getword(),strlen(w->getword()),current_candidate->getString(),strlen(current_candidate->getString()));
-                break;
-        }
+        word_dis = HammingDistance(w->getword(),current_candidate->getString());
+             
         //An einai omoio me thn le3h
         if (word_dis <= threshold)
         {
