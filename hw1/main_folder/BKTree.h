@@ -1,4 +1,3 @@
-
 #ifndef BKTREE_H
 #define BKTREE_H
 
@@ -63,6 +62,7 @@ class treeNode{
 class Index{
 
     private:
+        MatchType matchtype;
         treeNode* root;
 
     public:
@@ -79,7 +79,9 @@ class Index{
 
         //Getter
         treeNode* getRoot() const { return root; }
+        MatchType getmatchtype() const { return matchtype; }
 
+        void setmatchtype(MatchType tmp){ matchtype = tmp;}
         /* Testing Functions*/
         void printTree();
 

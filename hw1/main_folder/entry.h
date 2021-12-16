@@ -130,6 +130,14 @@ class entry_list{
             return NULL;
         }
 
+        ErrorCode merge_lists(entry_list* el1, entry_list* el2){
+
+            this->setlast(el1->getfirst());
+            el1->setlast(el2->getfirst());
+
+            return EC_SUCCESS;
+        }
+
         //Getters - Setters
         entry* getfirst() const{
             return first;

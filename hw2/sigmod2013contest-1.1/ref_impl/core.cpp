@@ -213,7 +213,10 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 
 	int r_num = 0;
 
-	// entry_list* result= new entry_list();
+	entry_list* result   = new entry_list();
+	entry_list* result_2 = new entry_list();
+	entry_list* result_3 = new entry_list();
+
 	word* myword = new word();
 
 	entry* enn;
@@ -271,10 +274,19 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 				{
 					
 					myword->setword(dword);
-					result = NULL;
-					result = new entry_list();
 
-					ham_index->lookup_hamming_index(myword,Q->get_dist(),result,MT_HAMMING_DIST);   // ->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result,MT_HAMMING_DIST);
+					result = NULL;
+					result_2 = NULL;
+					result_3 = NULL;
+
+					result = new entry_list();
+					result_2 = new entry_list();
+					result_3 = new entry_list();
+					
+					ham_index->lookup_hamming_index(myword, Q->get_dist(), result,   MT_HAMMING_DIST);
+					// ham_index->lookup_hamming_index(myword, Q->get_dist(), result_2, MT_HAMMING_DIST);
+					// ham_index->lookup_hamming_index(myword, Q->get_dist(), result_3, MT_HAMMING_DIST);
+					
 					entry* e = result->search_word(&((Q->get_word_arr())[i]));
 					if(e != NULL){	// if the doc word is in the query 
 						if(e->search_payload(Q->get_id())!=NULL){ //if query is in payload
@@ -282,14 +294,22 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 						}
 					}
 				}
-				else if(Q->get_match_type()==MT_EDIT_DIST)
-				{
+				else if(Q->get_match_type()==MT_EDIT_DIST){
+
 					myword->setword(dword);
+
 					result = NULL;
+					result_2 = NULL;
+					result_3 = NULL;
+
 					result = new entry_list();
+					result_2 = new entry_list();
+					result_3 = new entry_list();
 					
-					edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result,MT_EDIT_DIST);
-					
+					/* Lookup for different thresholds */
+					edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(), result,   MT_EDIT_DIST);
+					// edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),2, result_2, MT_EDIT_DIST);
+					// edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),3, result_3, MT_EDIT_DIST);
 					
 					entry* e = result->search_word(&((Q->get_word_arr())[i]));
 					if(doc_id == 3&&Q->get_id()==8 && i==2 && result->get_first(result)!=NULL){

@@ -1,4 +1,3 @@
-
 using namespace std;
 
 #include <iostream>
@@ -127,6 +126,8 @@ ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt, int qid){
     ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),mt, qid);
         
     return EC_SUCCESS;
+    
+    
 }
 
 //Eisagwgh komvoy sto dentro
@@ -166,9 +167,14 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
             return EC_FAIL;
         }
         if (tempNode->getChildNode() == NULL){
-           
-            tempDiff = HammingDistance(str, tempNode->getString());
-                    
+            switch(matchtype){
+                case MT_HAMMING_DIST:
+                    tempDiff = HammingDistance(str, tempNode->getString());
+                    break;
+                case MT_EDIT_DIST:
+                    tempDiff = EditDistance(str,strlen(str),tempNode->getString(),strlen(tempNode->getString()));
+                    break;
+            }
             tempNode->setChildNode(new treeNode(entry, tempDiff),qid);
         }else{
             if(insertTree(entry, tempNode->getString(), tempNode->getChildNode(),matchtype,qid)==EC_FAIL){
@@ -253,8 +259,8 @@ treeNode* BKList::popfirst(){
     return return_val;
 }
 
+// Syanrthsh gia thn eyresh omoiwn le3ewn
 
-//Syanrthsh gia thn eyresh omoiwn le3ewn
 ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result, MatchType m_type, int test){
     //Lista ypopshfiwn le3ewn
     BKList* cand_list = new BKList(new BKList_node(ix->getRoot()));
