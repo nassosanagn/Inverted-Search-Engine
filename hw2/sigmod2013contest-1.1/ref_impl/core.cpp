@@ -216,10 +216,10 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 
 	int r_num = 0;
 
-	entry_list* result= new entry_list();
-
-	
+	// entry_list* result= new entry_list();
 	word* myword = new word();
+
+	entry* enn;
 
 	payload_list* q_result = new payload_list();
 	// Iterate on all active queries to compare them with this new document
@@ -245,8 +245,28 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 				ld=id-ld;
 
 				if(Q->get_match_type()==MT_EXACT_MATCH)
-				{
-					if(strcmp(((Q->get_word_arr())[i]).getword(), dword)==0) matching_word=true;
+				{	
+					myword->setword(dword);
+					enn = hash_index->search(myword);
+					if(enn!=NULL){
+						if(enn->getpayload()->search_id(Q->get_id()) == EC_SUCCESS){
+							if(!strcmp(((Q->get_word_arr())[i]).getword(),dword ))
+								matching_word=true;
+						}
+						// if(doc_id == 1&&Q->get_id()==7){
+						// 	cout<<enn->getword()<<" "<<dword<<endl;
+						// }
+					}
+					// if(doc_id == 20&&Q->get_id()==7){
+					// 	if(enn==NULL){
+					// 		// cout<<"enn = NULL"<<endl;
+					// 	}
+					// 	else{
+					// 		cout<<"enn is not null with : "<<enn->getword()<<" "<<dword<<endl;
+					// 		enn->getpayload()->print_list();
+					// 	}
+					// }
+					// if(strcmp(((Q->get_word_arr())[i]).getword(), dword)==0) matching_word=true;
 				}
 				else if(Q->get_match_type()==MT_HAMMING_DIST)
 				{
