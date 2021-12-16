@@ -207,6 +207,9 @@ ErrorCode EndQuery(QueryID query_id)
 
 ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 {
+	if(doc_id%100==0){
+		cout<<"D"<<endl;
+	}
 	// cout<<"test "<<doc_id<<endl;
 	char cur_doc_str[MAX_DOC_LENGTH];
 	strcpy(cur_doc_str, doc_str);
@@ -223,9 +226,6 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 	query* Q = Q_list->getfirst();
 	while(Q!=NULL){
 		bool matching_query=true;
-		if(Q->get_id()==8){
-			cout<<"DADASDASDAS"<<endl;
-		}
 		for(int i=0;i<int(Q->get_word_count());i++){
 			if(!matching_query)
 				break;
@@ -255,37 +255,27 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 				}
 				else if(Q->get_match_type()==MT_EDIT_DIST)
 				{
-					myword->setword(dword);
-					result = NULL;
-					result = new entry_list();
-					edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result);
+					// myword->setword(dword);
+					// result->destroy_entry_list(&result);
+					// result = NULL;
+					// result = new entry_list();
+					// edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result);
 
-					entry* e = result->search_word(&((Q->get_word_arr())[i]));
-					// if(doc_id == 15&&Q->get_id()==81){
-					// 	result->print_list(result);
+					// entry* e = result->search_word(&((Q->get_word_arr())[i]));
+					// if(e != NULL){
+					// 	if(e->search_payload(Q->get_id())!=NULL){
+					// 		// if(Q->get_id()==8&&doc_id == 15){
+					// 		// 	cout<<"word ocunt "<<Q->get_word_count()<<endl;
+					// 		// 	cout<<"q word "<<(Q->get_word_arr())[i].getword()<<endl;
+					// 		// 	cout<<"d word "<<e->getword()<<endl;
+					// 		// 	cout<<"i = "<<i<<endl;
+					// 		// }
+					// 		matching_word=true;
+					// 	}
 					// }
-					if(e != NULL){
-						if(e->search_payload(Q->get_id())!=NULL){
-							if(Q->get_id()==8){
-								cout<<"word ocunt "<<Q->get_word_count()<<endl;
-								cout<<"q word "<<(Q->get_word_arr())[i].getword()<<endl;
-								cout<<"d word "<<e->getword()<<endl;
-								cout<<"i = "<<i<<endl;
-							}
-							// if(result->get_first(result)!=NULL)
-							// 	result->get_first(result)->getpayload()->print_list();
-							// e->getpayload()->print_list();
-							// if(doc_id == 15){
-							// 	// cout<<"DAS "<<dword<<"   "<<((Q->get_word_arr())[i]).getword()<<" "<<Q->get_dist()<<endl;
-							// 	cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA "<<dword<<" "<<((Q->get_word_arr())[i]).getword()<<" "<<Q->get_id()<<" "<<endl;
-							// 	result->print_list(result);
-							// }
-							matching_word=true;
-						}
-					}
 
-					// unsigned int edit_dist=EditDistance(((Q->get_word_arr())[i]).getword(), strlen(((Q->get_word_arr())[i]).getword()), dword, ld);
-					// if(edit_dist<=Q->get_dist()) matching_word=true;
+					unsigned int edit_dist=EditDistance(((Q->get_word_arr())[i]).getword(), strlen(((Q->get_word_arr())[i]).getword()), dword, ld);
+					if(edit_dist<=Q->get_dist()) matching_word=true;
 				}
 
 				cur_doc_str[id]=dt;

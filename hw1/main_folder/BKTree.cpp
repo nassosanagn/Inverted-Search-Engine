@@ -124,7 +124,7 @@ ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt, int qid){
         ix->root->getEntry()->getpayload()->payload_insert(qid);
         return EC_SUCCESS;
     }
-    ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST, qid);
+    ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),mt, qid);
         
     return EC_SUCCESS;
     
