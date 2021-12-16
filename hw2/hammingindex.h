@@ -14,8 +14,8 @@ using namespace std;
 
 class HammingIndex{
     private:
-    public:
         Index mytrees[TREECOUNT];
+    public:
 
         ErrorCode insert(word* input,int qid){
             int treepos = strlen(input->getword())-MIN_WORD_LENGTH;
@@ -33,6 +33,16 @@ class HammingIndex{
             
 
             return EC_SUCCESS;
+        }
+
+        Index* getTree(){
+            return mytrees;
+        }
+
+        ErrorCode lookup_hamming_index(const word* w, int threshold, entry_list* result, MatchType m_type){
+            int word_len = strlen(w->getword());
+            Index* target_tree = &(mytrees[word_len-MIN_WORD_LENGTH]);
+            return target_tree->lookup_entry_index(w,target_tree,threshold,result,m_type);
         }
 
         HammingIndex()

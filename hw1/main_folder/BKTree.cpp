@@ -210,8 +210,8 @@ void treeNode::print_all(){
 //Ektypwsh paidiwn
 void treeNode::print_children(){
     treeNode* tempNode = this->getChildNode();
-    cout <<"Parent "<< this->getString() << " with payload ";
-    this->getEntry()->getpayload()->print_list();
+    cout <<"Parent "<< this->getString()/* << " with payload "*/;
+    // this->getEntry()->getpayload()->print_list();
     cout<< endl;
     if (tempNode == NULL)
     {
@@ -262,7 +262,7 @@ treeNode* BKList::popfirst(){
 
 
 //Syanrthsh gia thn eyresh omoiwn le3ewn
-ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result){
+ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result, MatchType m_type, int test){
     //Lista ypopshfiwn le3ewn
     BKList* cand_list = new BKList(new BKList_node(ix->getRoot()));
     //An den yparxei dentro
@@ -273,15 +273,20 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
     //proswrinh le3h gia thn dimhoyrgia entry struct
     char *tmpStr = new char[strlen("tmp")+1];
     strcpy(tmpStr,"k");
+
+
+    char* Strmy = new char[strlen("airliyes")+1];
+    strcpy(Strmy,"airliyes");
     //entry gia thn dhmioyrgia listas le3ewn gia epistrofh
     entry* input_entry = new entry(tmpStr);
     //Oso den yparxoyn alles ypopshfies le3eis
     while (cand_list->getfirst()!=NULL){
         //Dexetai ton prwto komvo-le3h apo thn lista
         treeNode* current_candidate = cand_list->popfirst();
+        
         //Ypologizei thn apostash
         int word_dis;
-        switch(matchtype){
+        switch(m_type){
             case MT_HAMMING_DIST:
                 word_dis = HammingDistance(w->getword(),current_candidate->getString());
                 break;
@@ -310,10 +315,6 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
             temp_tnode=temp_tnode->getnextNode();
         }
     }
-    // if(result->getfirst()!=NULL){
-    //     cout<<"PRINT LIST  + ";
-    //     result->print_list(result);
-    // }
     delete cand_list;
     delete input_entry;
     delete[] tmpStr; 
