@@ -1,9 +1,6 @@
 #include "hashtable.h"
+// #include <bits/stdc++.h>
 using namespace std;
-#include <bits/stdc++.h>
-using namespace std;
-  
-
   
     
 int editDistDP(string str1, string str2, int m, int n){

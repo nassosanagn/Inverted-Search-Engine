@@ -38,6 +38,7 @@ HASHTABLE_O=../hashtable.o
 EDITDISTBKTREE_O=../editDistBkTree.o
 PAYLOAD_O=../payload.o
 QUERY_O=../query.o
+Q_HASHTABLE_O=../q_hashtable.o
 
 # Compiler flags
 CC  = gcc
@@ -55,8 +56,8 @@ LIBRARY=core
 # Build all programs
 all: $(PROGRAMS)
 
-lib: $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O)
-	$(CXX) $(CXXFLAGS) -shared -o lib$(LIBRARY).so  $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O)
+lib: $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
+	$(CXX) $(CXXFLAGS) -shared -o lib$(LIBRARY).so  $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
 
 testdriver: lib $(TEST_O)
 	$(CXX) $(CXXFLAGS) -o testdriver $(TEST_O) ./lib$(LIBRARY).so

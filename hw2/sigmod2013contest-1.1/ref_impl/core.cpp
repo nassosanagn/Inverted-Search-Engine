@@ -36,6 +36,7 @@
 #include "../hashtable.h"
 #include "../hammingindex.h"
 #include "../editDistBkTree.h"
+#include "../q_hashtable.h"
 using namespace std;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -137,6 +138,7 @@ struct Document
 vector<Query> queries;
 
 query_list* Q_list;
+query_Hashtable* Q_hash;
 doc_list* D_list;
 HammingIndex* ham_index;
 Hashtable* hash_index;
@@ -151,6 +153,7 @@ vector<Document> docs;
 ErrorCode InitializeIndex(){
 
     Q_list = new query_list();
+	Q_hash = new query_Hashtable();
     D_list = new doc_list();
 	ham_index = new HammingIndex();
 	hash_index = new Hashtable();
@@ -169,6 +172,7 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 	query* Q;
 	// cout<<"START "<<query_id<<endl;
 	Q = Q_list->add_query(Q_list,query_id, query_str, match_type, match_dist);
+	Q_hash->insert(query_id,query_str,match_dist);
 	switch(match_type){
 
         case MT_HAMMING_DIST:
@@ -207,15 +211,25 @@ ErrorCode EndQuery(QueryID query_id)
 
 ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 {
-	cout<<"Document "<<doc_id<<endl;
+	if(doc_id%100==0){
+		cout<<"D"<<endl;
+	}
+
+	// cout<<"test "<<doc_id<<endl;
 	char cur_doc_str[MAX_DOC_LENGTH];
 	strcpy(cur_doc_str, doc_str);
 
 	int r_num = 0;
 
-	entry_list* result   = new entry_list();
-	entry_list* result_2 = new entry_list();
-	entry_list* result_3 = new entry_list();
+	entry_list* hamm_res1;
+	entry_list* hamm_res2;
+	entry_list* hamm_res3;
+
+	entry_list* edit_res1;
+	entry_list* edit_res2;
+	entry_list* edit_res3;
+
+	entry* exact_res;
 
 	word* myword = new word();
 
@@ -223,131 +237,179 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 
 	payload_list* q_result = new payload_list();
 	// Iterate on all active queries to compare them with this new document
-	query* Q = Q_list->getfirst();
-	while(Q!=NULL){								// for each query
-		bool matching_query=true;
-		for(int i=0;i<int(Q->get_word_count());i++){	// for each query word
-			
+	int id=0;
+	while(cur_doc_str[id]){				// for each doc word
+	
+		while(cur_doc_str[id]==' ') id++;
+		if(!cur_doc_str[id]) break;
+		char* dword=&cur_doc_str[id];
 
-			if(!matching_query)
-				break;
-			bool matching_word=false;	//false if word not found true if word found
-			int id=0;
-			while(cur_doc_str[id] && !matching_word)	// for each doc word
-			{
-				while(cur_doc_str[id]==' ') id++;
-				if(!cur_doc_str[id]) break;
-				char* dword=&cur_doc_str[id];
+		int ld=id;
+		while(cur_doc_str[id] && cur_doc_str[id]!=' ') id++;
+		char dt=cur_doc_str[id];
+		cur_doc_str[id]=0;
 
-				int ld=id;
-				while(cur_doc_str[id] && cur_doc_str[id]!=' ') id++;
-				char dt=cur_doc_str[id];
-				cur_doc_str[id]=0;
+		ld=id-ld;
 
-				ld=id-ld;
+		hamm_res1 = NULL;
+		hamm_res2 = NULL;
+		hamm_res3 = NULL;
 
-				if(Q->get_match_type()==MT_EXACT_MATCH)
-				{	
-					myword->setword(dword);
-					enn = hash_index->search(myword);
-					if(enn!=NULL){
-						if(enn->getpayload()->search_id(Q->get_id()) == EC_SUCCESS){
-							if(!strcmp(((Q->get_word_arr())[i]).getword(),dword ))
-								matching_word=true;
-						}
-						// if(doc_id == 1&&Q->get_id()==7){
-						// 	cout<<enn->getword()<<" "<<dword<<endl;
-						// }
-					}
-					// if(doc_id == 20&&Q->get_id()==7){
-					// 	if(enn==NULL){
-					// 		// cout<<"enn = NULL"<<endl;
-					// 	}
-					// 	else{
-					// 		cout<<"enn is not null with : "<<enn->getword()<<" "<<dword<<endl;
-					// 		enn->getpayload()->print_list();
-					// 	}
-					// }
-					// if(strcmp(((Q->get_word_arr())[i]).getword(), dword)==0) matching_word=true;
+		edit_res1 = NULL;
+		edit_res2 = NULL;
+		edit_res3 = NULL;
+
+		exact_res = NULL;
+
+		hamm_res1 = new entry_list();
+		hamm_res2 = new entry_list();
+		hamm_res3 = new entry_list();
+
+		edit_res1 = new entry_list();
+		edit_res2 = new entry_list();
+		edit_res3 = new entry_list();
+
+		myword->setword(dword);
+
+		exact_res = hash_index->search(myword);
+
+		if (exact_res != NULL){
+
+			payload_node* pNode = exact_res->getpayload()->getFirst();
+
+			while(pNode != NULL){
+				if (Q_hash->add_one(myword, pNode->getId()) == EC_SUCCESS){
+					q_result->payload_insert(pNode->getId());
 				}
-				else if(Q->get_match_type()==MT_HAMMING_DIST)
-				{
-					
-					myword->setword(dword);
-
-					result = NULL;
-					result_2 = NULL;
-					result_3 = NULL;
-
-					result = new entry_list();
-					result_2 = new entry_list();
-					result_3 = new entry_list();
-					
-					ham_index->lookup_hamming_index(myword, Q->get_dist(), result,   MT_HAMMING_DIST);
-					// ham_index->lookup_hamming_index(myword, Q->get_dist(), result_2, MT_HAMMING_DIST);
-					// ham_index->lookup_hamming_index(myword, Q->get_dist(), result_3, MT_HAMMING_DIST);
-					
-					entry* e = result->search_word(&((Q->get_word_arr())[i]));
-					if(e != NULL){	// if the doc word is in the query 
-						if(e->search_payload(Q->get_id())!=NULL){ //if query is in payload
-							matching_word=true;
-						}
-					}
-				}
-				else if(Q->get_match_type()==MT_EDIT_DIST){
-
-					myword->setword(dword);
-
-					result = NULL;
-					result_2 = NULL;
-					result_3 = NULL;
-
-					result = new entry_list();
-					result_2 = new entry_list();
-					result_3 = new entry_list();
-					
-					/* Lookup for different thresholds */
-					edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(), result,   MT_EDIT_DIST);
-					// edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),2, result_2, MT_EDIT_DIST);
-					// edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),3, result_3, MT_EDIT_DIST);
-					
-					entry* e = result->search_word(&((Q->get_word_arr())[i]));
-					if(doc_id == 3&&Q->get_id()==8 && i==2 && result->get_first(result)!=NULL){
-
-						// edit_index->getBKtree()->printTree();
-					}
-					if(e != NULL){	// if the doc word is in the query 
-						if(e->search_payload(Q->get_id())!=NULL){ //if query is in payload
-							if (doc_id==3)
-							{
-								// result->print_list(result);
-								// cout << "word found"<<endl;
-							}
-							
-							matching_word=true;
-						}
-					}
-				}
-
-				cur_doc_str[id]=dt;
-			}
-
-			if(!matching_word)	//
-			{
-				
-				
-				matching_query=false;
+				pNode = pNode->getNext();
 			}
 		}
+		
+		ham_index->lookup_hamming_index(myword, 1, hamm_res1, MT_HAMMING_DIST);
+		ham_index->lookup_hamming_index(myword, 2, hamm_res2, MT_HAMMING_DIST);
+		ham_index->lookup_hamming_index(myword, 3, hamm_res3, MT_HAMMING_DIST);
 
-		if(matching_query)
-		{
-			// This query matches the document
-			q_result->payload_insert(Q->get_id());
-			r_num++;
-		}
-		Q = Q->get_next();
+		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),1,edit_res1, MT_EDIT_DIST);
+		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),2,edit_res2, MT_EDIT_DIST);
+		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),3,edit_res3, MT_EDIT_DIST);
+
+		cur_doc_str[id]=dt;
 	}
+
+	// query* Q = Q_list->getfirst();
+
+	// while(Q != NULL){								// for each query
+	// 	bool matching_query=true;
+	// 	for(int i=0;i<int(Q->get_word_count());i++){	// for each query word
+
+	// 		if(!matching_query)
+	// 			break;
+	// 		bool matching_word=false;	//false if word not found true if word found
+	// 		int id=0;
+	// 		while(cur_doc_str[id] && !matching_word)	// for each doc word
+	// 		{
+	// 			while(cur_doc_str[id]==' ') id++;
+	// 			if(!cur_doc_str[id]) break;
+	// 			char* dword=&cur_doc_str[id];
+
+	// 			int ld=id;
+	// 			while(cur_doc_str[id] && cur_doc_str[id]!=' ') id++;
+	// 			char dt=cur_doc_str[id];
+	// 			cur_doc_str[id]=0;
+
+	// 			ld=id-ld;
+
+	// 			if(Q->get_match_type()==MT_EXACT_MATCH)
+	// 			{	
+	// 				myword->setword(dword);
+	// 				enn = hash_index->search(myword);
+	// 				if(enn!=NULL){
+	// 					if(enn->getpayload()->search_id(Q->get_id()) == EC_SUCCESS){
+	// 						if(!strcmp(((Q->get_word_arr())[i]).getword(),dword ))
+	// 							matching_word=true;
+	// 					}
+	// 					// if(doc_id == 1&&Q->get_id()==7){
+	// 					// 	cout<<enn->getword()<<" "<<dword<<endl;
+	// 					// }
+	// 				}
+	// 				// if(doc_id == 20&&Q->get_id()==7){
+	// 				// 	if(enn==NULL){
+	// 				// 		// cout<<"enn = NULL"<<endl;
+	// 				// 	}
+	// 				// 	else{
+	// 				// 		cout<<"enn is not null with : "<<enn->getword()<<" "<<dword<<endl;
+	// 				// 		enn->getpayload()->print_list();
+	// 				// 	}
+	// 				// }
+	// 				// if(strcmp(((Q->get_word_arr())[i]).getword(), dword)==0) matching_word=true;
+	// 			}
+	// 			else if(Q->get_match_type()==MT_HAMMING_DIST)
+	// 			{
+					
+	// 				myword->setword(dword);
+
+	// 				result = NULL;
+	// 				// result_2 = NULL;
+	// 				// result_3 = NULL;
+
+	// 				result = new entry_list();
+	// 				// result_2 = new entry_list();
+	// 				// result_3 = new entry_list();
+					
+	// 				ham_index->lookup_hamming_index(myword, Q->get_dist(), result,   MT_HAMMING_DIST);
+	// 				// ham_index->lookup_hamming_index(myword, Q->get_dist(), result_2, MT_HAMMING_DIST);
+	// 				// ham_index->lookup_hamming_index(myword, Q->get_dist(), result_3, MT_HAMMING_DIST);
+					
+	// 				entry* e = result->search_word(&((Q->get_word_arr())[i]));
+	// 				if(e != NULL){	// if the doc word is in the query 
+	// 					if(e->search_payload(Q->get_id())!=NULL){ //if query is in payload
+	// 						matching_word=true;
+	// 					}
+	// 				}
+	// 			}
+	// 			else if(Q->get_match_type()==MT_EDIT_DIST)
+	// 			{
+	// 				// myword->setword(dword);
+	// 				// result->destroy_entry_list(&result);
+	// 				// result = NULL;
+	// 				// result = new entry_list();
+	// 				// edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result);
+
+	// 				// entry* e = result->search_word(&((Q->get_word_arr())[i]));
+	// 				// if(e != NULL){
+	// 				// 	if(e->search_payload(Q->get_id())!=NULL){
+	// 				// 		// if(Q->get_id()==8&&doc_id == 15){
+	// 				// 		// 	cout<<"word ocunt "<<Q->get_word_count()<<endl;
+	// 				// 		// 	cout<<"q word "<<(Q->get_word_arr())[i].getword()<<endl;
+	// 				// 		// 	cout<<"d word "<<e->getword()<<endl;
+	// 				// 		// 	cout<<"i = "<<i<<endl;
+	// 				// 		// }
+	// 				// 		matching_word=true;
+	// 				// 	}
+	// 				// }
+
+	// 				unsigned int edit_dist=EditDistance(((Q->get_word_arr())[i]).getword(), strlen(((Q->get_word_arr())[i]).getword()), dword, ld);
+	// 				if(edit_dist<=Q->get_dist()) matching_word=true;
+	// 			}
+
+	// 			cur_doc_str[id]=dt;
+	// 		}
+
+	// 		if(!matching_word)	//
+	// 		{
+				
+	// 			matching_query=false;
+	// 		}
+	// 	}
+
+	// 	if(matching_query)
+	// 	{
+	// 		// This query matches the document
+	// 		q_result->payload_insert(Q->get_id());
+	// 		r_num++;
+	// 	}
+	// 	Q = Q->get_next();
+	// }
 	doc* D;
 	D = new doc(doc_id);
 	D->set_num_res(r_num);
