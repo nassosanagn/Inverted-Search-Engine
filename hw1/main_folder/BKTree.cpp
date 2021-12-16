@@ -277,19 +277,12 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
 
     char* Strmy = new char[strlen("airliyes")+1];
     strcpy(Strmy,"airliyes");
-    if(test == 1 && !strcmp(Strmy,w->getword()) ){
-        this->printTree();
-    }
     //entry gia thn dhmioyrgia listas le3ewn gia epistrofh
     entry* input_entry = new entry(tmpStr);
     //Oso den yparxoyn alles ypopshfies le3eis
     while (cand_list->getfirst()!=NULL){
         //Dexetai ton prwto komvo-le3h apo thn lista
         treeNode* current_candidate = cand_list->popfirst();
-        // if (test == 1 )
-        // {
-        //     cout << "Current candidate "<<current_candidate->getString();
-        // }
         
         //Ypologizei thn apostash
         int word_dis;
@@ -301,28 +294,13 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
                 word_dis = EditDistance(w->getword(),strlen(w->getword()),current_candidate->getString(),strlen(current_candidate->getString()));
                 break;
         }
-                if (test==1){
-                    if (!strcmp(Strmy,w->getword())){
-                            cout << "Char dif between "<< w->getword() <<" with "<< current_candidate->getString() <<" is "<< word_dis <<endl;
-                    }
-                }
         //An einai omoio me thn le3h
         if (word_dis <= threshold)
         {
-                    // if (test == 1 )
-                    // {
-                    //     cout << " Candidate accepted\n";
-                    // }
             input_entry->setword(current_candidate->getString());
             input_entry->setpayload(current_candidate->getEntry()->getpayload());
             result->add_entry(result,input_entry,-1);
         }
-                // else{
-                //     if (test == 1)
-                //     {
-                //         cout << " Candidate rejected\n";
-                //     }  
-                // }
         //Ypologizei ta oria twn apostasewn gia na elegthoyn
         int left = word_dis - threshold;
         int right = word_dis + threshold;
@@ -333,12 +311,6 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
             if (left<=temp_tnode->getDiff() && temp_tnode->getDiff()<=right)
             {
                 cand_list->add_node(temp_tnode);
-            }
-            else{
-            if(test == 1 && !strcmp(Strmy,w->getword()) )
-                {
-                    cout << "Candidate "<< temp_tnode->getString() <<"' rejected\n";
-                }
             }
             temp_tnode=temp_tnode->getnextNode();
         }
