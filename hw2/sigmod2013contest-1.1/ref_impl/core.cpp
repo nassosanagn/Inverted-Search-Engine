@@ -234,10 +234,11 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 	word* myword = new word();
 
 	entry* enn;
-
+	int j=0;
 	payload_list* q_result = new payload_list();
 	// Iterate on all active queries to compare them with this new document
 	int id=0;
+	cout <<doc_id<<endl;
 	while(cur_doc_str[id]){				// for each doc word
 	
 		while(cur_doc_str[id]==' ') id++;
@@ -272,7 +273,6 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 		myword->setword(dword);
 
 		exact_res = hash_index->search(myword);
-
 		if (exact_res != NULL){
 
 			payload_node* pNode = exact_res->getpayload()->getFirst();
@@ -284,10 +284,14 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 				pNode = pNode->getNext();
 			}
 		}
-		
+
 		ham_index->lookup_hamming_index(myword, 1, hamm_res1, MT_HAMMING_DIST);
 		ham_index->lookup_hamming_index(myword, 2, hamm_res2, MT_HAMMING_DIST);
 		ham_index->lookup_hamming_index(myword, 3, hamm_res3, MT_HAMMING_DIST);
+
+		
+		
+
 
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),1,edit_res1, MT_EDIT_DIST);
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),2,edit_res2, MT_EDIT_DIST);
@@ -295,6 +299,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 
 		cur_doc_str[id]=dt;
 	}
+	
 
 	// query* Q = Q_list->getfirst();
 

@@ -129,6 +129,38 @@ class query_Hashtable {
 
             return EC_FAIL;
         }
+
+
+        ErrorCode add_one_payload(entry_list* res1,entry_list* res2,entry_list* res3, int qid){
+            query_hash_node* qNode;
+            int func_out = hash_function(qid,size);
+            qNode = buckets[func_out]->search_id(qid); 
+
+
+            if (qNode->get_dist()==1){
+                entry* tmpEntry = res1->get_first(res1);
+                payload_node* tmpPload;
+                while (tmpEntry){
+                    tmpPload = tmpEntry->getpayload()->getFirst();
+                    while (tmpPload){
+                        // may god help you
+                        tmpPload = tmpPload->getNext();
+                    }
+                    
+                    
+                    tmpEntry=tmpEntry->getnext();
+                }
+                 
+            }
+            else if (qNode->get_dist()==2)
+            {
+                /* code */
+            }        
+            else
+            {
+                /* code */
+            }
+        }  
 };
 
 
