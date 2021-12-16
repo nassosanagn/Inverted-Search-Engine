@@ -19,7 +19,7 @@ class word {
         ~word();
 
         //Copy contructor
-        word(const word &ww);
+        // word(const word &ww);
 
         //Setters - Getters
         void setword(const char *ww){
@@ -53,16 +53,37 @@ class entry {
         ErrorCode destroy_entry(entry **e);
 
         //Copy constructor
-        entry(const entry &ee);
+        // entry(const entry &ee);
 
         /* Getters */
         char* getword() const    { return myString->getword(); }
+        word* getmyword() const {return myString;}
         payload_list* getpayload() const { return list; }
         entry* getnext() const   { return next; }
         
         /* Setters */
         void setnext(entry *tmp) { next = tmp; }
         void setword(char *tmp)  { myString->setword(tmp); }
+        void setword(word *W){
+            myString->setword(W->getword());
+        }
+        void setpayload(payload_list* pl){
+            payload_node* pn = pl->getFirst();
+            while(pn!=NULL){
+                list->payload_insert(pn->getId());
+                pn = pn->getNext();
+            }
+        }
+        payload_node* search_payload(int id){
+            payload_node* pn = list->getFirst();
+            while(pn!=NULL){
+                if(pn->getId()==id){
+                    return pn;
+                }
+                pn = pn->getNext();
+            }
+            return NULL;
+        }
 };
 
 //Lista apo komvoys entries
@@ -80,7 +101,7 @@ class entry_list{
         unsigned int get_number_entries(const entry_list* el);
         
         //Prosthetei ena entry sto telos ths listas
-        ErrorCode add_entry(entry_list* el, const entry* e);
+        ErrorCode add_entry(entry_list* el, const entry* e,int id);
 
         //epistrefei to prwto entry
         entry* get_first(const entry_list* el);
@@ -91,12 +112,24 @@ class entry_list{
         //Diagrafei kathe komvo ths listas
         ErrorCode destroy_entry_list(entry_list** el);
         
+        ErrorCode destroy_entrys(entry_list** el);
         //Ektypwnei kathe komvo
         ErrorCode print_list(entry_list *el);
 
         //Epistrefei success otan oi listes einai karivws idies
         ErrorCode list_similarity(entry_list *el1,entry_list *el2);
         
+        entry* search_word(word* W){
+            entry * e = first;
+            while(e!=NULL){
+                if(!strcmp(e->getword(),W->getword())){
+                    return e;
+                }
+                e = e->getnext();
+            }
+            return NULL;
+        }
+
         //Getters - Setters
         entry* getfirst() const{
             return first;

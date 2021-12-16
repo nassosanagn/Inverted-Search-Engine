@@ -1,8 +1,8 @@
-using namespace std;
 
 #ifndef EDIT_DIST_BK_TREE_H
 #define EDIT_DIST_BK_TREE_H
 
+using namespace std;
 #include <iostream>
 #include <cstring>
 #include <stdlib.h>
@@ -10,12 +10,15 @@ using namespace std;
 #include "sigmod2013contest-1.1/include/core.h"
 
 
-class editBKTree{
+class EditBKTree{
     
-    BKTree editBk;
 
+    Index* editBk;
     public:
-    
+        Index* getBKtree() const { return editBk; }
+        EditBKTree(){
+            editBk = new Index();
+        }
 };
 
 #endif

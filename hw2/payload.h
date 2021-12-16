@@ -42,6 +42,8 @@ class payload_list{
         ErrorCode print_list();
         ErrorCode payload_insert(int id);
         ErrorCode destroy_payload_list();
+        
+        ErrorCode search_id(int id);
 
         //Getters - Setters
         payload_node* getFirst() const{ return head;}

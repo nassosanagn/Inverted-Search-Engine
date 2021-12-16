@@ -19,7 +19,7 @@ class HammingIndex{
 
         ErrorCode insert(word* input,int qid){
             int treepos = strlen(input->getword())-MIN_WORD_LENGTH;
-            cout <<"Position is "<<treepos<<endl;
+            // cout <<"Position is "<<treepos<<" "<<qid<<" "<<input->getword()<<endl;
             mytrees[treepos].insertWord(input,&(mytrees[treepos]),MT_HAMMING_DIST,qid);
             return EC_SUCCESS;
         }
