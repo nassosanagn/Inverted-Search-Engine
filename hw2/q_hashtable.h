@@ -5,21 +5,10 @@
 #include "../hw1/main_folder/entry.h"
 #define Q_SIZE 100
 
-class query_Hashtable {
-    query_hash_list** buckets;
-    int size;
-    int counter;
-    public:
-        unsigned long hash_function(int id,int size_tmp);
-        query_Hashtable();
-        ErrorCode insert(QueryID qid,const char * str,unsigned int m_dist);
-        ErrorCode print();
-        query_hash_node* search(QueryID qid);
-};
-
 class query_hash_node {
     QueryID query_id;
     word word_arr[MAX_QUERY_WORDS];
+    int word_c[MAX_QUERY_WORDS];
 	unsigned int match_dist;
     unsigned int word_count;
     query_hash_node* next;
@@ -65,7 +54,7 @@ class query_hash_list{
         //Diagrafei kathe komvo ths listas
         ErrorCode destroy_query_list(query_hash_list** el);
         
-        query_hash_node* search_id(int id);
+        query_hash_node* search_id(unsigned int id);
 
         ErrorCode print_list(){
     
@@ -90,5 +79,19 @@ class query_hash_list{
         }
 
 };
+
+class query_Hashtable {
+    query_hash_list** buckets;
+    int size;
+    int counter;
+    public:
+        unsigned long hash_function(int id,int size_tmp);
+        query_Hashtable();
+        ErrorCode insert(QueryID qid,const char * str,unsigned int m_dist);
+        ErrorCode print();
+        query_hash_node* search(QueryID qid);
+};
+
+
 
 #endif

@@ -48,6 +48,7 @@ query_hash_node::query_hash_node(QueryID qid,const char * str,unsigned int m_dis
     {
         word_count++;
         word_arr[i].setword(pch);
+        word_c[i] = 0;
         pch = strtok (NULL, " ");
         i++;
     }
@@ -113,7 +114,7 @@ ErrorCode query_hash_list::destroy_query_list(query_hash_list** el){
     return EC_SUCCESS;
 }
 
-query_hash_node* query_hash_list::search_id(int id){
+query_hash_node* query_hash_list::search_id(unsigned int id){
     query_hash_node* qn = first;
     while(qn!=NULL){
         if(qn->get_id() == id){

@@ -36,6 +36,7 @@
 #include "../hashtable.h"
 #include "../hammingindex.h"
 #include "../editDistBkTree.h"
+#include "../q_hashtable.h"
 using namespace std;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -137,6 +138,7 @@ struct Document
 vector<Query> queries;
 
 query_list* Q_list;
+query_Hashtable* Q_hash;
 doc_list* D_list;
 HammingIndex* ham_index;
 Hashtable* hash_index;
@@ -151,6 +153,7 @@ vector<Document> docs;
 ErrorCode InitializeIndex(){
 
     Q_list = new query_list();
+	Q_hash = new query_Hashtable();
     D_list = new doc_list();
 	ham_index = new HammingIndex();
 	hash_index = new Hashtable();
@@ -169,6 +172,7 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 	query* Q;
 	// cout<<"START "<<query_id<<endl;
 	Q = Q_list->add_query(Q_list,query_id, query_str, match_type, match_dist);
+	Q_hash->insert(query_id,query_str,match_dist);
 	switch(match_type){
 
         case MT_HAMMING_DIST:
@@ -227,7 +231,6 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 	while(Q!=NULL){								// for each query
 		bool matching_query=true;
 		for(int i=0;i<int(Q->get_word_count());i++){	// for each query word
-			
 
 			if(!matching_query)
 				break;
