@@ -205,12 +205,9 @@ ErrorCode EndQuery(QueryID query_id)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
+ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 {
-	if(doc_id%100==0){
-		cout<<"D"<<endl;
-	}
-	// cout<<"test "<<doc_id<<endl;
+	cout<<"Document "<<doc_id<<endl;
 	char cur_doc_str[MAX_DOC_LENGTH];
 	strcpy(cur_doc_str, doc_str);
 
@@ -224,14 +221,16 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 	payload_list* q_result = new payload_list();
 	// Iterate on all active queries to compare them with this new document
 	query* Q = Q_list->getfirst();
-	while(Q!=NULL){
+	while(Q!=NULL){								// for each query
 		bool matching_query=true;
-		for(int i=0;i<int(Q->get_word_count());i++){
+		for(int i=0;i<int(Q->get_word_count());i++){	// for each query word
+			
+
 			if(!matching_query)
 				break;
-			bool matching_word=false;
+			bool matching_word=false;	//false if word not found true if word found
 			int id=0;
-			while(cur_doc_str[id] && !matching_word)
+			while(cur_doc_str[id] && !matching_word)	// for each doc word
 			{
 				while(cur_doc_str[id]==' ') id++;
 				if(!cur_doc_str[id]) break;
@@ -270,44 +269,53 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)
 				}
 				else if(Q->get_match_type()==MT_HAMMING_DIST)
 				{
-					unsigned int num_mismatches=HammingDistance(((Q->get_word_arr())[i]).getword(), strlen(((Q->get_word_arr())[i]).getword()), dword, ld);
-					if(num_mismatches<=Q->get_dist()) matching_word=true;
+					
+					myword->setword(dword);
+					result = NULL;
+					result = new entry_list();
+
+					ham_index->lookup_hamming_index(myword,Q->get_dist(),result,MT_HAMMING_DIST);   // ->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result,MT_HAMMING_DIST);
+					entry* e = result->search_word(&((Q->get_word_arr())[i]));
+					if(e != NULL){	// if the doc word is in the query 
+						if(e->search_payload(Q->get_id())!=NULL){ //if query is in payload
+							matching_word=true;
+						}
+					}
 				}
 				else if(Q->get_match_type()==MT_EDIT_DIST)
 				{
-					// myword->setword(dword);
-					// result->destroy_entry_list(&result);
-					// result = NULL;
-					// result = new entry_list();
-					// edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result);
+					myword->setword(dword);
+					result = NULL;
+					result = new entry_list();
+					
+					edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),Q->get_dist(),result,MT_EDIT_DIST);
+					
+					
+					entry* e = result->search_word(&((Q->get_word_arr())[i]));
+					if(doc_id == 3&&Q->get_id()==8 && i==2 && result->get_first(result)!=NULL){
 
-					// entry* e = result->search_word(&((Q->get_word_arr())[i]));
-					// if(e != NULL){
-					// 	if(e->search_payload(Q->get_id())!=NULL){
-					// 		// if(Q->get_id()==8&&doc_id == 15){
-					// 		// 	cout<<"word ocunt "<<Q->get_word_count()<<endl;
-					// 		// 	cout<<"q word "<<(Q->get_word_arr())[i].getword()<<endl;
-					// 		// 	cout<<"d word "<<e->getword()<<endl;
-					// 		// 	cout<<"i = "<<i<<endl;
-					// 		// }
-					// 		matching_word=true;
-					// 	}
-					// }
-
-					unsigned int edit_dist=EditDistance(((Q->get_word_arr())[i]).getword(), strlen(((Q->get_word_arr())[i]).getword()), dword, ld);
-					if(edit_dist<=Q->get_dist()) matching_word=true;
+						// edit_index->getBKtree()->printTree();
+					}
+					if(e != NULL){	// if the doc word is in the query 
+						if(e->search_payload(Q->get_id())!=NULL){ //if query is in payload
+							if (doc_id==3)
+							{
+								// result->print_list(result);
+								// cout << "word found"<<endl;
+							}
+							
+							matching_word=true;
+						}
+					}
 				}
 
 				cur_doc_str[id]=dt;
 			}
 
-			if(!matching_word)
+			if(!matching_word)	//
 			{
-				// if(doc_id == 15&&Q->get_match_type() ==MT_EDIT_DIST ){
-				// 	cout<<"DASDADAS"<<endl;
-				// 	cout<<Q->get_word_count()<<" "<<Q->get_id()<<endl;
-				// }
-				// This query has a word that does not match any word in the document
+				
+				
 				matching_query=false;
 			}
 		}
