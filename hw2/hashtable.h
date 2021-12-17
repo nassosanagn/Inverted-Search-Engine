@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "../hw1/main_folder/entry.h"
+#include "q_hashtable.h"
 #define SIZE 100
 
 class Hashtable {
@@ -14,7 +15,7 @@ class Hashtable {
         Hashtable();
         ErrorCode insert(entry *,int);
         ErrorCode print();
-        entry* search(word *);
+        ErrorCode search(word *W,query_Hashtable* Q_hash,int current_doc,payload_list* q_result);
         ErrorCode rehash();
 };
 

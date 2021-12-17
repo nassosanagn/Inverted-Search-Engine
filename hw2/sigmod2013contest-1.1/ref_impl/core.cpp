@@ -221,14 +221,6 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 
 	int r_num = 0;
 
-	entry_list* hamm_res1;
-	entry_list* hamm_res2;
-	entry_list* hamm_res3;
-
-	entry_list* edit_res1;
-	entry_list* edit_res2;
-	entry_list* edit_res3;
-
 	entry* exact_res;
 
 	word* myword = new word();
@@ -252,50 +244,26 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 
 		ld=id-ld;
 
-		hamm_res1 = NULL;
-		hamm_res2 = NULL;
-		hamm_res3 = NULL;
-
-		edit_res1 = NULL;
-		edit_res2 = NULL;
-		edit_res3 = NULL;
-
 		exact_res = NULL;
-
-		hamm_res1 = new entry_list();
-		hamm_res2 = new entry_list();
-		hamm_res3 = new entry_list();
-
-		edit_res1 = new entry_list();
-		edit_res2 = new entry_list();
-		edit_res3 = new entry_list();
 
 		myword->setword(dword);
 
-		exact_res = hash_index->search(myword);
-		if (exact_res != NULL){
+		hash_index->search(myword,Q_hash,doc_id,q_result);
+		// if (exact_res != NULL){
 
-			payload_node* pNode = exact_res->getpayload()->getFirst();
+		// 	payload_node* pNode = exact_res->getpayload()->getFirst();
 
-			while(pNode != NULL){
-				if (Q_hash->add_one(myword, pNode->getId()) == EC_SUCCESS){
-					q_result->payload_insert(pNode->getId());
-				}
-				pNode = pNode->getNext();
-			}
-		}
+		// 	while(pNode != NULL){
+		// 		if (Q_hash->add_one(myword, pNode->getId(),doc_id) == EC_SUCCESS){
+		// 			q_result->payload_insert(pNode->getId());
+		// 		}
+		// 		pNode = pNode->getNext();
+		// 	}
+		// }
 
-		ham_index->lookup_hamming_index(myword, 1, hamm_res1, MT_HAMMING_DIST);
-		ham_index->lookup_hamming_index(myword, 2, hamm_res2, MT_HAMMING_DIST);
-		ham_index->lookup_hamming_index(myword, 3, hamm_res3, MT_HAMMING_DIST);
+		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,doc_id,q_result);
 
-		
-		
-
-
-		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),1,edit_res1, MT_EDIT_DIST);
-		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),2,edit_res2, MT_EDIT_DIST);
-		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),3,edit_res3, MT_EDIT_DIST);
+		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),1, MT_EDIT_DIST,Q_hash,doc_id,q_result);
 
 		cur_doc_str[id]=dt;
 	}

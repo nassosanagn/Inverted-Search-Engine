@@ -41,6 +41,7 @@ class payload_list{
         //Ektypwnei kathe komvo
         ErrorCode print_list();
         ErrorCode payload_insert(int id);
+        ErrorCode payload_insert_asc(int id);
         ErrorCode destroy_payload_list();
         
         ErrorCode search_id(int id);

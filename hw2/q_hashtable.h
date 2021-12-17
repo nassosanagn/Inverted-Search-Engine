@@ -12,7 +12,7 @@ class query_hash_node {
 	int words_found;
     unsigned int match_dist;
     unsigned int word_count;
-
+    unsigned int curr_doc;
     query_hash_node* next;
 
     public:
@@ -38,9 +38,9 @@ class query_hash_node {
         int* get_word_c() {
             return word_c;
         }
-
-
-
+        unsigned int get_curr_doc() {
+            return curr_doc;
+        }
 
         query_hash_node* get_next() const{
             return next;
@@ -48,10 +48,18 @@ class query_hash_node {
         void set_next(query_hash_node *tmp){
             next = tmp;
         }
-
+        void set_curr_doc(unsigned int tmp){
+            curr_doc = tmp;
+        }
         void set_found(int x){
             word_c[x] = 1;
             words_found++;
+        }
+        void reset_val(){
+            for(int i = 0; i < word_count; i++){
+                word_c[i] = 0;
+            }
+            words_found = 0;
         }
 };
 
@@ -110,15 +118,53 @@ class query_Hashtable {
         ErrorCode print();
         query_hash_node* search(QueryID qid);
 
-        ErrorCode add_one(word* myword, int qid){
+        ErrorCode add_one(word* myword, int qid,int current_doc){
             
             query_hash_node* qNode;
             int func_out = hash_function(qid,size);
             qNode = buckets[func_out]->search_id(qid);           
+            
+            if (qNode->get_word_found() == qNode->get_word_count()){
+                return EC_FAIL;
+            }
 
+            if(qNode->get_curr_doc() != current_doc){
+                qNode->set_curr_doc(current_doc);
+                qNode->reset_val();
+            }
             for(int i = 0; i < qNode->get_word_count(); i++){
+                if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((qNode->get_word_c())[i] == 0)){
+                    qNode->set_found(i);
+                }
+            }
+            
+            if (qNode->get_word_found() == qNode->get_word_count()){
+                return EC_SUCCESS;
+            }
 
-                if (!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ){
+            return EC_FAIL;
+        }
+
+        ErrorCode add_one_tree(word* myword, int qid,int current_doc,int threshold){
+            
+            query_hash_node* qNode;
+            int func_out = hash_function(qid,size);
+            qNode = buckets[func_out]->search_id(qid);           
+            
+            if (qNode->get_word_found() == qNode->get_word_count()){
+                return EC_FAIL;
+            }
+
+            if(qNode->get_curr_doc() != current_doc){
+                qNode->set_curr_doc(current_doc);
+                qNode->reset_val();
+            }
+
+            if(qNode->get_dist() < threshold){
+                return EC_FAIL;
+            }
+            for(int i = 0; i < qNode->get_word_count(); i++){
+                if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((qNode->get_word_c())[i] == 0)){
                     qNode->set_found(i);
                 }
             }
@@ -131,36 +177,17 @@ class query_Hashtable {
         }
 
 
-        ErrorCode add_one_payload(entry_list* res1,entry_list* res2,entry_list* res3, int qid){
-            query_hash_node* qNode;
-            int func_out = hash_function(qid,size);
-            qNode = buckets[func_out]->search_id(qid); 
-
-
-            if (qNode->get_dist()==1){
-                entry* tmpEntry = res1->get_first(res1);
-                payload_node* tmpPload;
-                while (tmpEntry){
-                    tmpPload = tmpEntry->getpayload()->getFirst();
-                    while (tmpPload){
-                        // may god help you
-                        tmpPload = tmpPload->getNext();
-                    }
-                    
-                    
-                    tmpEntry=tmpEntry->getnext();
+        ErrorCode add_one_payload(payload_list* pl,word* w,int current_doc,int threshold,payload_list* q_result){
+            payload_node* pn;
+            pn = pl->getFirst();
+            while(pn!=NULL){
+                if(add_one_tree(w,pn->getId(),current_doc,threshold) == EC_SUCCESS){
+                    q_result->payload_insert_asc(pn->getId());
                 }
-                 
+                pn = pn->getNext();
             }
-            else if (qNode->get_dist()==2)
-            {
-                /* code */
-            }        
-            else
-            {
-                /* code */
-            }
-        }  
+
+        }
 };
 
 

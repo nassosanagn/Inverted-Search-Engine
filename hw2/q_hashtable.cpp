@@ -40,6 +40,7 @@ query_hash_node::query_hash_node(QueryID qid,const char * str,unsigned int m_dis
     query_id = qid;
     word_count = 0;
     words_found = 0;
+    curr_doc = 0;
     char * pch;
     char* Str = new char[strlen(str)+1];
     strcpy(Str,str);
