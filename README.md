@@ -16,6 +16,8 @@
 
 Στο πρώτο μέρος του project υλοποιήθηκαν οι δομές Word, Entry, Entry list και BK Tree/Index μαζί με τις λειτουργίες που απαιτούν.
 
+### Σύνοψη
+
 ### MatchType και ErrorCode
 
 Στο πρόγραμμα χρησιμοποιούνται τα enums MatchType και ErrorCode του core.h. 
