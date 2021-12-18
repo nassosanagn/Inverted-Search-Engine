@@ -4,14 +4,14 @@
 #include <stdlib.h>
 #include "../hw1/main_folder/entry.h"
 #include "q_hashtable.h"
-#define SIZE 100
+#define SIZE 10000
 
 class Hashtable {
     entry_list** buckets;
     int size;
     int counter;
     public:
-        unsigned long hash_function(char* str,int size);
+        unsigned long hash_function(char*,int);
         Hashtable();
         ErrorCode insert(entry *,int);
         ErrorCode print();

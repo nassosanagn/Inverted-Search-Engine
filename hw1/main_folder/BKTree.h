@@ -75,7 +75,7 @@ class Index{
         ErrorCode insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype, int qid);
         ErrorCode build_entry_index(const entry_list* el, MatchType type, Index* ix, int qid);
 
-        int HammingDistance(const char* word1, const char* word2);
+        int HammingDistance(const char*,const char*);
         int EditDistance(char* a, int na, char* b, int nb);
 
         //Getter

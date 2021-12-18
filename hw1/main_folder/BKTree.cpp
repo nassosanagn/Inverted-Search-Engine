@@ -32,6 +32,7 @@ ErrorCode Index::destroy_entry_index(treeNode* ix){
 }
 
 //Synarthsh gia eyresh hamming distance 
+
 int Index::HammingDistance(const char* word1, const char* word2){
         int j = strlen(word1)-strlen(word2);
         if (j < 0){j=-j;}
@@ -43,7 +44,42 @@ int Index::HammingDistance(const char* word1, const char* word2){
         return j;
 }
 
+
 //EditDistance apo core.cpp
+// int Index::EditDistance(char *str1,int str1Len, char *str2, int str2Len) {
+//   int row, column;
+//   int array[str2Len + 1][str1Len + 1];
+//   array[0][0] = 0;
+//   for (row = 1; row <= str2Len; row++)
+//     array[row][0] = array[row - 1][0] + 1;
+//   for (column = 1; column <= str1Len; column++)
+//     array[0][column] = array[0][column - 1] + 1;
+//   for (row = 1; row <= str2Len; row++) {
+//     for (column = 1; column <= str1Len; column++) {
+//       int upper_cell = array[row - 1][column] + 1;
+//       int left_cell = array[row][column - 1] + 1;
+//       int diagonal_cell = array[row - 1][column - 1];
+//       if (str1[column - 1] != str2[row - 1]) {
+//         diagonal_cell++;
+//       }
+//       if (upper_cell < left_cell) {
+//         if (upper_cell < diagonal_cell) {
+//           array[row][column] = upper_cell;
+//         } else {
+//           array[row][column] = diagonal_cell;
+//         }
+//       } else {
+//         if (left_cell < diagonal_cell) {
+//           array[row][column] = left_cell;
+//         } else {
+//           array[row][column] = diagonal_cell;
+//         }
+//       }
+//     }
+//   }
+
+//   return array[str2Len][str1Len];
+// }
 int Index::EditDistance(char* a, int na, char* b, int nb)
 {
 	int oo=0x7FFFFFFF;

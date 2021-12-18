@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "../hw1/main_folder/entry.h"
-#define Q_SIZE 100
+#define Q_SIZE 100000
 
 class query_hash_node {
     QueryID query_id;
@@ -140,7 +140,7 @@ class query_Hashtable {
     public:
         unsigned long hash_function(int id,int size_tmp);
         query_Hashtable();
-        ErrorCode insert(QueryID qid,const char * str,unsigned int m_dist);
+        query_hash_node* insert(QueryID qid,const char * str,unsigned int m_dist);
         ErrorCode print();
         query_hash_node* search(QueryID qid);
     

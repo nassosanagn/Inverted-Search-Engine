@@ -5,6 +5,7 @@
 payload_list::payload_list(){
     counter = 0;
     this->head = NULL;
+    this->last = NULL;
 }
 
 payload_list::~payload_list(){
@@ -65,19 +66,18 @@ ErrorCode payload_list::payload_insert(int tmpId){
 
     
     payload_node* new_node = new payload_node(tmpId);
-    payload_node* current = this->getFirst();
+    payload_node* current = this->getLast();
 
     if (current == NULL){
         this->setFirst(new_node);
+        this->setLast(new_node);
         return EC_SUCCESS;
     }
 
-    while (current->getNext() != NULL){
-        current = current->getNext();
-    }
-
     current->setNext(new_node);
+    this->setLast(new_node);
     return EC_SUCCESS;
+
 }
 
 ErrorCode payload_list::payload_insert_asc(int tmpId){

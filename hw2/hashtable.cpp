@@ -3,31 +3,7 @@
 using namespace std;
   
     
-int editDistDP(string str1, string str2, int m, int n){
-    int len1 = str1.length();
-    int len2 = str2.length();
-    int edit_arr[len1 + 1][len2 + 1];
-    int t = 0;
-    for (int i = 0; i < len1+1; i++) {
-        for (int j = 0; j < len2+1; j++) {
-            if (i == 0){
-                edit_arr[i][j] = j;
-            }
-            else if (j == 0){
-                edit_arr[i][j] = i;
-            }
-            else if (str1[i - 1] == str2[j - 1]){
-                edit_arr[i][j] = edit_arr[i - 1][j - 1];
-            }
-            else{
-                t = (edit_arr[i - 1][j] < edit_arr[i - 1][j - 1] ? edit_arr[i - 1][j] : edit_arr[i - 1][j - 1]);
-                edit_arr[i][j] = 1 + (edit_arr[i][j - 1] < t? edit_arr[i][j - 1] : t);
-            }
-        }
-    }
-  
-    return edit_arr[len1][len2];
-}
+
 
 unsigned long Hashtable::hash_function(char* str,int size_tmp){
     unsigned long i = 0;

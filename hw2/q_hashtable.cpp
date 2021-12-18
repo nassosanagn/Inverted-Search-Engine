@@ -15,11 +15,11 @@ query_Hashtable::query_Hashtable(){
     }
 }
 
-ErrorCode query_Hashtable::insert(QueryID qid,const char * str,unsigned int m_dist){
+query_hash_node* query_Hashtable::insert(QueryID qid,const char * str,unsigned int m_dist){
     int func_out = hash_function(qid,size);
-    buckets[func_out]->add_query(buckets[func_out],qid,str,m_dist);
+    query_hash_node* qhn = buckets[func_out]->add_query(buckets[func_out],qid,str,m_dist);
     counter++;
-    return EC_SUCCESS;
+    return qhn;
 }
 
 query_hash_node* query_Hashtable::search(QueryID qid){
