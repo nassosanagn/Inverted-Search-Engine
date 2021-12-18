@@ -13,6 +13,7 @@ class query_hash_node {
     unsigned int match_dist;
     unsigned int word_count;
     unsigned int curr_doc;
+    int alive;
     query_hash_node* next;
 
     public:
@@ -23,6 +24,9 @@ class query_hash_node {
         }
         word* get_word_arr(){
             return word_arr;
+        }
+        int get_alive(){
+            return alive;
         }
         unsigned int get_dist() const{
             return match_dist;
@@ -50,6 +54,9 @@ class query_hash_node {
         }
         void set_curr_doc(unsigned int tmp){
             curr_doc = tmp;
+        }
+        void set_alive(){
+            alive = 0;
         }
         void set_found(int x){
             word_c[x] = 1;
@@ -90,7 +97,10 @@ class query_hash_list{
             }
             query_hash_node* current = first;
             while (current != NULL){
-                cout << current->get_id() << " ";
+                cout << "ID = "<<current->get_id() << " get_word_count: "<<current->get_word_count()<<" words found: "<<current->get_word_found()<<" CURR "<<current->get_curr_doc()<<" ";
+                for(int i = 0 ;i<current->get_word_count();i++){
+                    cout<<(current->get_word_c())[i]<<" ";
+                }
                 current = current->get_next();
             }
             cout << endl;
@@ -104,7 +114,23 @@ class query_hash_list{
         void setfirst(query_hash_node* tmp){
             first = tmp;
         }
-
+        // void delete_query(int id){
+        //     query_hash_node *current = first;
+        //     query_hash_node *previous = NULL;
+        //     while (current != NULL) {
+        //         if (current->get_id() == id) {
+        //             if (previous == NULL) {
+        //                 first = current->get_next();
+        //             } else {
+        //                 previous->set_next(current->get_next());
+        //             }
+        //             // delete current;
+        //             break;
+        //         }
+        //         previous = current;
+        //         current = current->get_next();
+        //     }
+        // }
 };
 
 class query_Hashtable {
@@ -117,21 +143,24 @@ class query_Hashtable {
         ErrorCode insert(QueryID qid,const char * str,unsigned int m_dist);
         ErrorCode print();
         query_hash_node* search(QueryID qid);
-
+    
         ErrorCode add_one(word* myword, int qid,int current_doc){
             
             query_hash_node* qNode;
             int func_out = hash_function(qid,size);
             qNode = buckets[func_out]->search_id(qid);           
-            
-            if (qNode->get_word_found() == qNode->get_word_count()){
+            if(qNode->get_alive() == 0){
                 return EC_FAIL;
             }
-
             if(qNode->get_curr_doc() != current_doc){
                 qNode->set_curr_doc(current_doc);
                 qNode->reset_val();
             }
+
+            if (qNode->get_word_found() == qNode->get_word_count()){
+                return EC_FAIL;
+            }
+
             for(int i = 0; i < qNode->get_word_count(); i++){
                 if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((qNode->get_word_c())[i] == 0)){
                     qNode->set_found(i);
@@ -146,18 +175,19 @@ class query_Hashtable {
         }
 
         ErrorCode add_one_tree(word* myword, int qid,int current_doc,int threshold){
-            
             query_hash_node* qNode;
             int func_out = hash_function(qid,size);
             qNode = buckets[func_out]->search_id(qid);           
-            
-            if (qNode->get_word_found() == qNode->get_word_count()){
+            if(qNode->get_alive() == 0){
                 return EC_FAIL;
             }
-
             if(qNode->get_curr_doc() != current_doc){
                 qNode->set_curr_doc(current_doc);
                 qNode->reset_val();
+            }
+            
+            if (qNode->get_word_found() == qNode->get_word_count()){
+                return EC_FAIL;
             }
 
             if(qNode->get_dist() < threshold){
@@ -168,7 +198,6 @@ class query_Hashtable {
                     qNode->set_found(i);
                 }
             }
-            
             if (qNode->get_word_found() == qNode->get_word_count()){
                 return EC_SUCCESS;
             }
@@ -187,6 +216,13 @@ class query_Hashtable {
                 pn = pn->getNext();
             }
 
+        }
+
+        ErrorCode delete_query(int qid){
+            query_hash_node* qNode;
+            int func_out = hash_function(qid,size);
+            qNode = buckets[func_out]->search_id(qid);
+            qNode->set_alive();
         }
 };
 

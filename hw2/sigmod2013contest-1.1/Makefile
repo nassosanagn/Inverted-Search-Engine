@@ -42,7 +42,7 @@ Q_HASHTABLE_O=../q_hashtable.o
 
 # Compiler flags
 CC  = gcc
-CXX = g++
+CXX = g++ -std=c++11
 CFLAGS=-O3 -fPIC -Wall -g -I. -I./include
 CXXFLAGS=$(CFLAGS)
 LDFLAGS=-lpthread

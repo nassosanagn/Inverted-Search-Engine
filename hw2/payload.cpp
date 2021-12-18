@@ -3,6 +3,7 @@
 /* ---------------------------------------- payload_list functions ---------------------------------------- */
 
 payload_list::payload_list(){
+    counter = 0;
     this->head = NULL;
 }
 
@@ -81,20 +82,34 @@ ErrorCode payload_list::payload_insert(int tmpId){
 
 ErrorCode payload_list::payload_insert_asc(int tmpId){
 
-    
-    payload_node* new_node = new payload_node(tmpId);
-    payload_node* current = this->getFirst();
+    payload_node *new_node = new payload_node(tmpId);
+    payload_node *current = this->head;
+    payload_node *prev = NULL;
 
+    // payload_node* new_node = new payload_node(tmpId);
+    // payload_node* current = this->getFirst();
     if (current == NULL){
         this->setFirst(new_node);
+        counter++;
         return EC_SUCCESS;
     }
-
-    while (current->getNext()!=NULL &&current->getNext()->getId() < tmpId){
-        current = current->getNext();
+    while (current != NULL) {
+        if (current->getId() > tmpId) {
+            if (prev == NULL) {
+                this->head = new_node;
+                new_node->setNext(current);
+                counter++;
+                return EC_SUCCESS;
+            }
+            new_node->setNext(current);
+            prev->setNext(new_node);
+            counter++;
+            return EC_SUCCESS;
+        }
+            prev = current;
+            current = current->getNext();
     }
-    new_node->setNext(current->getNext());
-    current->setNext(new_node);
-
+    prev->setNext(new_node);
+    counter++;
     return EC_SUCCESS;
 }

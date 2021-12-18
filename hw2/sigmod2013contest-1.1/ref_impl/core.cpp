@@ -204,6 +204,7 @@ ErrorCode EndQuery(QueryID query_id)
 {
 	// Remove this query from the active query set
 	Q_list->delete_query(query_id);
+	Q_hash->delete_query(query_id);
 	return EC_SUCCESS;
 }
 
@@ -211,9 +212,9 @@ ErrorCode EndQuery(QueryID query_id)
 
 ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 {
-	if(doc_id%100==0){
-		cout<<"D"<<endl;
-	}
+	// if(doc_id%100==0){
+	// 	cout<<"D"<<endl;
+	// }
 
 	// cout<<"test "<<doc_id<<endl;
 	char cur_doc_str[MAX_DOC_LENGTH];
@@ -230,7 +231,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 	payload_list* q_result = new payload_list();
 	// Iterate on all active queries to compare them with this new document
 	int id=0;
-	cout <<doc_id<<endl;
+	// cout <<doc_id<<endl;
 	while(cur_doc_str[id]){				// for each doc word
 	
 		while(cur_doc_str[id]==' ') id++;
@@ -244,7 +245,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 
 		ld=id-ld;
 
-		exact_res = NULL;
+		// exact_res = NULL;
 
 		myword->setword(dword);
 
@@ -267,8 +268,14 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 
 		cur_doc_str[id]=dt;
 	}
-	
+	// if(doc_id == 7){
+	// 	Q_hash->print();
+	// }
 
+	// if(q_result){
+	// 	cout<<"DATA"<<endl;
+	// 	q_result->print_list();
+	// }
 	// query* Q = Q_list->getfirst();
 
 	// while(Q != NULL){								// for each query
@@ -385,14 +392,13 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 	// }
 	doc* D;
 	D = new doc(doc_id);
-	D->set_num_res(r_num);
-	D->set_query_ids(q_result,r_num);
+	D->set_num_res(q_result->get_counter());
+	D->set_query_ids(q_result,q_result->get_counter());
 	// Add this result to the set of undelivered results
 	doc* D_tt;
 	D_tt = D_list->add_doc(D_list,D,q_result);
 	if(flg==1){
 		flg = 0;
-		// cout<<"DADAS"<<endl;
 		D_tmp = D_tt;
 	}
 	return EC_SUCCESS;

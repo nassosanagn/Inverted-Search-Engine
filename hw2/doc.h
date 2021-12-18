@@ -34,7 +34,7 @@ class doc {
         void set_query_ids(payload_list* tmp,int num){
             query_ids = new QueryID[num];
             payload_node* P = tmp->getFirst();
-            int i =0;
+            int i = 0;
             while(P!=NULL){
                 query_ids[i] = P->getId();
                 i++;

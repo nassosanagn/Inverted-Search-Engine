@@ -101,7 +101,14 @@ class BKList_node{
         int threshold;
     public:
 
-        BKList_node(treeNode* input,int thr) : mynode(input){nextnode = NULL; mynode=input;threshold = thr;}
+        BKList_node(treeNode* input,int thr)
+        {
+            // cout<<"zzzzzzz"<<endl;
+            nextnode = NULL; 
+            mynode=input;
+            threshold = thr;
+            // cout<<"vvvvvvvv"<<endl;
+        }
 
         treeNode* getnode() const { return mynode;}
         int get_threshold() const { return threshold;}
@@ -114,7 +121,9 @@ class BKList{
     private:
         BKList_node* first;
     public:
-    BKList(BKList_node* input){first = input;}
+    BKList(treeNode* input,int thr){
+        first = new BKList_node(input,thr);
+    }
     treeNode* popfirst(int* threshold);
     BKList_node* getfirst() const { return first;}
     void add_node(treeNode* input,int threshold){

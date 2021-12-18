@@ -264,12 +264,14 @@ treeNode* BKList::popfirst(int* threshold){
 
 ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
     //Lista ypopshfiwn le3ewn
-    BKList* cand_list = new BKList(new BKList_node(ix->getRoot(),threshold));
-    //An den yparxei dentro
-    if (ix->getRoot()==NULL)
+    treeNode* root = ix->getRoot();
+    if (root==NULL)
     {
         return EC_FAIL;
     }
+    // BKList_node* blns = new BKList_node(root,threshold);
+    BKList* cand_list = new BKList(root,threshold);
+    //An den yparxei dentro
     //proswrinh le3h gia thn dimhoyrgia entry struct
     char *tmpStr = new char[strlen("tmp")+1];
     strcpy(tmpStr,"k");
@@ -281,7 +283,8 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
     entry* input_entry = new entry(tmpStr);
 
     payload_node* pn;
-    //Oso den yparxoyn alles ypopshfies le3eis
+
+    // Oso den yparxoyn alles ypopshfies le3eis
     while (cand_list->getfirst()!=NULL){
         //Dexetai ton prwto komvo-le3h apo thn lista
         treeNode* current_candidate = cand_list->popfirst(&threshold);
@@ -296,6 +299,7 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
                 break;
         }
         //An einai omoio me thn le3h
+
         for(int i = threshold;i<=3;i++){
             if (word_dis <= i)
             {
@@ -308,6 +312,7 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
                 break;
             }
         }
+
         //Ypologizei ta oria twn apostasewn gia na elegthoyn
         //Gia kathe paidi poy vrisketai endiamesa twn oriwn ta prosthetei san candidate
         treeNode* temp_tnode=current_candidate->getChildNode();
@@ -325,6 +330,7 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
             temp_tnode=temp_tnode->getnextNode();
         }
     }
+
     delete cand_list;
     delete input_entry;
     delete[] tmpStr; 

@@ -61,13 +61,15 @@ ErrorCode Hashtable::insert(entry* entry_tmp,int id){
 ErrorCode Hashtable::search(word *W,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
     int func_out = hash_function(W->getword(),size);
     entry* e = buckets[func_out]->search_word(W);
-    payload_node* pNode = e->getpayload()->getFirst();
+    if(e){
+        payload_node* pNode = e->getpayload()->getFirst();
 
-    while(pNode != NULL){
-        if (Q_hash->add_one(e->getmyword(), pNode->getId(),current_doc) == EC_SUCCESS){
-            q_result->payload_insert_asc(pNode->getId());
+        while(pNode != NULL){
+            if (Q_hash->add_one(e->getmyword(), pNode->getId(),current_doc) == EC_SUCCESS){
+                q_result->payload_insert_asc(pNode->getId());
+            }
+            pNode = pNode->getNext();
         }
-        pNode = pNode->getNext();
     }
     return EC_SUCCESS;
 }

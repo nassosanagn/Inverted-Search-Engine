@@ -39,6 +39,7 @@ ErrorCode query_Hashtable::print(){
 query_hash_node::query_hash_node(QueryID qid,const char * str,unsigned int m_dist){
     query_id = qid;
     word_count = 0;
+    alive = 1;
     words_found = 0;
     curr_doc = 0;
     char * pch;

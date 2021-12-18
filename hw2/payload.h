@@ -32,6 +32,7 @@ class payload_node {
 class payload_list{
 
     payload_node* head;
+    int counter;
 
     public:
         
@@ -48,7 +49,7 @@ class payload_list{
 
         //Getters - Setters
         payload_node* getFirst() const{ return head;}
-
+        int get_counter() const{return counter;}
         void setFirst(payload_node* tmp){ head = tmp; }
         
 };

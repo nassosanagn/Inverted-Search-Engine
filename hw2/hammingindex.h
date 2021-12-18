@@ -43,6 +43,7 @@ class HammingIndex{
             int word_len = strlen(w->getword());
             Index* target_tree = &(mytrees[word_len-MIN_WORD_LENGTH]);
             return target_tree->lookup_entry_index(w,target_tree,threshold,m_type,Q_hash,current_doc,q_result);
+            char* Str = new char[strlen("small")+1];
         }
 
         HammingIndex()
