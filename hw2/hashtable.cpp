@@ -1,17 +1,27 @@
 #include "hashtable.h"
 // #include <bits/stdc++.h>
 using namespace std;
-  
-    
 
 
-unsigned long Hashtable::hash_function(char* str,int size_tmp){
-    unsigned long i = 0;
-    for (int j=0; str[j]; j++)
-        i += str[j];
-    return i % size_tmp;
+// unsigned long Hashtable::hash_function(char* str,int size_tmp){
+//     unsigned long i = 0;
+//     for (int j=0; str[j]; j++)
+//         i += str[j];
+//     return i % size_tmp;
+// }
+#define A 54059 /* a prime */
+#define B 76963 /* another prime */
+#define C 86969 /* yet another prime */
+#define FIRSTH 37 /* also prime */
+unsigned Hashtable::hash_function(const char* s,int size)
+{
+   unsigned h = FIRSTH;
+   while (*s) {
+     h = (h * A) ^ (s[0] * B);
+     s++;
+   }
+   return h%size; // or return h % C;
 }
-
 Hashtable::Hashtable(){
     size = SIZE;
     counter = 0 ;
@@ -19,8 +29,8 @@ Hashtable::Hashtable(){
     for(int i =0;i<size;i++){
         buckets[i] = new entry_list();
     }
-}
-
+} 
+int cou = 0;
 ErrorCode Hashtable::insert(entry* entry_tmp,int id){
     int func_out = hash_function(entry_tmp->getword(),size);
     entry* e = buckets[func_out]->search_word(entry_tmp->getmyword());
@@ -30,6 +40,9 @@ ErrorCode Hashtable::insert(entry* entry_tmp,int id){
     }
     else{
         e->getpayload()->payload_insert(id);
+    }
+    if(counter > 0.9*size){
+        rehash();
     }
     return EC_SUCCESS;
 }

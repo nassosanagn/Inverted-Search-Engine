@@ -60,7 +60,7 @@ void test_MatchDocument(void){
     strcpy(query_str,"first_word");
     
     char* query_str2 = new char[strlen("second_word")+1];
-    strcpy(query_str2,"second");
+    strcpy(query_str2,"second_word");
 
     char* query_str3 = new char[strlen("first_word third_word")+1];
     strcpy(query_str3,"first_word third_word");
@@ -170,6 +170,7 @@ void test_doc_list(void){
     TEST_CHECK_(dl->add_doc(dl,1) != NULL,"Error at allocating doc");
     
 }
+
 void test_hashtable(void){
     TEST_CHECK_(InitializeIndex() == EC_SUCCESS,"Unallocated memory at InitializeIndex");
     char* query_str = new char[strlen("first_word")+1];
@@ -178,8 +179,11 @@ void test_hashtable(void){
     char* query_str2 = new char[strlen("second_word")+1];
     strcpy(query_str2,"second_word");
 
-    char* query_str3 = new char[strlen("first_word third_word")+1];
-    strcpy(query_str3,"first_word third_word");
+    char* query_str3 = new char[strlen("first_word second_word")+1];
+    strcpy(query_str3,"third_word");
+
+    char* query_str4 = new char[strlen("first_word second_word")+1];
+    strcpy(query_str4,"first_word second_word");
 
     TEST_CHECK_(StartQuery(1,query_str,MT_EXACT_MATCH,0) == EC_SUCCESS,"Unallocated memory at StartQuery on exact match");
     TEST_CHECK_(check_hash_insert(1) == EC_SUCCESS,"Cannot find query id 1 at query hashtable");
@@ -187,8 +191,11 @@ void test_hashtable(void){
     TEST_CHECK_(StartQuery(2,query_str2,MT_EXACT_MATCH,0) == EC_SUCCESS,"Unallocated memory at StartQuery on exact match");
     TEST_CHECK_(check_hash_insert(2) == EC_SUCCESS,"Cannot find query id 2 at query hashtable");
 
+    TEST_CHECK_(StartQuery(3,query_str3,MT_EXACT_MATCH,0) == EC_SUCCESS,"Unallocated memory at StartQuery on exact match");
+    TEST_CHECK_(check_hash_insert(3) == EC_SUCCESS,"Cannot find query id 2 at query hashtable");
 
-    TEST_CHECK_(MatchDocument(1,query_str3) == EC_SUCCESS,"Error at match document");
+
+    TEST_CHECK_(MatchDocument(1,query_str4) == EC_SUCCESS,"Error at match document");
 
     unsigned int doc_id=0;
     unsigned int num_res=0;
@@ -197,11 +204,13 @@ void test_hashtable(void){
     TEST_CHECK_(GetNextAvailRes(&doc_id,&num_res,&query_ids) == EC_SUCCESS,"Error at GetNextAvailRes");
     //Sto document 1 prepei na toy antistoixoyn mono ta queries 1 kai 2 kathws sto 3 einai diaforetikh le3h me dif > 2
     TEST_CHECK_(doc_id==1,"Not the same document with had insert");
-    TEST_CHECK_(num_res==1,"Not the correct amount of result queries");
+    TEST_CHECK_(num_res==2,"Not the correct amount of result queries");
     TEST_CHECK_(query_ids[0] == 1,"Wrong query result");
+    TEST_CHECK_(query_ids[1] == 2,"Wrong query result");
 }
 
 void test_hammingindex(void){
+
     TEST_CHECK_(InitializeIndex() == EC_SUCCESS,"Unallocated memory at InitializeIndex");
     char* query_str = new char[strlen("first_wzrd")+1];
     strcpy(query_str,"first_wzrd");
@@ -209,17 +218,23 @@ void test_hammingindex(void){
     char* query_str2 = new char[strlen("first_zxcv")+1];
     strcpy(query_str2,"first_zxcv");
 
-    char* query_str3 = new char[strlen("first_word")+1];
-    strcpy(query_str3,"first_word");
+    char* query_str3 = new char[strlen("second_wor")+1];
+    strcpy(query_str3,"second_wor");
 
-    TEST_CHECK_(StartQuery(1,query_str,MT_HAMMING_DIST,1) == EC_SUCCESS,"Unallocated memory at StartQuery on exact match");
+    char* query_str4 = new char[strlen("first_word second_word")+1];
+    strcpy(query_str4,"first_word second_word");
+
+    TEST_CHECK_(StartQuery(1,query_str,MT_HAMMING_DIST,1) == EC_SUCCESS,"Unallocated memory at StartQuery on hamming dist");
     TEST_CHECK_(check_hash_insert(1) == EC_SUCCESS,"Cannot find query id 1 at query hashtable");
 
-    TEST_CHECK_(StartQuery(2,query_str2,MT_HAMMING_DIST,2) == EC_SUCCESS,"Unallocated memory at StartQuery on exact match");
+    TEST_CHECK_(StartQuery(2,query_str2,MT_HAMMING_DIST,2) == EC_SUCCESS,"Unallocated memory at StartQuery on hamming dist");
     TEST_CHECK_(check_hash_insert(2) == EC_SUCCESS,"Cannot find query id 2 at query hashtable");
 
+    TEST_CHECK_(StartQuery(3,query_str3,MT_HAMMING_DIST,2) == EC_SUCCESS,"Unallocated memory at StartQuery on hamming dist");
+    TEST_CHECK_(check_hash_insert(3) == EC_SUCCESS,"Cannot find query id 3 at query hashtable");
 
-    TEST_CHECK_(MatchDocument(1,query_str3) == EC_SUCCESS,"Error at match document");
+
+    TEST_CHECK_(MatchDocument(1,query_str4) == EC_SUCCESS,"Error at match document");
 
     unsigned int doc_id=0;
     unsigned int num_res=0;
@@ -240,17 +255,22 @@ void test_editindex(void){
     char* query_str2 = new char[strlen("first_zxcvq")+1];
     strcpy(query_str2,"first_zxcvq");
 
-    char* query_str3 = new char[strlen("first_word")+1];
-    strcpy(query_str3,"first_word");
+    char* query_str3 = new char[strlen("second_wd")+1];
+    strcpy(query_str3,"second_wd");
 
-    TEST_CHECK_(StartQuery(1,query_str,MT_EDIT_DIST,1) == EC_SUCCESS,"Unallocated memory at StartQuery on exact match");
+    char* query_str4 = new char[strlen("first_word second_word")+1];
+    strcpy(query_str4,"first_word second_word");
+
+    TEST_CHECK_(StartQuery(1,query_str,MT_EDIT_DIST,1) == EC_SUCCESS,"Unallocated memory at StartQuery on edit dist");
     TEST_CHECK_(check_hash_insert(1) == EC_SUCCESS,"Cannot find query id 1 at query hashtable");
 
-    TEST_CHECK_(StartQuery(2,query_str2,MT_EDIT_DIST,2) == EC_SUCCESS,"Unallocated memory at StartQuery on exact match");
+    TEST_CHECK_(StartQuery(2,query_str2,MT_EDIT_DIST,2) == EC_SUCCESS,"Unallocated memory at StartQuery on edit dist");
     TEST_CHECK_(check_hash_insert(2) == EC_SUCCESS,"Cannot find query id 2 at query hashtable");
 
+    TEST_CHECK_(StartQuery(3,query_str3,MT_EDIT_DIST,2) == EC_SUCCESS,"Unallocated memory at StartQuery on edit dist");
+    TEST_CHECK_(check_hash_insert(3) == EC_SUCCESS,"Cannot find query id 3 at query hashtable");
 
-    TEST_CHECK_(MatchDocument(1,query_str3) == EC_SUCCESS,"Error at match document");
+    TEST_CHECK_(MatchDocument(1,query_str4) == EC_SUCCESS,"Error at match document");
 
     unsigned int doc_id=0;
     unsigned int num_res=0;
@@ -259,8 +279,9 @@ void test_editindex(void){
     TEST_CHECK_(GetNextAvailRes(&doc_id,&num_res,&query_ids) == EC_SUCCESS,"Error at GetNextAvailRes");
     //Sto document 1 prepei na toy antistoixoyn mono ta queries 1 kai 2 kathws sto 3 einai diaforetikh le3h me dif > 2
     TEST_CHECK_(doc_id==1,"Not the same document with had insert");
-    TEST_CHECK_(num_res==1,"Not the correct amount of result queries");
+    TEST_CHECK_(num_res==2,"Not the correct amount of result queries");
     TEST_CHECK_(query_ids[0] == 1,"Wrong query result");
+    TEST_CHECK_(query_ids[1] == 3,"Wrong query result");
 }
 
 

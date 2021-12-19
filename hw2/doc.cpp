@@ -29,23 +29,21 @@ doc* doc_list::add_doc(doc_list* el, DocID did){
     }
     //Dhmioyrgei ton komvo poy tha prosthethei
     doc* doc_n = new doc(did);
-    doc* doc_tmp = el->getfirst();
+    doc* doc_tmp = el->getlast();
     //An den yparxei allos komvos
     if(el->getfirst() == NULL){
         el->setfirst(doc_n);
+        el->setlast(doc_n);
         return doc_n;
-    }
-    //Phgainei sto telos ths listas
-    while(doc_tmp->get_next() != NULL){
-        doc_tmp = doc_tmp->get_next();
     }
     //Prosthetei ton komvo san epomeno
     doc_tmp->set_next(doc_n);
+    this->setlast(doc_n);
     return doc_n;
 }
 
-doc* doc_list::add_doc(doc_list* el, doc* D_temp,payload_list* pl){
-    if(el == NULL){
+ doc* doc_list::add_doc(doc_list* el, doc* D_temp, payload_list* pl){
+    if (el == NULL){
         return NULL;
     }
     //Dhmioyrgei ton komvo poy tha prosthethei
@@ -53,20 +51,43 @@ doc* doc_list::add_doc(doc_list* el, doc* D_temp,payload_list* pl){
     doc_n->set_num_res(D_temp->get_num_res());
     doc_n->set_query_ids(pl,D_temp->get_num_res());
 
-    doc* doc_tmp = el->getfirst();
+    doc* doc_tmp = el->getlast();
     //An den yparxei allos komvos
     if(el->getfirst() == NULL){
         el->setfirst(doc_n);
+        el->setlast(doc_n);
         return doc_n;
     }
-    //Phgainei sto telos ths listas
-    while(doc_tmp->get_next() != NULL){
-        doc_tmp = doc_tmp->get_next();
-    }
-    //Prosthetei ton komvo san epomeno
+
     doc_tmp->set_next(doc_n);
+    this->setlast(doc_n);
+
     return doc_n;
-}
+} 
+
+// doc* doc_list::add_doc(doc_list* el, doc* D_temp,payload_list* pl){
+//     if(el == NULL){
+//         return NULL;
+//     }
+//     //Dhmioyrgei ton komvo poy tha prosthethei
+//     doc* doc_n = new doc(D_temp->get_id());
+//     doc_n->set_num_res(D_temp->get_num_res());
+//     doc_n->set_query_ids(pl,D_temp->get_num_res());
+
+//     doc* doc_tmp = el->getfirst();
+//     //An den yparxei allos komvos
+//     if(el->getfirst() == NULL){
+//         el->setfirst(doc_n);
+//         return doc_n;
+//     }
+//     //Phgainei sto telos ths listas
+//     while(doc_tmp->get_next() != NULL){
+//         doc_tmp = doc_tmp->get_next();
+//     }
+//     //Prosthetei ton komvo san epomeno
+//     doc_tmp->set_next(doc_n);
+//     return doc_n;
+// }
 
 doc* doc_list::get_first(const doc_list* el){
     return el->getfirst();

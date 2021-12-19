@@ -48,7 +48,7 @@ class doc {
 
 class doc_list{
     doc* first;
-
+    doc* last;
     public:
 
         //Dhmioyrgei thn doc list
@@ -71,6 +71,13 @@ class doc_list{
 
         void setfirst(doc* tmp){
             first = tmp;
+        }
+        doc* getlast() const{
+            return last;
+        }
+
+        void setlast(doc* tmp){
+            last = tmp;
         }
 
 };

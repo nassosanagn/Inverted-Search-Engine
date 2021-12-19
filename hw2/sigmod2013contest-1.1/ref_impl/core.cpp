@@ -113,7 +113,6 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 {
 	query_hash_node* Q;
 	Q = Q_hash->insert(query_id,query_str,match_dist);
-	// cout<<"1233"<<endl;
 	switch(match_type){
         case MT_HAMMING_DIST:
 			for(unsigned int i=0;i<Q->get_word_count();i++){
