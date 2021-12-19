@@ -39,10 +39,11 @@ EDITDISTBKTREE_O=../editDistBkTree.o
 PAYLOAD_O=../payload.o
 QUERY_O=../query.o
 Q_HASHTABLE_O=../q_hashtable.o
+ACUTEST_O=../acutest.o
 
 # Compiler flags
 CC  = gcc
-CXX = g++
+CXX = g++ -std=c++11
 CFLAGS=-O3 -fPIC -Wall -g -I. -I./include
 CXXFLAGS=$(CFLAGS)
 LDFLAGS=-lpthread
@@ -59,9 +60,12 @@ all: $(PROGRAMS)
 lib: $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
 	$(CXX) $(CXXFLAGS) -shared -o lib$(LIBRARY).so  $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
 
-testdriver: lib $(TEST_O)
-	$(CXX) $(CXXFLAGS) -o testdriver $(TEST_O) ./lib$(LIBRARY).so
+testdriver: lib $(TEST_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
+	$(CXX) $(CXXFLAGS) -o testdriver $(TEST_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O) ./lib$(LIBRARY).so
 
 clean:
-	rm -f $(PROGRAMS) lib$(LIBRARY).so
+	rm -f $(PROGRAMS) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O) lib$(LIBRARY).so
 	find . -name '*.o' -print | xargs rm -f
+
+test: lib $(ACUTEST_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
+	$(CXX) $(CXXFLAGS) -o test $(ACUTEST_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O) ./lib$(LIBRARY).so

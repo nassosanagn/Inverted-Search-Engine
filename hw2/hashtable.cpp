@@ -1,41 +1,27 @@
 #include "hashtable.h"
 // #include <bits/stdc++.h>
 using namespace std;
-  
-    
-int editDistDP(string str1, string str2, int m, int n){
-    int len1 = str1.length();
-    int len2 = str2.length();
-    int edit_arr[len1 + 1][len2 + 1];
-    int t = 0;
-    for (int i = 0; i < len1+1; i++) {
-        for (int j = 0; j < len2+1; j++) {
-            if (i == 0){
-                edit_arr[i][j] = j;
-            }
-            else if (j == 0){
-                edit_arr[i][j] = i;
-            }
-            else if (str1[i - 1] == str2[j - 1]){
-                edit_arr[i][j] = edit_arr[i - 1][j - 1];
-            }
-            else{
-                t = (edit_arr[i - 1][j] < edit_arr[i - 1][j - 1] ? edit_arr[i - 1][j] : edit_arr[i - 1][j - 1]);
-                edit_arr[i][j] = 1 + (edit_arr[i][j - 1] < t? edit_arr[i][j - 1] : t);
-            }
-        }
-    }
-  
-    return edit_arr[len1][len2];
-}
 
-unsigned long Hashtable::hash_function(char* str,int size_tmp){
-    unsigned long i = 0;
-    for (int j=0; str[j]; j++)
-        i += str[j];
-    return i % size_tmp;
-}
 
+// unsigned long Hashtable::hash_function(char* str,int size_tmp){
+//     unsigned long i = 0;
+//     for (int j=0; str[j]; j++)
+//         i += str[j];
+//     return i % size_tmp;
+// }
+#define A 54059 /* a prime */
+#define B 76963 /* another prime */
+#define C 86969 /* yet another prime */
+#define FIRSTH 37 /* also prime */
+unsigned Hashtable::hash_function(const char* s,int size)
+{
+   unsigned h = FIRSTH;
+   while (*s) {
+     h = (h * A) ^ (s[0] * B);
+     s++;
+   }
+   return h%size; // or return h % C;
+}
 Hashtable::Hashtable(){
     size = SIZE;
     counter = 0 ;
@@ -43,8 +29,8 @@ Hashtable::Hashtable(){
     for(int i =0;i<size;i++){
         buckets[i] = new entry_list();
     }
-}
-
+} 
+int cou = 0;
 ErrorCode Hashtable::insert(entry* entry_tmp,int id){
     int func_out = hash_function(entry_tmp->getword(),size);
     entry* e = buckets[func_out]->search_word(entry_tmp->getmyword());
@@ -55,12 +41,26 @@ ErrorCode Hashtable::insert(entry* entry_tmp,int id){
     else{
         e->getpayload()->payload_insert(id);
     }
+    if(counter > 0.9*size){
+        rehash();
+    }
     return EC_SUCCESS;
 }
 
-entry* Hashtable::search(word *W){
+ErrorCode Hashtable::search(word *W,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
     int func_out = hash_function(W->getword(),size);
-    return buckets[func_out]->search_word(W);
+    entry* e = buckets[func_out]->search_word(W);
+    if(e){
+        payload_node* pNode = e->getpayload()->getFirst();
+
+        while(pNode != NULL){
+            if (Q_hash->add_one(e->getmyword(), pNode->getId(),current_doc) == EC_SUCCESS){
+                q_result->payload_insert_asc(pNode->getId());
+            }
+            pNode = pNode->getNext();
+        }
+    }
+    return EC_SUCCESS;
 }
 
 ErrorCode Hashtable::print(){

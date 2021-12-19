@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "../hw1/main_folder/entry.h"
-#define Q_SIZE 100
+#define Q_SIZE 100000
 
 class query_hash_node {
     QueryID query_id;
@@ -12,7 +12,8 @@ class query_hash_node {
 	int words_found;
     unsigned int match_dist;
     unsigned int word_count;
-
+    unsigned int curr_doc;
+    int alive;
     query_hash_node* next;
 
     public:
@@ -23,6 +24,9 @@ class query_hash_node {
         }
         word* get_word_arr(){
             return word_arr;
+        }
+        int get_alive(){
+            return alive;
         }
         unsigned int get_dist() const{
             return match_dist;
@@ -38,9 +42,9 @@ class query_hash_node {
         int* get_word_c() {
             return word_c;
         }
-
-
-
+        unsigned int get_curr_doc() {
+            return curr_doc;
+        }
 
         query_hash_node* get_next() const{
             return next;
@@ -48,10 +52,21 @@ class query_hash_node {
         void set_next(query_hash_node *tmp){
             next = tmp;
         }
-
+        void set_curr_doc(unsigned int tmp){
+            curr_doc = tmp;
+        }
+        void set_alive(){
+            alive = 0;
+        }
         void set_found(int x){
             word_c[x] = 1;
             words_found++;
+        }
+        void reset_val(){
+            for(int i = 0; i < word_count; i++){
+                word_c[i] = 0;
+            }
+            words_found = 0;
         }
 };
 
@@ -82,7 +97,10 @@ class query_hash_list{
             }
             query_hash_node* current = first;
             while (current != NULL){
-                cout << current->get_id() << " ";
+                cout << "ID = "<<current->get_id() << " get_word_count: "<<current->get_word_count()<<" words found: "<<current->get_word_found()<<" CURR "<<current->get_curr_doc()<<" ";
+                for(int i = 0 ;i<current->get_word_count();i++){
+                    cout<<(current->get_word_c())[i]<<" ";
+                }
                 current = current->get_next();
             }
             cout << endl;
@@ -96,7 +114,6 @@ class query_hash_list{
         void setfirst(query_hash_node* tmp){
             first = tmp;
         }
-
 };
 
 class query_Hashtable {
@@ -106,19 +123,29 @@ class query_Hashtable {
     public:
         unsigned long hash_function(int id,int size_tmp);
         query_Hashtable();
-        ErrorCode insert(QueryID qid,const char * str,unsigned int m_dist);
+        query_hash_node* insert(QueryID qid,const char * str,unsigned int m_dist);
         ErrorCode print();
         query_hash_node* search(QueryID qid);
-
-        ErrorCode add_one(word* myword, int qid){
+    
+        ErrorCode add_one(word* myword, int qid,int current_doc){
             
             query_hash_node* qNode;
             int func_out = hash_function(qid,size);
             qNode = buckets[func_out]->search_id(qid);           
+            if(qNode->get_alive() == 0){
+                return EC_FAIL;
+            }
+            if(qNode->get_curr_doc() != current_doc){
+                qNode->set_curr_doc(current_doc);
+                qNode->reset_val();
+            }
+
+            if (qNode->get_word_found() == qNode->get_word_count()){
+                return EC_FAIL;
+            }
 
             for(int i = 0; i < qNode->get_word_count(); i++){
-
-                if (!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ){
+                if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((qNode->get_word_c())[i] == 0)){
                     qNode->set_found(i);
                 }
             }
@@ -130,37 +157,57 @@ class query_Hashtable {
             return EC_FAIL;
         }
 
-
-        ErrorCode add_one_payload(entry_list* res1,entry_list* res2,entry_list* res3, int qid){
+        ErrorCode add_one_tree(word* myword, int qid,int current_doc,int threshold){
             query_hash_node* qNode;
             int func_out = hash_function(qid,size);
-            qNode = buckets[func_out]->search_id(qid); 
+            qNode = buckets[func_out]->search_id(qid);           
+            if(qNode->get_alive() == 0){
+                return EC_FAIL;
+            }
+            if(qNode->get_curr_doc() != current_doc){
+                qNode->set_curr_doc(current_doc);
+                qNode->reset_val();
+            }
+            
+            if (qNode->get_word_found() == qNode->get_word_count()){
+                return EC_FAIL;
+            }
 
-
-            if (qNode->get_dist()==1){
-                entry* tmpEntry = res1->get_first(res1);
-                payload_node* tmpPload;
-                while (tmpEntry){
-                    tmpPload = tmpEntry->getpayload()->getFirst();
-                    while (tmpPload){
-                        // may god help you
-                        tmpPload = tmpPload->getNext();
-                    }
-                    
-                    
-                    tmpEntry=tmpEntry->getnext();
+            if(qNode->get_dist() < threshold){
+                return EC_FAIL;
+            }
+            for(int i = 0; i < qNode->get_word_count(); i++){
+                if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((qNode->get_word_c())[i] == 0)){
+                    qNode->set_found(i);
                 }
-                 
             }
-            else if (qNode->get_dist()==2)
-            {
-                /* code */
-            }        
-            else
-            {
-                /* code */
+            if (qNode->get_word_found() == qNode->get_word_count()){
+                return EC_SUCCESS;
             }
-        }  
+
+            return EC_FAIL;
+        }
+
+
+        ErrorCode add_one_payload(payload_list* pl,word* w,int current_doc,int threshold,payload_list* q_result){
+            payload_node* pn;
+            pn = pl->getFirst();
+            while(pn!=NULL){
+                if(add_one_tree(w,pn->getId(),current_doc,threshold) == EC_SUCCESS){
+                    q_result->payload_insert_asc(pn->getId());
+                }
+                pn = pn->getNext();
+            }
+
+        }
+
+        ErrorCode delete_query(int qid){
+            query_hash_node* qNode;
+            int func_out = hash_function(qid,size);
+            qNode = buckets[func_out]->search_id(qid);
+            qNode->set_alive();
+            return EC_SUCCESS;
+        }
 };
 
 

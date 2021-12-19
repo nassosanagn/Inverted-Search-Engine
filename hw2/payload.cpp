@@ -3,7 +3,9 @@
 /* ---------------------------------------- payload_list functions ---------------------------------------- */
 
 payload_list::payload_list(){
+    counter = 0;
     this->head = NULL;
+    this->last = NULL;
 }
 
 payload_list::~payload_list(){
@@ -64,18 +66,50 @@ ErrorCode payload_list::payload_insert(int tmpId){
 
     
     payload_node* new_node = new payload_node(tmpId);
-    payload_node* current = this->getFirst();
+    payload_node* current = this->getLast();
 
     if (current == NULL){
         this->setFirst(new_node);
+        this->setLast(new_node);
         return EC_SUCCESS;
     }
 
-    while (current->getNext() != NULL){
-        current = current->getNext();
-    }
-
     current->setNext(new_node);
+    this->setLast(new_node);
     return EC_SUCCESS;
+
 }
 
+ErrorCode payload_list::payload_insert_asc(int tmpId){
+
+    payload_node *new_node = new payload_node(tmpId);
+    payload_node *current = this->head;
+    payload_node *prev = NULL;
+
+    // payload_node* new_node = new payload_node(tmpId);
+    // payload_node* current = this->getFirst();
+    if (current == NULL){
+        this->setFirst(new_node);
+        counter++;
+        return EC_SUCCESS;
+    }
+    while (current != NULL) {
+        if (current->getId() > tmpId) {
+            if (prev == NULL) {
+                this->head = new_node;
+                new_node->setNext(current);
+                counter++;
+                return EC_SUCCESS;
+            }
+            new_node->setNext(current);
+            prev->setNext(new_node);
+            counter++;
+            return EC_SUCCESS;
+        }
+            prev = current;
+            current = current->getNext();
+    }
+    prev->setNext(new_node);
+    counter++;
+    return EC_SUCCESS;
+}

@@ -34,7 +34,7 @@ class doc {
         void set_query_ids(payload_list* tmp,int num){
             query_ids = new QueryID[num];
             payload_node* P = tmp->getFirst();
-            int i =0;
+            int i = 0;
             while(P!=NULL){
                 query_ids[i] = P->getId();
                 i++;
@@ -48,7 +48,7 @@ class doc {
 
 class doc_list{
     doc* first;
-
+    doc* last;
     public:
 
         //Dhmioyrgei thn doc list
@@ -71,6 +71,13 @@ class doc_list{
 
         void setfirst(doc* tmp){
             first = tmp;
+        }
+        doc* getlast() const{
+            return last;
+        }
+
+        void setlast(doc* tmp){
+            last = tmp;
         }
 
 };

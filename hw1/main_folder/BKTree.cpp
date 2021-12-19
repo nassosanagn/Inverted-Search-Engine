@@ -32,6 +32,7 @@ ErrorCode Index::destroy_entry_index(treeNode* ix){
 }
 
 //Synarthsh gia eyresh hamming distance 
+
 int Index::HammingDistance(const char* word1, const char* word2){
         int j = strlen(word1)-strlen(word2);
         if (j < 0){j=-j;}
@@ -43,7 +44,42 @@ int Index::HammingDistance(const char* word1, const char* word2){
         return j;
 }
 
+
 //EditDistance apo core.cpp
+// int Index::EditDistance(char *str1,int str1Len, char *str2, int str2Len) {
+//   int row, column;
+//   int array[str2Len + 1][str1Len + 1];
+//   array[0][0] = 0;
+//   for (row = 1; row <= str2Len; row++)
+//     array[row][0] = array[row - 1][0] + 1;
+//   for (column = 1; column <= str1Len; column++)
+//     array[0][column] = array[0][column - 1] + 1;
+//   for (row = 1; row <= str2Len; row++) {
+//     for (column = 1; column <= str1Len; column++) {
+//       int upper_cell = array[row - 1][column] + 1;
+//       int left_cell = array[row][column - 1] + 1;
+//       int diagonal_cell = array[row - 1][column - 1];
+//       if (str1[column - 1] != str2[row - 1]) {
+//         diagonal_cell++;
+//       }
+//       if (upper_cell < left_cell) {
+//         if (upper_cell < diagonal_cell) {
+//           array[row][column] = upper_cell;
+//         } else {
+//           array[row][column] = diagonal_cell;
+//         }
+//       } else {
+//         if (left_cell < diagonal_cell) {
+//           array[row][column] = left_cell;
+//         } else {
+//           array[row][column] = diagonal_cell;
+//         }
+//       }
+//     }
+//   }
+
+//   return array[str2Len][str1Len];
+// }
 int Index::EditDistance(char* a, int na, char* b, int nb)
 {
 	int oo=0x7FFFFFFF;
@@ -239,21 +275,22 @@ void Index::printTree(){
 
 
 //Prosthkh komvoy sthn lista
-void BKList_node::add_node(treeNode* input){
+void BKList_node::add_node(treeNode* input,int threshold){
     if (nextnode == NULL)
     {
-        nextnode = new BKList_node(input);
+        nextnode = new BKList_node(input,threshold);
     }
     else
     {
-        nextnode->add_node(input);
+        nextnode->add_node(input,threshold);
     }
 }
 
 //Epistrfei ton prwto komvo kai ton diagrafei apo thn lista
-treeNode* BKList::popfirst(){
+treeNode* BKList::popfirst(int* threshold){
     BKList_node* temp = first->getnext();
     treeNode* return_val=first->getnode();
+    (*threshold) = first->get_threshold();
     delete first;
     first = temp; 
     return return_val;
@@ -261,14 +298,16 @@ treeNode* BKList::popfirst(){
 
 // Syanrthsh gia thn eyresh omoiwn le3ewn
 
-ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result, MatchType m_type, int test){
+ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
     //Lista ypopshfiwn le3ewn
-    BKList* cand_list = new BKList(new BKList_node(ix->getRoot()));
-    //An den yparxei dentro
-    if (ix->getRoot()==NULL)
+    treeNode* root = ix->getRoot();
+    if (root==NULL)
     {
         return EC_FAIL;
     }
+    // BKList_node* blns = new BKList_node(root,threshold);
+    BKList* cand_list = new BKList(root,threshold);
+    //An den yparxei dentro
     //proswrinh le3h gia thn dimhoyrgia entry struct
     char *tmpStr = new char[strlen("tmp")+1];
     strcpy(tmpStr,"k");
@@ -278,11 +317,13 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
     strcpy(Strmy,"airliyes");
     //entry gia thn dhmioyrgia listas le3ewn gia epistrofh
     entry* input_entry = new entry(tmpStr);
-    //Oso den yparxoyn alles ypopshfies le3eis
+
+    payload_node* pn;
+
+    // Oso den yparxoyn alles ypopshfies le3eis
     while (cand_list->getfirst()!=NULL){
         //Dexetai ton prwto komvo-le3h apo thn lista
-        treeNode* current_candidate = cand_list->popfirst();
-        
+        treeNode* current_candidate = cand_list->popfirst(&threshold);
         //Ypologizei thn apostash
         int word_dis;
         switch(m_type){
@@ -294,26 +335,38 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
                 break;
         }
         //An einai omoio me thn le3h
-        if (word_dis <= threshold)
-        {
-            input_entry->setword(current_candidate->getString());
-            input_entry->setpayload(current_candidate->getEntry()->getpayload());
-            result->add_entry(result,input_entry,-1);
+
+        for(int i = threshold;i<=3;i++){
+            if (word_dis <= i)
+            {
+                input_entry->setword(current_candidate->getString());
+                input_entry->setpayload(current_candidate->getEntry()->getpayload());
+                
+                Q_hash->add_one_payload(current_candidate->getEntry()->getpayload(),current_candidate->getWord(),current_doc,i,q_result);
+                //add_entry(hashtable,input_entry,-1); sto hashmap
+                //an to query exei megalytero h iso match dist apo to i tote kanei insert
+                break;
+            }
         }
+
         //Ypologizei ta oria twn apostasewn gia na elegthoyn
-        int left = word_dis - threshold;
-        int right = word_dis + threshold;
         //Gia kathe paidi poy vrisketai endiamesa twn oriwn ta prosthetei san candidate
         treeNode* temp_tnode=current_candidate->getChildNode();
         while (temp_tnode!= NULL)
         {
-            if (left<=temp_tnode->getDiff() && temp_tnode->getDiff()<=right)
-            {
-                cand_list->add_node(temp_tnode);
+            for(int i = threshold;i<=3;i++){
+                int left = word_dis - i;
+                int right = word_dis + i;
+                if (left<=temp_tnode->getDiff() && temp_tnode->getDiff()<=right)
+                {
+                    cand_list->add_node(temp_tnode,i);
+                    break;
+                }
             }
             temp_tnode=temp_tnode->getnextNode();
         }
     }
+
     delete cand_list;
     delete input_entry;
     delete[] tmpStr; 
