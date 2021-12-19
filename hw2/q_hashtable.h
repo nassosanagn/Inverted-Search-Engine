@@ -114,23 +114,6 @@ class query_hash_list{
         void setfirst(query_hash_node* tmp){
             first = tmp;
         }
-        // void delete_query(int id){
-        //     query_hash_node *current = first;
-        //     query_hash_node *previous = NULL;
-        //     while (current != NULL) {
-        //         if (current->get_id() == id) {
-        //             if (previous == NULL) {
-        //                 first = current->get_next();
-        //             } else {
-        //                 previous->set_next(current->get_next());
-        //             }
-        //             // delete current;
-        //             break;
-        //         }
-        //         previous = current;
-        //         current = current->get_next();
-        //     }
-        // }
 };
 
 class query_Hashtable {
@@ -223,6 +206,7 @@ class query_Hashtable {
             int func_out = hash_function(qid,size);
             qNode = buckets[func_out]->search_id(qid);
             qNode->set_alive();
+            return EC_SUCCESS;
         }
 };
 

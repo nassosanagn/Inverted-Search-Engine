@@ -116,6 +116,10 @@ ErrorCode;
 */
 ErrorCode InitializeIndex();
 
+ErrorCode check_hash_insert(QueryID qid);
+
+ErrorCode check_hash_del(QueryID qid);
+
 /**
 * Called only once at the end of the whole test.
 * Can be used for releasing all memory used to index active queries.

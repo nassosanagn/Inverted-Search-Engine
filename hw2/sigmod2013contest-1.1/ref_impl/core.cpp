@@ -38,12 +38,8 @@
 #include "../editDistBkTree.h"
 #include "../q_hashtable.h"
 using namespace std;
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +51,9 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// query_list* Q_list;
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+
 query_Hashtable* Q_hash;
 doc_list* D_list;
 HammingIndex* ham_index;
@@ -68,10 +66,25 @@ doc* D_tmp;
 
 ErrorCode InitializeIndex(){
 	Q_hash = new query_Hashtable();
+	if(Q_hash == NULL){
+		return EC_FAIL;
+	}
     D_list = new doc_list();
+	if(D_list == NULL){
+		return EC_FAIL;
+	}
 	ham_index = new HammingIndex();
+	if(ham_index == NULL){
+		return EC_FAIL;
+	}
 	hash_index = new Hashtable();
+	if(hash_index == NULL){
+		return EC_FAIL;
+	}
 	edit_index = new EditBKTree();
+	if(edit_index == NULL){
+		return EC_FAIL;
+	}
 	return EC_SUCCESS;
 }
 
@@ -80,13 +93,28 @@ ErrorCode InitializeIndex(){
 ErrorCode DestroyIndex(){return EC_SUCCESS;}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
+ErrorCode check_hash_insert(QueryID qid){
+	query_hash_node* Q = Q_hash->search(qid);
+	if(Q==NULL){
+		return EC_FAIL;
+	}
+	return EC_SUCCESS;
+}
+
+ErrorCode check_hash_del(QueryID qid){
+	query_hash_node* Q = Q_hash->search(qid);
+	if(Q->get_alive() == 0){
+		return EC_SUCCESS;
+	}
+	return EC_FAIL;
+}
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist)
 {
 	query_hash_node* Q;
 	Q = Q_hash->insert(query_id,query_str,match_dist);
+	// cout<<"1233"<<endl;
 	switch(match_type){
-
         case MT_HAMMING_DIST:
 			for(unsigned int i=0;i<Q->get_word_count();i++){
 				ham_index->insert(&(Q->get_word_arr()[i]),query_id);
