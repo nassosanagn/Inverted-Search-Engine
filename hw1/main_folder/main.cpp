@@ -1,7 +1,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+
 #include "BKTree.h"
+
+#define THRESHOLD 2
+
 using namespace std;
 
 int main(){
@@ -45,15 +49,16 @@ int main(){
     El->add_entry(El,E6);
 
     Index* Index1 = new Index();
-    Index1->build_entry_index(El,MT_HAMMING_DIST,Index1);
+    Index1->build_entry_index(El,MT_HAMMING_DIST,Index1,777);
 
     cout<<"Print Tree:"<<endl<<endl;
     Index1->printTree();
 
     char testStr[]="henn";
 
+    int threshold = THRESHOLD;
+
     word myword(testStr);
-    int threshold = 2;
     entry_list* result= new entry_list();
 
     Index1->lookup_entry_index(&myword,Index1,threshold,result);

@@ -16,24 +16,25 @@ word::~word(){
     delete[] String;
 }
 
-//Copy contructor
-word::word(const word &ww){
-    delete[] this->String;
-    String = new char[strlen(ww.String)+1];
-    strcpy(String,ww.String);
-}
+// //Copy contructor
+// word::word(const word &ww){
+//     String = NULL;
+//     delete[] String;
+//     String = new char[strlen(ww.String)+1];
+//     strcpy(String,ww.String);
+// }
 
 //Copy contructor
-entry::entry(const entry &ee){
-    myString->setword(ee.getword());
-    payload = ee.getpayload();
-    next = ee.getnext();
-}
+// entry::entry(const entry &ee){
+//     myString->setword(ee.getword());
+//     list = ee.getpayload();
+//     next = ee.getnext();
+// }
 
 //contructor
-entry::entry(char * tmp,void *pload){
+entry::entry(char * tmp){
     myString = new word(tmp);
-    payload = pload;
+    list = new payload_list();
     next = NULL;
 }
 //destructor
@@ -76,6 +77,8 @@ ErrorCode entry_list::print_list(entry_list *el){
     entry* entry_tmp = el->getfirst();
     while(entry_tmp != NULL){
         cout<<entry_tmp->getword()<<" ";
+        // entry_tmp->getpayload()->print_list();
+        // cout<<endl;
         entry_tmp = entry_tmp->getnext();
     }
     cout<<endl;
@@ -99,26 +102,29 @@ unsigned int entry_list::get_number_entries(const entry_list* el){
 }
 
 //Prosthetei ena entry sto telos ths listas
-ErrorCode entry_list::add_entry(entry_list* el, const entry* e){
+ErrorCode entry_list::add_entry(entry_list* el, const entry* e,int id){
     if(el == NULL || e == NULL){
         return EC_FAIL;
     }
     //Dhmioyrgei ton komvo poy tha prosthethei
-    entry* entry_n = new entry(e->getword(),e->getpayload());
-    entry* entry_tmp = el->getfirst();
+    entry* entry_n = new entry(e->getword());
+    if(id == -1){
+        payload_node* pn = e->getpayload()->getFirst();
+        while(pn!=NULL){
+            entry_n->getpayload()->payload_insert(pn->getId());
+            pn = pn->getNext();
+        }
+    }
+    else
+        entry_n->getpayload()->payload_insert(id);
     //An den yparxei allos komvos
     if(el->getfirst() == NULL){
         el->setfirst(entry_n);
         el->setlast(entry_n);
         return EC_SUCCESS;
     }
-    //Phgainei sto telos ths listas
-    while(entry_tmp->getnext() != NULL){
-        entry_tmp = entry_tmp->getnext();
-    }
-    //Prosthetei ton komvo san epomeno
+    el->getlast()->setnext(entry_n);
     el->setlast(entry_n);
-    entry_tmp->setnext(entry_n);
     return EC_SUCCESS;
 }
 
@@ -170,6 +176,23 @@ ErrorCode entry_list::destroy_entry_list(entry_list** el){
     }
     delete (*el);
     (*el) = NULL;
+    return EC_SUCCESS;
+}
+
+ErrorCode entry_list::destroy_entrys(entry_list** el){
+    if((*el)==NULL){
+        return EC_FAIL;
+    }
+    entry* curr = (*el)->getfirst();
+    entry* next = NULL;
+    //Diatrexei thn lista kai diagrafei toys komvoys
+    while(curr != NULL){
+        next = curr->getnext();
+
+        delete curr;
+
+        curr = next;
+    }
     return EC_SUCCESS;
 }
 

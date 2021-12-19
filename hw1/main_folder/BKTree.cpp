@@ -1,4 +1,3 @@
-
 using namespace std;
 
 #include <iostream>
@@ -99,7 +98,7 @@ int Index::EditDistance(char* a, int na, char* b, int nb)
 	return ret;
 }
 
-ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* ix){
+ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* ix, int qid){
 
     entry* currentEntry = el->getfirst();
 
@@ -109,20 +108,39 @@ ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* 
     }
 
     while (currentEntry != NULL){
-        ix->insertTree(currentEntry, ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST);
+        ix->insertTree(currentEntry, ix->getRoot()->getString(), ix->getRoot(),MT_HAMMING_DIST,qid);
         currentEntry = currentEntry->getnext();
     }
 
     return EC_SUCCESS;
 }
 
-//Eisagwgh komvoy sto dentro
-ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype){
+ErrorCode Index::insertWord(word* W, Index* ix, MatchType mt, int qid){
+
+    entry* tempentry = new entry(W->getword());
+    if(ix->getRoot() == NULL){
+        ix->root = new treeNode(tempentry,0);
+        ix->root->getEntry()->getpayload()->payload_insert(qid);
+        return EC_SUCCESS;
+    }
+    ix->insertTree(tempentry,ix->getRoot()->getString(), ix->getRoot(),mt, qid);
+        
+    return EC_SUCCESS;
     
+    
+}
+
+//Eisagwgh komvoy sto dentro
+ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype, int qid){
     setmatchtype(matchtype);
     int tempDiff;
     char* str = entry->getword();
-
+    if(tempNode == root){
+        if(!strcmp(str,tempNode->getString())){
+            tempNode->getEntry()->getpayload()->payload_insert(qid);
+            return EC_FAIL;
+        }
+    }
     //Analoga to matchtype kalei kai thn katallhlh synarthsh metrhshs
     switch(matchtype){
         case MT_HAMMING_DIST:
@@ -132,10 +150,10 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
             tempDiff = EditDistance(str, strlen(str),cmpWord, strlen(cmpWord));
             break;
     }
-
+    
     // An den yparxei allo paidi ths rizas 
     if (this->getRoot()->getChildNode() == NULL){                     // Only for the first time 
-        getRoot()->setChildNode(new treeNode(entry, tempDiff));
+        getRoot()->setChildNode(new treeNode(entry, tempDiff),qid);
         return EC_SUCCESS;
     }
 
@@ -144,7 +162,10 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
     }
 
     if ((tempDiff == tempNode->getDiff())) {        /* Go down on that node */
-
+        if(!strcmp(str,tempNode->getString())){
+            tempNode->getEntry()->getpayload()->payload_insert(qid);
+            return EC_FAIL;
+        }
         if (tempNode->getChildNode() == NULL){
             switch(matchtype){
                 case MT_HAMMING_DIST:
@@ -154,17 +175,19 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
                     tempDiff = EditDistance(str,strlen(str),tempNode->getString(),strlen(tempNode->getString()));
                     break;
             }
-            tempNode->setChildNode(new treeNode(entry, tempDiff));
+            tempNode->setChildNode(new treeNode(entry, tempDiff),qid);
         }else{
-            insertTree(entry, tempNode->getString(), tempNode->getChildNode(),matchtype);
+            if(insertTree(entry, tempNode->getString(), tempNode->getChildNode(),matchtype,qid)==EC_FAIL){
+                return EC_FAIL;
+            }
         }
-
     }else{                              /* Go right on that node */
-
         if (tempNode->getnextNode() == NULL){
-            tempNode->setNextNode(new treeNode(entry, tempDiff));
+            tempNode->setNextNode(new treeNode(entry, tempDiff),qid);
         }else{
-            insertTree(entry, cmpWord, tempNode->getnextNode(),matchtype);
+            if(insertTree(entry, cmpWord, tempNode->getnextNode(),matchtype,qid)==EC_FAIL){
+                return EC_FAIL;
+            }
         }
     }
 
@@ -186,7 +209,9 @@ void treeNode::print_all(){
 //Ektypwsh paidiwn
 void treeNode::print_children(){
     treeNode* tempNode = this->getChildNode();
-    cout <<"Parent "<< this->getString() << endl;
+    cout <<"Parent "<< this->getString()/* << " with payload "*/;
+    // this->getEntry()->getpayload()->print_list();
+    cout<< endl;
     if (tempNode == NULL)
     {
         cout<<endl;
@@ -203,7 +228,11 @@ void treeNode::print_children(){
 }
 
 void Index::printTree(){
-    this->getRoot()->print_all();
+    if (this->getRoot()!=NULL)
+    {
+        this->getRoot()->print_all();
+    }
+    
 }
 
 //TESTING FUNCTIONS OVER
@@ -230,9 +259,9 @@ treeNode* BKList::popfirst(){
     return return_val;
 }
 
+// Syanrthsh gia thn eyresh omoiwn le3ewn
 
-//Syanrthsh gia thn eyresh omoiwn le3ewn
-ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result){
+ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result, MatchType m_type, int test){
     //Lista ypopshfiwn le3ewn
     BKList* cand_list = new BKList(new BKList_node(ix->getRoot()));
     //An den yparxei dentro
@@ -243,15 +272,20 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
     //proswrinh le3h gia thn dimhoyrgia entry struct
     char *tmpStr = new char[strlen("tmp")+1];
     strcpy(tmpStr,"k");
+
+
+    char* Strmy = new char[strlen("airliyes")+1];
+    strcpy(Strmy,"airliyes");
     //entry gia thn dhmioyrgia listas le3ewn gia epistrofh
     entry* input_entry = new entry(tmpStr);
     //Oso den yparxoyn alles ypopshfies le3eis
     while (cand_list->getfirst()!=NULL){
         //Dexetai ton prwto komvo-le3h apo thn lista
         treeNode* current_candidate = cand_list->popfirst();
+        
         //Ypologizei thn apostash
         int word_dis;
-        switch(matchtype){
+        switch(m_type){
             case MT_HAMMING_DIST:
                 word_dis = HammingDistance(w->getword(),current_candidate->getString());
                 break;
@@ -263,8 +297,8 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
         if (word_dis <= threshold)
         {
             input_entry->setword(current_candidate->getString());
-            
-            result->add_entry(result,input_entry);
+            input_entry->setpayload(current_candidate->getEntry()->getpayload());
+            result->add_entry(result,input_entry,-1);
         }
         //Ypologizei ta oria twn apostasewn gia na elegthoyn
         int left = word_dis - threshold;
