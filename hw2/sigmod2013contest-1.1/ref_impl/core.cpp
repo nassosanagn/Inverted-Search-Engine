@@ -63,13 +63,27 @@ doc* D_tmp;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode InitializeIndex(){
-	Q_hash = new query_Hashtable();
+    Q_hash = new query_Hashtable();
+    if(Q_hash == NULL){
+        return EC_FAIL;
+    }
     D_list = new doc_list();
-
-	ham_index = new HammingIndex();
-	hash_index = new Hashtable();
-	edit_index = new EditBKTree();
-	return EC_SUCCESS;
+    if(D_list == NULL){
+        return EC_FAIL;
+    }
+    ham_index = new HammingIndex();
+    if(ham_index == NULL){
+        return EC_FAIL;
+    }
+    hash_index = new Hashtable();
+    if(hash_index == NULL){
+        return EC_FAIL;
+    }
+    edit_index = new EditBKTree();
+    if(edit_index == NULL){
+        return EC_FAIL;
+    }
+    return EC_SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,6 +102,22 @@ ErrorCode DestroyIndex(){
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+ErrorCode check_hash_insert(QueryID qid){
+    query_hash_node* Q = Q_hash->search(qid);
+    if(Q==NULL){
+        return EC_FAIL;
+    }
+    return EC_SUCCESS;
+}
+
+ErrorCode check_hash_del(QueryID qid){
+    query_hash_node* Q = Q_hash->search(qid);
+    if(Q->get_alive() == 0){
+        return EC_SUCCESS;
+    }
+    return EC_FAIL;
+}
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist)
 {
