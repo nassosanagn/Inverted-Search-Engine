@@ -58,7 +58,7 @@
 
 #### hashtable
 
-Ένα hashtable που χρησιμοποιείται για την **Exact Match**. Έχει μέγεθος size, αριθμό buckets counter και ένα δείκτη σε ένα πίνακα με entry_lists. Η συνάρτηση search ελέγχει εαν μία λέξη είναι στο hashtable. Αν όχι φτίαχνει καινούριο κόμβο, αλλιώς ανανεώνει το payload του entry με αυτή τη λέξη.  
+Ένα hashtable που χρησιμοποιείται για την **Exact Match**. Έχει μέγεθος size, αριθμό buckets counter και ένα δείκτη σε ένα πίνακα με entry_lists. Η συνάρτηση search ελέγχει εαν μία λέξη είναι στο hashtable. Αν όχι επιστρέφει, αλλιώς ενημερώνει το payload του entry με αυτή τη λέξη.  
 
 #### editDistBkTree
 
