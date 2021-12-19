@@ -5,7 +5,7 @@
 #include <cstring>
 #include <stdlib.h>
 #include "../../hw2/q_hashtable.h"
-#include "entry.h"
+#include "../Lists/entry.h"
 
 using namespace std;
 
@@ -27,11 +27,8 @@ class treeNode{
         //Contructor
         treeNode(entry* entry, int tmpDiff = 0){
             myEntry = new ::entry(entry->getword());
-            // myString = new char[strlen(str) + 1];
-            // strcpy(myString, str);
-
+        
             diff = tmpDiff;
-
             nextNode = NULL;
             childNode = NULL;
         }
@@ -88,7 +85,6 @@ class Index{
 
         //O deikths result deixnei se le3eis poy moiazoyn me thn le3h sto prwto orisma
         ErrorCode lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result);
-
         ErrorCode insertWord(word* W, Index* ix, MatchType mt,int qid);
 };
 
@@ -101,8 +97,7 @@ class BKList_node{
         int threshold;
     public:
 
-        BKList_node(treeNode* input,int thr)
-        {
+        BKList_node(treeNode* input,int thr){
             nextnode = NULL; 
             mynode=input;
             threshold = thr;
@@ -126,12 +121,10 @@ class BKList{
         treeNode* popfirst(int* threshold);
         BKList_node* getfirst() const { return first;}
         void add_node(treeNode* input,int threshold){
-            if (first==NULL)
-            {
+            if (first==NULL){
                 first = new BKList_node(input,threshold);
             }
-            else
-            {
+            else{
                 first->add_node(input,threshold);
             }
         }

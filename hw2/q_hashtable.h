@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include "../hw1/main_folder/entry.h"
+#include "./Lists/entry.h"
 
 #define Q_SIZE 100000
 
@@ -59,7 +59,17 @@ class query_hash_list{
         query_hash_node* add_query(query_hash_list* el, QueryID qid,const char * str,unsigned int m_dist);
         //epistrefei to prwto query
         query_hash_node* get_first(const query_hash_list* el);
-        query_hash_node* search_id(unsigned int id);
+
+        query_hash_node* search_id(unsigned int id){
+            query_hash_node* qn = first;
+            while(qn!=NULL){
+                if(qn->get_id() == id){
+                    return qn;
+                }
+                qn = qn->get_next();
+            }
+            return NULL;
+        }
 
         /* Getters */
         query_hash_node* getfirst() const{ return first;}

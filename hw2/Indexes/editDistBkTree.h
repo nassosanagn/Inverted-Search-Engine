@@ -6,8 +6,8 @@ using namespace std;
 #include <iostream>
 #include <cstring>
 #include <stdlib.h>
-#include "../hw1/main_folder/BKTree.h"
-#include "sigmod2013contest-1.1/include/core.h"
+#include "./BKTree.h"
+#include "../sigmod2013contest-1.1/include/core.h"
 
 
 class EditBKTree{

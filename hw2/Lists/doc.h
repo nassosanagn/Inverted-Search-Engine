@@ -3,13 +3,13 @@
 #include <cstring>
 #include <stdlib.h>
 #include <iostream>
-#include "sigmod2013contest-1.1/include/core.h"
-#include "../hw1/main_folder/entry.h"
+#include "../sigmod2013contest-1.1/include/core.h"
+#include "./entry.h"
 using namespace std;
 
 class doc {
     DocID doc_id;
-    unsigned int num_res;
+    unsigned int num_res; 
     QueryID* query_ids;
     doc* next;
 
@@ -31,6 +31,7 @@ class doc {
 
 class doc_list{
     doc* first;
+    doc* last;
 
     public:
 
@@ -43,13 +44,16 @@ class doc_list{
 
         //epistrefei to prwto doc
         doc* get_first(const doc_list* el);
+        doc* get_last(){ return last;};
         
         //Diagrafei kathe komvo ths listas
         ErrorCode destroy_doc_list(doc_list** el);
         
-        //Getters - Setters
         doc* getfirst() const{ return first;}
+        //Getters - Setters
         void setfirst(doc* tmp){ first = tmp;}
+        void set_last(doc* tmp){ last = tmp;}
+
 };
 
 #endif

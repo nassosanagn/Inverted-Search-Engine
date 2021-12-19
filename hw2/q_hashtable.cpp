@@ -84,17 +84,6 @@ ErrorCode query_hash_list::destroy_query_list(query_hash_list** el){
     return EC_SUCCESS;
 }
 
-query_hash_node* query_hash_list::search_id(unsigned int id){
-    query_hash_node* qn = first;
-    while(qn!=NULL){
-        if(qn->get_id() == id){
-            return qn;
-        }
-        qn = qn->get_next();
-    }
-    return NULL;
-}
-
 ErrorCode query_hash_list::print_list(){
     
     if (first == NULL){
@@ -147,7 +136,7 @@ query_Hashtable::~query_Hashtable(){
   
     // for(int i = 0; i < size;i++){
     //     buckets[i]->destroy_query_list(&buckets[i]);
-    //     delete []buckets[i];
+    //     // delete []buckets[i];
     // }
     // delete buckets;
 }

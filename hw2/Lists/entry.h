@@ -4,8 +4,7 @@
 #include <cstring>
 #include <stdlib.h>
 #include <iostream>
-#include "core.h"
-#include "../../hw2/payload.h"
+#include "../../hw2/Lists/payload.h"
 
 using namespace std;
 

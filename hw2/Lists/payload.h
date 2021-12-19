@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include "./sigmod2013contest-1.1/include/core.h"
+#include "../sigmod2013contest-1.1/include/core.h"
 
 using namespace std;
 
@@ -44,7 +44,17 @@ class payload_list{
         ErrorCode payload_insert(int id);
         ErrorCode payload_insert_asc(int id);
         ErrorCode destroy_payload_list();
-        ErrorCode search_id(int id);
+
+        ErrorCode search_id(int id){
+            payload_node* n = head;
+            while(n!=NULL){
+                if(n->getId() == id){
+                    return EC_SUCCESS;
+                }
+                n = n->getNext();
+            }
+            return EC_FAIL;
+        }
 
         /* Getters */
         payload_node* getFirst() const{ return head;}

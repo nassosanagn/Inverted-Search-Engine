@@ -30,11 +30,13 @@
 #include <cstdlib>
 #include <cstdio>
 #include <vector>
-#include "../doc.h"
-#include "../payload.h"
-#include "../hashtable.h"
-#include "../hammingindex.h"
-#include "../editDistBkTree.h"
+#include "../Lists/doc.h"
+#include "../Lists/payload.h"
+
+#include "../Indexes//hashtable.h"
+#include "../Indexes/hammingindex.h"
+#include "../Indexes//editDistBkTree.h"
+
 #include "../q_hashtable.h"
 
 using namespace std;
@@ -153,7 +155,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 
 	doc* D = new doc(doc_id);
 	D->set_num_res(q_result->get_counter());
-	D->set_query_ids(q_result,q_result->get_counter());
+	// D->set_query_ids(q_result,q_result->get_counter());
 
 	// Add this result to the set of undelivered results
 	doc* D_tt;
