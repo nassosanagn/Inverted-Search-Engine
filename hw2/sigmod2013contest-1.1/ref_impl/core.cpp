@@ -70,7 +70,10 @@ ErrorCode InitializeIndex(){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-ErrorCode DestroyIndex(){return EC_SUCCESS;}
+ErrorCode DestroyIndex(){
+	
+	return EC_SUCCESS;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -92,11 +95,13 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
             break;
         case MT_EXACT_MATCH:
 			char* Str = new char[strlen("small")+1];
+			strcpy(Str, "small");
 			entry* E = new entry(Str);
 			for(unsigned int i=0;i<Q->get_word_count();i++){
 				E->setword(&(Q->get_word_arr()[i]));
 				hash_index->insert(E,query_id);
 			}
+			delete E;
             break;
     }
 	return EC_SUCCESS;
@@ -130,7 +135,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 
 		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,doc_id,q_result);
 
-		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),1, MT_EDIT_DIST,Q_hash,doc_id,q_result);
+		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1, MT_EDIT_DIST,Q_hash,doc_id,q_result);
         pch = strtok (NULL, " ");
     }
 	doc* D;

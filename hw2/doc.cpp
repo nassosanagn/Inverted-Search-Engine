@@ -44,8 +44,8 @@ doc* doc_list::add_doc(doc_list* el, DocID did){
     return doc_n;
 }
 
-doc* doc_list::add_doc(doc_list* el, doc* D_temp,payload_list* pl){
-    if(el == NULL){
+doc* doc_list::add_doc(doc_list* el, doc* D_temp, payload_list* pl){
+    if (el == NULL){
         return NULL;
     }
     //Dhmioyrgei ton komvo poy tha prosthethei
