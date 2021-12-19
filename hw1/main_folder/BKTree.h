@@ -25,7 +25,7 @@ class treeNode{
     
     public:
         //Contructor
-        treeNode(entry* entry, int tmpDiff){
+        treeNode(entry* entry, int tmpDiff = 0){
             myEntry = new ::entry(entry->getword());
             // myString = new char[strlen(str) + 1];
             // strcpy(myString, str);

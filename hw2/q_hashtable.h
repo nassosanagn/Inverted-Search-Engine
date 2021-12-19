@@ -9,7 +9,7 @@ class query_hash_node {
     QueryID query_id;
     word word_arr[MAX_QUERY_WORDS];
     int word_c[MAX_QUERY_WORDS];
-	int words_found;
+	unsigned int words_found;
     unsigned int match_dist;
     unsigned int word_count;
     unsigned int curr_doc;
@@ -35,7 +35,7 @@ class query_hash_node {
             return word_count;
         }
 
-        int get_word_found() const {
+        unsigned int get_word_found() const {
             return words_found;
         }
 
@@ -63,7 +63,7 @@ class query_hash_node {
             words_found++;
         }
         void reset_val(){
-            for(int i = 0; i < word_count; i++){
+            for(unsigned int i = 0; i < word_count; i++){
                 word_c[i] = 0;
             }
             words_found = 0;
@@ -98,7 +98,7 @@ class query_hash_list{
             query_hash_node* current = first;
             while (current != NULL){
                 cout << "ID = "<<current->get_id() << " get_word_count: "<<current->get_word_count()<<" words found: "<<current->get_word_found()<<" CURR "<<current->get_curr_doc()<<" ";
-                for(int i = 0 ;i<current->get_word_count();i++){
+                for(unsigned int i = 0 ;i<current->get_word_count();i++){
                     cout<<(current->get_word_c())[i]<<" ";
                 }
                 current = current->get_next();
@@ -144,7 +144,7 @@ class query_Hashtable {
         ErrorCode print();
         query_hash_node* search(QueryID qid);
     
-        ErrorCode add_one(word* myword, int qid,int current_doc){
+        ErrorCode add_one(word* myword, int qid, unsigned int current_doc){
             
             query_hash_node* qNode;
             int func_out = hash_function(qid,size);
@@ -161,7 +161,7 @@ class query_Hashtable {
                 return EC_FAIL;
             }
 
-            for(int i = 0; i < qNode->get_word_count(); i++){
+            for(unsigned int i = 0; i < qNode->get_word_count(); i++){
                 if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((qNode->get_word_c())[i] == 0)){
                     qNode->set_found(i);
                 }
@@ -174,7 +174,7 @@ class query_Hashtable {
             return EC_FAIL;
         }
 
-        ErrorCode add_one_tree(word* myword, int qid,int current_doc,int threshold){
+        ErrorCode add_one_tree(word* myword, int qid, unsigned int current_doc, unsigned int threshold){
             query_hash_node* qNode;
             int func_out = hash_function(qid,size);
             qNode = buckets[func_out]->search_id(qid);           
@@ -193,7 +193,7 @@ class query_Hashtable {
             if(qNode->get_dist() < threshold){
                 return EC_FAIL;
             }
-            for(int i = 0; i < qNode->get_word_count(); i++){
+            for(unsigned int i = 0; i < qNode->get_word_count(); i++){
                 if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((qNode->get_word_c())[i] == 0)){
                     qNode->set_found(i);
                 }
@@ -216,6 +216,7 @@ class query_Hashtable {
                 pn = pn->getNext();
             }
 
+            return EC_SUCCESS;
         }
 
         ErrorCode delete_query(int qid){
@@ -223,6 +224,8 @@ class query_Hashtable {
             int func_out = hash_function(qid,size);
             qNode = buckets[func_out]->search_id(qid);
             qNode->set_alive();
+
+            return EC_SUCCESS;
         }
 };
 
