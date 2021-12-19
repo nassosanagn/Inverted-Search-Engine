@@ -239,21 +239,22 @@ void Index::printTree(){
 
 
 //Prosthkh komvoy sthn lista
-void BKList_node::add_node(treeNode* input){
+void BKList_node::add_node(treeNode* input,int threshold){
     if (nextnode == NULL)
     {
-        nextnode = new BKList_node(input);
+        nextnode = new BKList_node(input,threshold);
     }
     else
     {
-        nextnode->add_node(input);
+        nextnode->add_node(input,threshold);
     }
 }
 
 //Epistrfei ton prwto komvo kai ton diagrafei apo thn lista
-treeNode* BKList::popfirst(){
+treeNode* BKList::popfirst(int* threshold){
     BKList_node* temp = first->getnext();
     treeNode* return_val=first->getnode();
+    (*threshold) = first->get_threshold();
     delete first;
     first = temp; 
     return return_val;
@@ -261,9 +262,9 @@ treeNode* BKList::popfirst(){
 
 // Syanrthsh gia thn eyresh omoiwn le3ewn
 
-ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, entry_list* result, MatchType m_type, int test){
+ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
     //Lista ypopshfiwn le3ewn
-    BKList* cand_list = new BKList(new BKList_node(ix->getRoot()));
+    BKList* cand_list = new BKList(new BKList_node(ix->getRoot(),threshold));
     //An den yparxei dentro
     if (ix->getRoot()==NULL)
     {
@@ -278,11 +279,12 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
     strcpy(Strmy,"airliyes");
     //entry gia thn dhmioyrgia listas le3ewn gia epistrofh
     entry* input_entry = new entry(tmpStr);
+
+    payload_node* pn;
     //Oso den yparxoyn alles ypopshfies le3eis
     while (cand_list->getfirst()!=NULL){
         //Dexetai ton prwto komvo-le3h apo thn lista
-        treeNode* current_candidate = cand_list->popfirst();
-        
+        treeNode* current_candidate = cand_list->popfirst(&threshold);
         //Ypologizei thn apostash
         int word_dis;
         switch(m_type){
@@ -294,22 +296,31 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, ent
                 break;
         }
         //An einai omoio me thn le3h
-        if (word_dis <= threshold)
-        {
-            input_entry->setword(current_candidate->getString());
-            input_entry->setpayload(current_candidate->getEntry()->getpayload());
-            result->add_entry(result,input_entry,-1);
+        for(int i = threshold;i<=3;i++){
+            if (word_dis <= i)
+            {
+                input_entry->setword(current_candidate->getString());
+                input_entry->setpayload(current_candidate->getEntry()->getpayload());
+                
+                Q_hash->add_one_payload(current_candidate->getEntry()->getpayload(),current_candidate->getWord(),current_doc,i,q_result);
+                //add_entry(hashtable,input_entry,-1); sto hashmap
+                //an to query exei megalytero h iso match dist apo to i tote kanei insert
+                break;
+            }
         }
         //Ypologizei ta oria twn apostasewn gia na elegthoyn
-        int left = word_dis - threshold;
-        int right = word_dis + threshold;
         //Gia kathe paidi poy vrisketai endiamesa twn oriwn ta prosthetei san candidate
         treeNode* temp_tnode=current_candidate->getChildNode();
         while (temp_tnode!= NULL)
         {
-            if (left<=temp_tnode->getDiff() && temp_tnode->getDiff()<=right)
-            {
-                cand_list->add_node(temp_tnode);
+            for(int i = threshold;i<=3;i++){
+                int left = word_dis - i;
+                int right = word_dis + i;
+                if (left<=temp_tnode->getDiff() && temp_tnode->getDiff()<=right)
+                {
+                    cand_list->add_node(temp_tnode,i);
+                    break;
+                }
             }
             temp_tnode=temp_tnode->getnextNode();
         }

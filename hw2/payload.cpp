@@ -48,7 +48,7 @@ ErrorCode payload_list::print_list(){
     return EC_SUCCESS;
 }
 
-ErrorCode payload_list::search_id(int id){
+ErrorCode payload_list::(int id){
     payload_node* n = head;
     while(n!=NULL){
         if(n->getId() == id){
@@ -79,3 +79,22 @@ ErrorCode payload_list::payload_insert(int tmpId){
     return EC_SUCCESS;
 }
 
+ErrorCode payload_list::payload_insert_asc(int tmpId){
+
+    
+    payload_node* new_node = new payload_node(tmpId);
+    payload_node* current = this->getFirst();
+
+    if (current == NULL){
+        this->setFirst(new_node);
+        return EC_SUCCESS;
+    }
+
+    while (current->getNext()!=NULL &&current->getNext()->getId() < tmpId){
+        current = current->getNext();
+    }
+    new_node->setNext(current->getNext());
+    current->setNext(new_node);
+
+    return EC_SUCCESS;
+}

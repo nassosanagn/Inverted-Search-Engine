@@ -39,10 +39,10 @@ class HammingIndex{
             return mytrees;
         }
 
-        ErrorCode lookup_hamming_index(const word* w, int threshold, entry_list* result, MatchType m_type){
+        ErrorCode lookup_hamming_index(const word* w, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
             int word_len = strlen(w->getword());
             Index* target_tree = &(mytrees[word_len-MIN_WORD_LENGTH]);
-            return target_tree->lookup_entry_index(w,target_tree,threshold,result,m_type);
+            return target_tree->lookup_entry_index(w,target_tree,threshold,m_type,Q_hash,current_doc,q_result);
         }
 
         HammingIndex()
