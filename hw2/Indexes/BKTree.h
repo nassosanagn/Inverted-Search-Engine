@@ -5,7 +5,7 @@
 #include <cstring>
 #include <stdlib.h>
 #include "../../hw2/q_hashtable.h"
-#include "entry.h"
+#include "../Lists/entry.h"
 
 using namespace std;
 
@@ -25,13 +25,10 @@ class treeNode{
     
     public:
         //Contructor
-        treeNode(entry* entry, int tmpDiff){
+        treeNode(entry* entry, int tmpDiff = 0){
             myEntry = new ::entry(entry->getword());
-            // myString = new char[strlen(str) + 1];
-            // strcpy(myString, str);
-
+        
             diff = tmpDiff;
-
             nextNode = NULL;
             childNode = NULL;
         }
@@ -69,7 +66,7 @@ class Index{
     public:
         
         Index();        /* Constructor */
-        ~Index();                  /* Destructor */
+        ~Index();       /* Destructor */
 
         ErrorCode destroy_entry_index(treeNode* tempNode);               /* Destroy the tree by visiting and destroying each node */
         ErrorCode insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype, int qid);
@@ -88,7 +85,6 @@ class Index{
 
         //O deikths result deixnei se le3eis poy moiazoyn me thn le3h sto prwto orisma
         ErrorCode lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result);
-
         ErrorCode insertWord(word* W, Index* ix, MatchType mt,int qid);
 };
 
@@ -101,13 +97,10 @@ class BKList_node{
         int threshold;
     public:
 
-        BKList_node(treeNode* input,int thr)
-        {
-            // cout<<"zzzzzzz"<<endl;
+        BKList_node(treeNode* input,int thr){
             nextnode = NULL; 
             mynode=input;
             threshold = thr;
-            // cout<<"vvvvvvvv"<<endl;
         }
 
         treeNode* getnode() const { return mynode;}
@@ -121,23 +114,22 @@ class BKList{
     private:
         BKList_node* first;
     public:
-    BKList(treeNode* input,int thr){
-        first = new BKList_node(input,thr);
-    }
-    treeNode* popfirst(int* threshold);
-    BKList_node* getfirst() const { return first;}
-    void add_node(treeNode* input,int threshold){
-        if (first==NULL)
-        {
-            first = new BKList_node(input,threshold);
-        }
-        else
-        {
-            first->add_node(input,threshold);
-        }
-    }
 
-    void destroy_list(){if (first) first->destroy_list();}
+        BKList(treeNode* input,int thr){
+            first = new BKList_node(input,thr);
+        }
+        treeNode* popfirst(int* threshold);
+        BKList_node* getfirst() const { return first;}
+        void add_node(treeNode* input,int threshold){
+            if (first==NULL){
+                first = new BKList_node(input,threshold);
+            }
+            else{
+                first->add_node(input,threshold);
+            }
+        }
+
+        void destroy_list(){if (first) first->destroy_list();}
     
 };
 

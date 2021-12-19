@@ -50,17 +50,6 @@ ErrorCode payload_list::print_list(){
     return EC_SUCCESS;
 }
 
-ErrorCode payload_list::(int id){
-    payload_node* n = head;
-    while(n!=NULL){
-        if(n->getId() == id){
-            return EC_SUCCESS;
-        }
-        n = n->getNext();
-    }
-    return EC_FAIL;
-}
-
 
 ErrorCode payload_list::payload_insert(int tmpId){
 

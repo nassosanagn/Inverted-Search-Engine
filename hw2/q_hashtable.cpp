@@ -1,48 +1,17 @@
 #include "q_hashtable.h"
 // #include <bits/stdc++.h>
 using namespace std;
-  
-unsigned long query_Hashtable::hash_function(int id,int size_tmp){
-    return id % size_tmp;
-}
 
-query_Hashtable::query_Hashtable(){
-    size = Q_SIZE;
-    counter = 0 ;
-    buckets = new query_hash_list*[size];
-    for(int i =0;i<size;i++){
-        buckets[i] = new query_hash_list();
-    }
-}
 
-query_hash_node* query_Hashtable::insert(QueryID qid,const char * str,unsigned int m_dist){
-    int func_out = hash_function(qid,size);
-    query_hash_node* qhn = buckets[func_out]->add_query(buckets[func_out],qid,str,m_dist);
-    counter++;
-    return qhn;
-}
+/* ---------------------------------------------------------------- query_hash_node functions ---------------------------------------------------------------- */
 
-query_hash_node* query_Hashtable::search(QueryID qid){
-    int func_out = hash_function(qid,size);
-    return buckets[func_out]->search_id(qid);
-}
-
-ErrorCode query_Hashtable::print(){
-    for(int i=0;i<size;i++){
-        cout<<"bucket with id "<<i<<" ";
-        buckets[i]->print_list();
-        cout<<endl;
-    }
-    return EC_SUCCESS;
-}
-
-query_hash_node::query_hash_node(QueryID qid,const char * str,unsigned int m_dist){
+query_hash_node::query_hash_node(QueryID qid,const char * str, unsigned int m_dist){
     query_id = qid;
     word_count = 0;
     alive = 1;
     words_found = 0;
     curr_doc = 0;
-    char * pch;
+    char *pch;
     char* Str = new char[strlen(str)+1];
     strcpy(Str,str);
     pch = strtok (Str," ");
@@ -57,19 +26,19 @@ query_hash_node::query_hash_node(QueryID qid,const char * str,unsigned int m_dis
     }
     match_dist = m_dist;
     next = NULL;
+
+    delete []Str;
 }
 
-
-//Dhmioyrgei to query list
-ErrorCode query_hash_list::create_query_list(query_hash_list** el){
-    (*el) = new query_hash_list;
-    (*el)->setfirst(NULL);
-    if((*el)==NULL){
-        return EC_FAIL;
+void query_hash_node::reset_val(){
+    for(unsigned int i = 0; i < word_count; i++){
+        word_c[i] = 0;
     }
-    return EC_SUCCESS;
+    words_found = 0;
 }
 
+
+/* ---------------------------------------------------------------- query_hash_list functions ---------------------------------------------------------------- */
 
 //Prosthetei ena query sto telos ths listas
 query_hash_node* query_hash_list::add_query(query_hash_list* el, QueryID qid,const char * str,unsigned int m_dist){
@@ -107,9 +76,7 @@ ErrorCode query_hash_list::destroy_query_list(query_hash_list** el){
     //Diatrexei thn lista kai diagrafei toys komvoys
     while(curr != NULL){
         next = curr->get_next();
-
         delete curr;
-
         curr = next;
     }
     delete (*el);
@@ -117,15 +84,21 @@ ErrorCode query_hash_list::destroy_query_list(query_hash_list** el){
     return EC_SUCCESS;
 }
 
-query_hash_node* query_hash_list::search_id(unsigned int id){
-    query_hash_node* qn = first;
-    while(qn!=NULL){
-        if(qn->get_id() == id){
-            return qn;
-        }
-        qn = qn->get_next();
+ErrorCode query_hash_list::print_list(){
+    
+    if (first == NULL){
+        return EC_FAIL;
     }
-    return NULL;
+    query_hash_node* current = first;
+    while (current != NULL){
+        cout << "ID = "<<current->get_id() << " get_word_count: "<<current->get_word_count()<<" words found: "<<current->get_word_found()<<" CURR "<<current->get_curr_doc()<<" ";
+        for(unsigned int i = 0 ;i<current->get_word_count();i++){
+            cout<<(current->get_word_c())[i]<<" ";
+        }
+        current = current->get_next();
+    }
+    cout << endl;
+    return EC_SUCCESS;
 }
 
 ErrorCode query_hash_list::delete_query(QueryID query_id){
@@ -148,47 +121,131 @@ ErrorCode query_hash_list::delete_query(QueryID query_id){
     return EC_SUCCESS;
 }
 
-// int main(){
+/* ---------------------------------------------------------------- query_Hashtable functions ---------------------------------------------------------------- */
 
-//     Hashtable* hash;
-//     hash = new Hashtable();
-//     hash->create_hashtable();
+query_Hashtable::query_Hashtable(){
+    size = Q_SIZE;
+    counter = 0 ;
+    buckets = new query_hash_list*[size];
+    for(int i =0;i<size;i++){
+        buckets[i] = new query_hash_list();
+    }
+}
 
-//     char* tmpStr = new char[strlen("hell")];
-//     strcpy(tmpStr,"hell");
-//     entry* E = new entry(tmpStr);
+query_Hashtable::~query_Hashtable(){
+  
+    // for(int i = 0; i < size;i++){
+    //     buckets[i]->destroy_query_list(&buckets[i]);
+    //     // delete []buckets[i];
+    // }
+    // delete buckets;
+}
 
-//     char* tmpStr1 = new char[strlen("help")];
-//     strcpy(tmpStr1,"help");
-//     entry* E1 = new entry(tmpStr1);
+query_hash_node* query_Hashtable::insert(QueryID qid,const char * str,unsigned int m_dist){
+    int func_out = hash_function(qid,size);
+    query_hash_node* qhn = buckets[func_out]->add_query(buckets[func_out],qid,str,m_dist);
+    counter++;
+    return qhn;
+}
 
-//     char* tmpStr2 = new char[strlen("fall")];
-//     strcpy(tmpStr2,"fall");
-//     entry* E2 = new entry(tmpStr2);
+query_hash_node* query_Hashtable::search(QueryID qid){
+    int func_out = hash_function(qid,size);
+    return buckets[func_out]->search_id(qid);
+}
 
-//     char* tmpStr3 = new char[strlen("felt")];
-//     strcpy(tmpStr3,"felt");
-//     entry* E3 = new entry(tmpStr3);
+unsigned long query_Hashtable::hash_function(int id,int size_tmp){
+    return id % size_tmp;
+}
 
-//     char* tmpStr4 = new char[strlen("fell")];
-//     strcpy(tmpStr4,"fell");
-//     entry* E4 = new entry(tmpStr4);
+ErrorCode query_Hashtable::print(){
+    for(int i=0;i<size;i++){
+        cout<<"bucket with id "<<i<<" ";
+        buckets[i]->print_list();
+        cout<<endl;
+    }
+    return EC_SUCCESS;
+}
 
-//     char* tmpStr5 = new char[strlen("small")];
-//     strcpy(tmpStr5,"small");
-//     entry* E5 = new entry(tmpStr5);
+ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_doc){
+            
+    query_hash_node* qNode;
+    int func_out = hash_function(qid,size);
+    qNode = buckets[func_out]->search_id(qid);           
+    if(qNode->get_alive() == 0){
+        return EC_FAIL;
+    }
+    if(qNode->get_curr_doc() != current_doc){
+        qNode->set_curr_doc(current_doc);
+        qNode->reset_val();
+    }
 
-//     char* tmpStr6 = new char[strlen("melt")];
-//     strcpy(tmpStr6,"melt");
-//     entry* E6 = new entry(tmpStr6);
+    if (qNode->get_word_found() == qNode->get_word_count()){
+        return EC_FAIL;
+    }
 
-//     hash->insert(E,0);
-//     hash->insert(E1,1);
-//     hash->insert(E2,2);
-//     hash->insert(E3,3);
-//     hash->insert(E4,4);
-//     hash->insert(E5,5);
-//     hash->insert(E6,6);
-//     hash->print();
-//     return 0;
-// }
+    for(unsigned int i = 0; i < qNode->get_word_count(); i++){
+        if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((qNode->get_word_c())[i] == 0)){
+            qNode->set_found(i);
+        }
+    }
+    
+    if (qNode->get_word_found() == qNode->get_word_count()){
+        return EC_SUCCESS;
+    }
+
+    return EC_FAIL;
+}
+
+ErrorCode query_Hashtable::add_one_tree(word* myword, int qid, unsigned int current_doc, unsigned int threshold){
+    query_hash_node* qNode;
+    int func_out = hash_function(qid,size);
+    qNode = buckets[func_out]->search_id(qid);           
+    if(qNode->get_alive() == 0){
+        return EC_FAIL;
+    }
+    if(qNode->get_curr_doc() != current_doc){
+        qNode->set_curr_doc(current_doc);
+        qNode->reset_val();
+    }
+    
+    if (qNode->get_word_found() == qNode->get_word_count()){
+        return EC_FAIL;
+    }
+
+    if(qNode->get_dist() < threshold){
+        return EC_FAIL;
+    }
+    for(unsigned int i = 0; i < qNode->get_word_count(); i++){
+        if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((qNode->get_word_c())[i] == 0)){
+            qNode->set_found(i);
+        }
+    }
+    if (qNode->get_word_found() == qNode->get_word_count()){
+        return EC_SUCCESS;
+    }
+
+    return EC_FAIL;
+}
+
+ErrorCode query_Hashtable::add_one_payload(payload_list* pl,word* w,int current_doc,int threshold,payload_list* q_result){
+    payload_node* pn;
+    pn = pl->getFirst();
+    while(pn!=NULL){
+        if(add_one_tree(w,pn->getId(),current_doc,threshold) == EC_SUCCESS){
+            q_result->payload_insert_asc(pn->getId());
+        }
+        pn = pn->getNext();
+    }
+
+    return EC_SUCCESS;
+}
+
+ErrorCode query_Hashtable::delete_query(int qid){
+    query_hash_node* qNode;
+    int func_out = hash_function(qid,size);
+    qNode = buckets[func_out]->search_id(qid);
+    qNode->set_alive();
+
+    return EC_SUCCESS;
+}
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------- */

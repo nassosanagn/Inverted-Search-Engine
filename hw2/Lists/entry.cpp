@@ -1,7 +1,8 @@
 #include "entry.h"
 using namespace std;
 
-//Constructor
+/* ---------------------------------------------------------------- word functions ---------------------------------------------------------------- */
+
 word::word(char* tmp){
     if(tmp==NULL){
         String = NULL;
@@ -11,25 +12,19 @@ word::word(char* tmp){
     strcpy(String,tmp);
 }
 
-//Destructor
 word::~word(){
     delete[] String;
 }
 
-// //Copy contructor
-// word::word(const word &ww){
-//     String = NULL;
-//     delete[] String;
-//     String = new char[strlen(ww.String)+1];
-//     strcpy(String,ww.String);
-// }
+void word::setword(const char *ww){
+    if(String!=NULL){
+        delete[] String;
+    }
+    String = new char[strlen(ww)+1];
+    strcpy(String,ww);
+}
 
-//Copy contructor
-// entry::entry(const entry &ee){
-//     myString->setword(ee.getword());
-//     list = ee.getpayload();
-//     next = ee.getnext();
-// }
+/* ---------------------------------------------------------------- entry functions ---------------------------------------------------------------- */
 
 //contructor
 entry::entry(char * tmp){
@@ -51,12 +46,34 @@ ErrorCode entry::create_entry(const word* w, entry** e){
     return EC_SUCCESS;
 }
 
+payload_node* entry::search_payload(int id){
+    payload_node* pn = list->getFirst();
+    while(pn!=NULL){
+        if(pn->getId()==id){
+            return pn;
+        }
+        pn = pn->getNext();
+    }
+    return NULL;
+}
+
 //diagrafei entry
 ErrorCode entry::destroy_entry(entry **e){
     delete (*e);
     *e = NULL;
     return EC_SUCCESS;
 }
+
+void entry::setpayload(payload_list* pl){
+    payload_node* pn = pl->getFirst();
+    while(pn!=NULL){
+        list->payload_insert(pn->getId());
+        pn = pn->getNext();
+    }
+}
+
+
+/* ---------------------------------------------------------------- entry_list functions ---------------------------------------------------------------- */
 
 //Dhmioyrgei to entry list
 ErrorCode entry_list::create_entry_list(entry_list** el){
@@ -179,6 +196,7 @@ ErrorCode entry_list::destroy_entry_list(entry_list** el){
     return EC_SUCCESS;
 }
 
+
 ErrorCode entry_list::destroy_entrys(entry_list** el){
     if((*el)==NULL){
         return EC_FAIL;
@@ -196,3 +214,4 @@ ErrorCode entry_list::destroy_entrys(entry_list** el){
     return EC_SUCCESS;
 }
 
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------- */

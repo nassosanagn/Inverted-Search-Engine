@@ -30,29 +30,26 @@
 #include <cstdlib>
 #include <cstdio>
 #include <vector>
-#include "../query.h"
-#include "../doc.h"
-#include "../payload.h"
-#include "../hashtable.h"
-#include "../hammingindex.h"
-#include "../editDistBkTree.h"
+#include "../Lists/doc.h"
+#include "../Lists/payload.h"
+
+#include "../Indexes//hashtable.h"
+#include "../Indexes/hammingindex.h"
+#include "../Indexes//editDistBkTree.h"
+
 #include "../q_hashtable.h"
+
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-
 
 query_Hashtable* Q_hash;
 doc_list* D_list;
@@ -65,32 +62,43 @@ doc* D_tmp;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode InitializeIndex(){
-	Q_hash = new query_Hashtable();
-	if(Q_hash == NULL){
-		return EC_FAIL;
-	}
+    Q_hash = new query_Hashtable();
+    if(Q_hash == NULL){
+        return EC_FAIL;
+    }
     D_list = new doc_list();
-	if(D_list == NULL){
-		return EC_FAIL;
-	}
-	ham_index = new HammingIndex();
-	if(ham_index == NULL){
-		return EC_FAIL;
-	}
-	hash_index = new Hashtable();
-	if(hash_index == NULL){
-		return EC_FAIL;
-	}
-	edit_index = new EditBKTree();
-	if(edit_index == NULL){
-		return EC_FAIL;
-	}
-	return EC_SUCCESS;
+    if(D_list == NULL){
+        return EC_FAIL;
+    }
+    ham_index = new HammingIndex();
+    if(ham_index == NULL){
+        return EC_FAIL;
+    }
+    hash_index = new Hashtable();
+    if(hash_index == NULL){
+        return EC_FAIL;
+    }
+    edit_index = new EditBKTree();
+    if(edit_index == NULL){
+        return EC_FAIL;
+    }
+    return EC_SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-ErrorCode DestroyIndex(){return EC_SUCCESS;}
+ErrorCode DestroyIndex(){
+	
+	D_list->destroy_doc_list(&D_list);
+
+	delete Q_hash;
+
+	delete ham_index;
+	delete hash_index;
+	delete edit_index;
+
+	return EC_SUCCESS;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ErrorCode check_hash_insert(QueryID qid){
@@ -109,6 +117,7 @@ ErrorCode check_hash_del(QueryID qid){
 	return EC_FAIL;
 }
 
+
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist)
 {
 	query_hash_node* Q;
@@ -126,11 +135,14 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
             break;
         case MT_EXACT_MATCH:
 			char* Str = new char[strlen("small")+1];
+			strcpy(Str, "small");
 			entry* E = new entry(Str);
 			for(unsigned int i=0;i<Q->get_word_count();i++){
 				E->setword(&(Q->get_word_arr()[i]));
 				hash_index->insert(E,query_id);
 			}
+			delete[] Str;
+			delete E;
             break;
     }
 	return EC_SUCCESS;
@@ -149,28 +161,30 @@ ErrorCode EndQuery(QueryID query_id)
 ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 {
 	word* myword = new word();
-
 	payload_list* q_result = new payload_list();
+
 	// Iterate on all active queries to compare them with this new document
     char * pch;
+
     char* Str = new char[strlen(doc_str)+1];
     strcpy(Str,doc_str);
     pch = strtok (Str," ");
-    while (pch != NULL)
-    {
+
+    while (pch != NULL){
 		myword->setword(pch);
 
 		hash_index->search(myword,Q_hash,doc_id,q_result);
 
 		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,doc_id,q_result);
 
-		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(),1, MT_EDIT_DIST,Q_hash,doc_id,q_result);
+		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1, MT_EDIT_DIST,Q_hash,doc_id,q_result);
         pch = strtok (NULL, " ");
     }
-	doc* D;
-	D = new doc(doc_id);
+
+	doc* D = new doc(doc_id);
 	D->set_num_res(q_result->get_counter());
-	D->set_query_ids(q_result,q_result->get_counter());
+	// D->set_query_ids(q_result,q_result->get_counter());
+
 	// Add this result to the set of undelivered results
 	doc* D_tt;
 	D_tt = D_list->add_doc(D_list,D,q_result);
@@ -178,6 +192,11 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 		flg = 0;
 		D_tmp = D_tt;
 	}
+
+	delete myword;
+	delete[] Str;
+	// delete D->get_query_ids();
+	q_result->destroy_payload_list();
 	return EC_SUCCESS;
 }
 

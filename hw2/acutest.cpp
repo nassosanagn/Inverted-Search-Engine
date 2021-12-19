@@ -1,12 +1,12 @@
 #include "acutest.h"
-#include "sigmod2013contest-1.1/include/core.h"
-#include "query.h"
-#include "doc.h"
-#include "payload.h"
-#include "hashtable.h"
-#include "hammingindex.h"
-#include "editDistBkTree.h"
 #include "q_hashtable.h"
+#include "Indexes/BKTree.h"
+#include "Indexes/hammingindex.h"
+#include "Indexes/editDistBkTree.h"
+#include "Indexes/hashtable.h"
+#include "Lists/doc.h"
+#include "Lists/entry.h"
+#include "Lists/payload.h"
 #include <iostream>
 using namespace std;
 
@@ -84,7 +84,7 @@ void test_MatchDocument(void){
     //Sto document 1 prepei na toy antistoixoyn mono ta queries 1 kai 2 kathws sto 3 einai diaforetikh le3h me dif > 2
     TEST_CHECK_(doc_id==1,"Not the same document with had insert");
     TEST_CHECK_(num_res==2,"Not the correct amount of result queries");
-    for(int i=0;i<2;i++){
+    for(unsigned int i=0;i<2;i++){
         TEST_CHECK_(query_ids[i] == i+1,"Wrong query result");
     }
 }
@@ -148,7 +148,7 @@ void test_doc(void){
     TEST_CHECK_(pl->search_id(2) == EC_SUCCESS,"Cannot find payload with inserted before");
     doc* D = new doc(1);
     D->set_query_ids(pl,2);
-    for(int i = 0 ; i < 2;i++){
+    for(unsigned int i = 0 ; i < 2;i++){
         TEST_CHECK_((D->get_query_ids())[i] == i+1,"Cannot find query id we inserted");
     }
     
