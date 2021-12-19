@@ -50,7 +50,7 @@ ErrorCode payload_list::print_list(){
     return EC_SUCCESS;
 }
 
-ErrorCode payload_list::search_id(int id){
+ErrorCode payload_list::(int id){
     payload_node* n = head;
     while(n!=NULL){
         if(n->getId() == id){
