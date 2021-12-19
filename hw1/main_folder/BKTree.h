@@ -119,23 +119,24 @@ class BKList{
     private:
         BKList_node* first;
     public:
-    BKList(treeNode* input,int thr){
-        first = new BKList_node(input,thr);
-    }
-    treeNode* popfirst(int* threshold);
-    BKList_node* getfirst() const { return first;}
-    void add_node(treeNode* input,int threshold){
-        if (first==NULL)
-        {
-            first = new BKList_node(input,threshold);
-        }
-        else
-        {
-            first->add_node(input,threshold);
-        }
-    }
 
-    void destroy_list(){if (first) first->destroy_list();}
+        BKList(treeNode* input,int thr){
+            first = new BKList_node(input,thr);
+        }
+        treeNode* popfirst(int* threshold);
+        BKList_node* getfirst() const { return first;}
+        void add_node(treeNode* input,int threshold){
+            if (first==NULL)
+            {
+                first = new BKList_node(input,threshold);
+            }
+            else
+            {
+                first->add_node(input,threshold);
+            }
+        }
+
+        void destroy_list(){if (first) first->destroy_list();}
     
 };
 

@@ -33,11 +33,9 @@ IMPL_O=ref_impl/core.o
 BKTREE_O=../../hw1/main_folder/BKTree.o
 ENTRY_O=../../hw1/main_folder/entry.o
 DOC_O=../doc.o
-HAMMINGINDEX_O=../hammingindex.o
 HASHTABLE_O=../hashtable.o
 EDITDISTBKTREE_O=../editDistBkTree.o
 PAYLOAD_O=../payload.o
-QUERY_O=../query.o
 Q_HASHTABLE_O=../q_hashtable.o
 
 # Compiler flags
@@ -56,12 +54,12 @@ LIBRARY=core
 # Build all programs
 all: $(PROGRAMS)
 
-lib: $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
-	$(CXX) $(CXXFLAGS) -shared -o lib$(LIBRARY).so  $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
+lib: $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HASHTABLE_O) $(PAYLOAD_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
+	$(CXX) $(CXXFLAGS) -shared -o lib$(LIBRARY).so  $(IMPL_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HASHTABLE_O) $(PAYLOAD_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
 
-testdriver: lib $(TEST_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
-	$(CXX) $(CXXFLAGS) -o testdriver $(TEST_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O) ./lib$(LIBRARY).so
+testdriver: lib $(TEST_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HASHTABLE_O) $(PAYLOAD_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O)
+	$(CXX) $(CXXFLAGS) -o testdriver $(TEST_O) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HASHTABLE_O) $(PAYLOAD_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O) ./lib$(LIBRARY).so
 
 clean:
-	rm -f $(PROGRAMS) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HAMMINGINDEX_O) $(HASHTABLE_O) $(PAYLOAD_O) $(QUERY_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O) lib$(LIBRARY).so
+	rm -f $(PROGRAMS) $(DOC_O) $(BKTREE_O) $(ENTRY_O) $(HASHTABLE_O) $(PAYLOAD_O) $(EDITDISTBKTREE_O) $(Q_HASHTABLE_O) lib$(LIBRARY).so
 	find . -name '*.o' -print | xargs rm -f

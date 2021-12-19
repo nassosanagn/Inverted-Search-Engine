@@ -95,9 +95,7 @@ ErrorCode doc_list::destroy_doc_list(doc_list** el){
     //Diatrexei thn lista kai diagrafei toys komvoys
     while(curr != NULL){
         next = curr->get_next();
-
         delete curr;
-
         curr = next;
     }
     delete (*el);

@@ -21,6 +21,7 @@ class query_hash_node {
     query_hash_node* next;
 
     public:
+    
         query_hash_node(QueryID qid,const char * str, unsigned int m_dist);
 
         /* Getters */
@@ -39,7 +40,6 @@ class query_hash_node {
         void set_curr_doc(unsigned int tmp){ curr_doc = tmp;}
         void set_alive(){ alive = 0;}
         void set_found(int x){ word_c[x] = 1; words_found++;}
-
 
         void reset_val();
 };
@@ -78,7 +78,7 @@ class query_Hashtable {
 
         query_Hashtable();
         ~query_Hashtable();
-        
+
         unsigned long hash_function(int id,int size_tmp);
         
         query_hash_node* insert(QueryID qid,const char * str,unsigned int m_dist);

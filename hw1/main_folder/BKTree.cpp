@@ -34,18 +34,17 @@ ErrorCode Index::destroy_entry_index(treeNode* ix){
 //Synarthsh gia eyresh hamming distance 
 
 int Index::HammingDistance(const char* word1, const char* word2){
-        int j = strlen(word1)-strlen(word2);
-        if (j < 0){j=-j;}
-        for(size_t i = 0;i<(strlen(word1) < strlen(word2) ? strlen(word1) : strlen(word2));i++){
-            if(word1[strlen(word1)-i-1]!=word2[strlen(word2)-i-1]){
-                j++;
-            }
+    
+    int j = strlen(word1)-strlen(word2);
+    if (j < 0){j=-j;}
+    for(size_t i = 0;i<(strlen(word1) < strlen(word2) ? strlen(word1) : strlen(word2));i++){
+        if(word1[strlen(word1)-i-1]!=word2[strlen(word2)-i-1]){
+            j++;
         }
-        return j;
+    }
+    return j;
 }
 
-
-//EditDistance apo core.cpp
 // int Index::EditDistance(char *str1,int str1Len, char *str2, int str2Len) {
 //   int row, column;
 //   int array[str2Len + 1][str1Len + 1];
@@ -80,6 +79,7 @@ int Index::HammingDistance(const char* word1, const char* word2){
 
 //   return array[str2Len][str1Len];
 // }
+
 int Index::EditDistance(char* a, int na, char* b, int nb)
 {
 	int oo=0x7FFFFFFF;
@@ -128,9 +128,7 @@ int Index::EditDistance(char* a, int na, char* b, int nb)
 
 		cur=1-cur;
 	}
-
 	int ret=T[1-cur][nb];
-
 	return ret;
 }
 
@@ -316,9 +314,6 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
     char *tmpStr = new char[strlen("tmp")+1];
     strcpy(tmpStr,"k");
 
-
-    char* Strmy = new char[strlen("airliyes")+1];
-    strcpy(Strmy,"airliyes");
     //entry gia thn dhmioyrgia listas le3ewn gia epistrofh
     entry* input_entry = new entry(tmpStr);
 

@@ -13,8 +13,18 @@ using namespace std;
 
 class HammingIndex{
     private:
-        Index mytrees[TREECOUNT];
+        Index* mytrees;
     public:
+
+        HammingIndex(){
+            mytrees = new Index[TREECOUNT];
+        }
+
+        ~HammingIndex(){
+            for(int i = 0; i < TREECOUNT; i++){
+               mytrees[i].destroy_entry_index(mytrees[i].getRoot());
+            }
+        }
 
         ErrorCode insert(word* input,int qid){
             int treepos = strlen(input->getword())-MIN_WORD_LENGTH;

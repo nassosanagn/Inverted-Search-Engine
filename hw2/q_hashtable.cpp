@@ -76,9 +76,7 @@ ErrorCode query_hash_list::destroy_query_list(query_hash_list** el){
     //Diatrexei thn lista kai diagrafei toys komvoys
     while(curr != NULL){
         next = curr->get_next();
-
         delete curr;
-
         curr = next;
     }
     delete (*el);
@@ -147,10 +145,11 @@ query_Hashtable::query_Hashtable(){
 
 query_Hashtable::~query_Hashtable(){
   
-    for(int i = 0; i < size;i++){
-        buckets[i]->destroy_query_list(&buckets[i]);
-    }
-    delete buckets;
+    // for(int i = 0; i < size;i++){
+    //     buckets[i]->destroy_query_list(&buckets[i]);
+    //     delete []buckets[i];
+    // }
+    // delete buckets;
 }
 
 query_hash_node* query_Hashtable::insert(QueryID qid,const char * str,unsigned int m_dist){

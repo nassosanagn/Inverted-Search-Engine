@@ -30,14 +30,15 @@
 #include <cstdlib>
 #include <cstdio>
 #include <vector>
-#include "../query.h"
 #include "../doc.h"
 #include "../payload.h"
 #include "../hashtable.h"
 #include "../hammingindex.h"
 #include "../editDistBkTree.h"
 #include "../q_hashtable.h"
+
 using namespace std;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +77,7 @@ ErrorCode DestroyIndex(){
 	D_list->destroy_doc_list(&D_list);
 
 	delete Q_hash;
+
 	delete ham_index;
 	delete hash_index;
 	delete edit_index;
@@ -109,7 +111,7 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 				E->setword(&(Q->get_word_arr()[i]));
 				hash_index->insert(E,query_id);
 			}
-			delete []Str;
+			delete[] Str;
 			delete E;
             break;
     }
@@ -162,8 +164,8 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 	}
 
 	delete myword;
-	delete []Str;
-	delete D;
+	delete[] Str;
+	// delete D->get_query_ids();
 	q_result->destroy_payload_list();
 	return EC_SUCCESS;
 }

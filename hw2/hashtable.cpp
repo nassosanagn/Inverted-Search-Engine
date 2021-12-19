@@ -22,12 +22,11 @@ Hashtable::Hashtable(){
 }
 
 Hashtable::~Hashtable(){
-    size = SIZE;
-    for(int i =0;i<size;i++){
-        buckets[i]->destroy_entry_list(&buckets[i]);
-        delete buckets[i];
-    }
-    delete buckets;
+    // for(int i =0;i<size;i++){
+    //     buckets[i]->destroy_entry_list(&buckets[i]);
+    //     delete buckets[i];
+    // }
+    // delete buckets;
 }
 
 ErrorCode Hashtable::insert(entry* entry_tmp,int id){
@@ -40,6 +39,8 @@ ErrorCode Hashtable::insert(entry* entry_tmp,int id){
     else{
         e->getpayload()->payload_insert(id);
     }
+    if (counter > (0.9 * size))
+        rehash();
     return EC_SUCCESS;
 }
 
