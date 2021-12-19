@@ -10,7 +10,7 @@
 
 ## Υλοποίηση
 
-Για την υλοποίηση αυτής της ΑΜΑ η είσοδος έχει τη μορφή ενός αρχείου txt με τα queries και τα documents. Κάθε γραμμή εισάγει ένα καινούριο query, τερματίζει ένα υπάρχον query ή εισάγει ένα καινούριο document για να αντιστιχιστεί με τα υπάρχοντα queries. 
+Για την υλοποίηση αυτής της ΑΜΑ η είσοδος έχει τη μορφή ενός αρχείου txt με τα queries και τα documents. Κάθε γραμμή εισάγει ένα καινούριο query, τερματίζει ένα υπάρχων query ή εισάγει ένα καινούριο document για να αντιστιχιστεί με τα υπάρχοντα queries. 
 
 ### Τα Queries στο txt
 
@@ -42,29 +42,32 @@
 
 ## Αρχεία .cpp/.h
 
-#### EditDistance και HammingDistane
 
 ### core 
 
 #### StartQuery
 
-Στο StartQuery καλείται η insert του ανάλογου ευρετηρίου με βάση το matchtype του.
+Στο StartQuery καλείται η insert του ανάλογου ευρετηρίου με βάση το matchtype του και εισάγει το νέο query στο hashtable με queries.
 
 #### MatchDocument
 
-Το MatchDocument χωρίζει το document σε λέξεις και κάνει lookup σε όλα τα ευρετήρια με τη λέξη αυτή. Μέσα στα lookup τα αποτελέσματα των ευρετηρίων εισάγωνται στην payload_list q_result και με αυτή δημιουργείται ένα doc που έχει τα αποτελέσματα σε αύξουσα σειρά.
+Το MatchDocument χωρίζει το document σε λέξεις και κάνει lookup σε όλα τα ευρετήρια με τη λέξη αυτή. Στα lookup εισάγεται η λέξη που ψάχνουμε απο το document και αν βρεί κάποια όμοια με βάση το match type τότε ελέγχει και επεξεργάζει το payload, δηλαδή τα queries που περιέχουν την λέξη αυτή. Η επεξαργασία αυτή υλοποιείται μέσω της συνάρτησης add_one, η οποία βάζει στον πίνακα με flags των λέξεων τον αριθμό 1 για να μην προσθέτει τα διπλότυπα και ελέγχει αν ο δείκτης word found ισούται με τον συνολικό αριθμό των λέξεων του query, τότε τον προσθέτει στην λίστα με τα αποτελέσματα. Τέλος, εισάγει τα δεδομένα στο doc list για να τα δεχτεί η GetNextAvailRes. 
+
+#### GetNextAvailRes
+
+Η GetNextAvailRes πηγαίνει στον global δείκτη του doc_list που δείχνει στο επόμενο doc τον οποίο θα μεταφερθούν τα στοιχεία στο test.cpp.
 
 ### Eυρετήρια
 
 #### hashtable
 
-Ένα hashtable που χρησιμοποιείται για την **Exact Match**. Έχει μέγεθος size, αριθμό buckets counter και ένα δείκτη σε ένα πίνακα με entry_lists. Η συνάρτηση search ελέγχει εαν μία λέξη είναι στο hashtable. Αν όχι επιστρέφει, αλλιώς ενημερώνει το payload του entry με αυτή τη λέξη.  
+Ένα hashtable που χρησιμοποιείται για την **Exact Match**. Έχει μέγεθος size, αριθμό buckets counter και ένα δείκτη σε ένα πίνακα με entry_lists. Η συνάρτηση search ελέγχει εαν μία λέξη είναι στο hashtable. Αν βρεθεί καλεί την συνάρτηση add_one για κάθε στοιχείο του payload της λέξης και αν επιστρέψει θετικό, δηλαδή οι 2 counters λέξεων ισούται, τα εισάγει στην τελική λίστα αποτελεσμάτων. Επίσης περιέχει την συνάρτηση rehash ώστε αν κατά την είσοδο ενός νέου κόμβου τα συνολικά γεμάτα buckets είναι 90% των συνολικών buckets, τότε διπλασιάζει το μέγεθος και ξανακάνει hahs κάθε στοιχείο του.  
 
 #### editDistBkTree
 
-Ένα BK Tree που χρησιμοποιείται για την **Edit Distance**.
+Ένα BK Tree απο την πρώτη εργασία που χρησιμοποιείται για την **Edit Distance**.
 
-#### hamimingindex
+#### hammingindex
 
 Ένας πίνακας με 27 BK Trees που χρησιμοποιείται για την **Hamming Distance**.
 
@@ -122,7 +125,7 @@ Queries και λίστα με queries. Ένα **query** έχει το id, τι�
 
 ### Testing
 
-#### acutest.h/test.cpp
+#### acutest.h/acutest.cpp
 
 Το πρόγραμμα χρησιμοποιεί το testing framework *acutest* για το testing, το οποίο σε συνδυασμό με το αρχείο acutest.cpp κάνει τον έλεγχο για όλες τις δομές και σημαντικές συναρτήσεις του project.
 
@@ -130,10 +133,10 @@ Queries και λίστα με queries. Ένα **query** έχει το id, τι�
 
 Κάθε μέλος της ομάδας δούλεψε και έκανε testing σε κάθε δομή του προγράμματος με κύρια έμφαση:
 
-**Entry List και Testing:** [Apostolos Karvelas](https://github.com/TollisK) A.M.: 1115201800312 Branches: [main](https://github.com/nassosanagn/Inverted-Search-Engine/tree/main) και [entry](https://github.com/nassosanagn/Inverted-Search-Engine/tree/entry)
+**Exact hashtable,Query hashtable-list and Testing:** [Apostolos Karvelas](https://github.com/TollisK) A.M.: 1115201800312.
 
-**BKTree:** [Nassos Anagnostopoulos](https://github.com/nassosanagn) A.M.: 1115201800006 Branches: [BKTree](https://github.com/nassosanagn/Inverted-Search-Engine/tree/BKTree)
+**EditIndex, Document list and MatchDocument:** [Nassos Anagnostopoulos](https://github.com/nassosanagn) A.M.: 1115201800006.
 
-**Lookup και README:** [Giannis-Papadimitriou](https://github.com/Giannis-Papadimitriou) A.M.: 1115201800150 Branches: [BKextended](https://github.com/nassosanagn/Inverted-Search-Engine/tree/BKextended)
+**HammingIndex, Payload list, Lookups and README:** [Giannis-Papadimitriou](https://github.com/Giannis-Papadimitriou) A.M.: 1115201800150.
 
 
