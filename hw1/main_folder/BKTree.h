@@ -69,7 +69,7 @@ class Index{
     public:
         
         Index();        /* Constructor */
-        ~Index();                  /* Destructor */
+        ~Index();       /* Destructor */
 
         ErrorCode destroy_entry_index(treeNode* tempNode);               /* Destroy the tree by visiting and destroying each node */
         ErrorCode insertTree(entry* entry, char* cmpWord, treeNode* tempNode, MatchType matchtype, int qid);
@@ -103,11 +103,9 @@ class BKList_node{
 
         BKList_node(treeNode* input,int thr)
         {
-            // cout<<"zzzzzzz"<<endl;
             nextnode = NULL; 
             mynode=input;
             threshold = thr;
-            // cout<<"vvvvvvvv"<<endl;
         }
 
         treeNode* getnode() const { return mynode;}

@@ -10,6 +10,19 @@ doc::doc(DocID did){
     query_ids = NULL;
 }
 
+void doc::set_query_ids(payload_list* tmp,int num){
+            
+    query_ids = new QueryID[num];
+    payload_node* P = tmp->getFirst();
+    int i = 0;
+    while(P!=NULL){
+        query_ids[i] = P->getId();
+        i++;
+        P = P->getNext();
+    }
+}
+
+/* ---------------------------------------------------------------- doc_list functions ---------------------------------------------------------------- */
 
 //Dhmioyrgei to doc list
 ErrorCode doc_list::create_doc_list(doc_list** el){

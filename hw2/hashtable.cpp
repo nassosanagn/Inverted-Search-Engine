@@ -21,6 +21,15 @@ Hashtable::Hashtable(){
     }
 }
 
+Hashtable::~Hashtable(){
+    size = SIZE;
+    for(int i =0;i<size;i++){
+        buckets[i]->destroy_entry_list(&buckets[i]);
+        delete buckets[i];
+    }
+    delete buckets;
+}
+
 ErrorCode Hashtable::insert(entry* entry_tmp,int id){
     int func_out = hash_function(entry_tmp->getword(),size);
     entry* e = buckets[func_out]->search_word(entry_tmp->getmyword());
@@ -83,48 +92,3 @@ ErrorCode Hashtable::rehash(){
     buckets = new_buckets;
     return EC_SUCCESS;
 }
-
-// int main(){
-
-//     Hashtable* hash;
-//     hash = new Hashtable();
-//     hash->create_hashtable();
-
-//     char* tmpStr = new char[strlen("hell")];
-//     strcpy(tmpStr,"hell");
-//     entry* E = new entry(tmpStr);
-
-//     char* tmpStr1 = new char[strlen("help")];
-//     strcpy(tmpStr1,"help");
-//     entry* E1 = new entry(tmpStr1);
-
-//     char* tmpStr2 = new char[strlen("fall")];
-//     strcpy(tmpStr2,"fall");
-//     entry* E2 = new entry(tmpStr2);
-
-//     char* tmpStr3 = new char[strlen("felt")];
-//     strcpy(tmpStr3,"felt");
-//     entry* E3 = new entry(tmpStr3);
-
-//     char* tmpStr4 = new char[strlen("fell")];
-//     strcpy(tmpStr4,"fell");
-//     entry* E4 = new entry(tmpStr4);
-
-//     char* tmpStr5 = new char[strlen("small")];
-//     strcpy(tmpStr5,"small");
-//     entry* E5 = new entry(tmpStr5);
-
-//     char* tmpStr6 = new char[strlen("melt")];
-//     strcpy(tmpStr6,"melt");
-//     entry* E6 = new entry(tmpStr6);
-
-//     hash->insert(E,0);
-//     hash->insert(E1,1);
-//     hash->insert(E2,2);
-//     hash->insert(E3,3);
-//     hash->insert(E4,4);
-//     hash->insert(E5,5);
-//     hash->insert(E6,6);
-//     hash->print();
-//     return 0;
-// }

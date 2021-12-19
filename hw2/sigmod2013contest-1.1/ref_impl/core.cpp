@@ -62,6 +62,7 @@ doc* D_tmp;
 ErrorCode InitializeIndex(){
 	Q_hash = new query_Hashtable();
     D_list = new doc_list();
+
 	ham_index = new HammingIndex();
 	hash_index = new Hashtable();
 	edit_index = new EditBKTree();
@@ -72,6 +73,12 @@ ErrorCode InitializeIndex(){
 
 ErrorCode DestroyIndex(){
 	
+	D_list->destroy_doc_list(&D_list);
+
+	delete ham_index;
+	delete hash_index;
+	delete edit_index;
+
 	return EC_SUCCESS;
 }
 
@@ -101,6 +108,7 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 				E->setword(&(Q->get_word_arr()[i]));
 				hash_index->insert(E,query_id);
 			}
+			delete Str;
 			delete E;
             break;
     }
@@ -120,15 +128,16 @@ ErrorCode EndQuery(QueryID query_id)
 ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 {
 	word* myword = new word();
-
 	payload_list* q_result = new payload_list();
+
 	// Iterate on all active queries to compare them with this new document
     char * pch;
+
     char* Str = new char[strlen(doc_str)+1];
     strcpy(Str,doc_str);
     pch = strtok (Str," ");
-    while (pch != NULL)
-    {
+
+    while (pch != NULL){
 		myword->setword(pch);
 
 		hash_index->search(myword,Q_hash,doc_id,q_result);
@@ -138,10 +147,11 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1, MT_EDIT_DIST,Q_hash,doc_id,q_result);
         pch = strtok (NULL, " ");
     }
-	doc* D;
-	D = new doc(doc_id);
+
+	doc* D = new doc(doc_id);
 	D->set_num_res(q_result->get_counter());
 	D->set_query_ids(q_result,q_result->get_counter());
+
 	// Add this result to the set of undelivered results
 	doc* D_tt;
 	D_tt = D_list->add_doc(D_list,D,q_result);
@@ -149,6 +159,11 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 		flg = 0;
 		D_tmp = D_tt;
 	}
+
+	delete myword;
+	delete Str;
+	delete D;
+	q_result->destroy_payload_list();
 	return EC_SUCCESS;
 }
 

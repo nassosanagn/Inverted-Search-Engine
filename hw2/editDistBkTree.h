@@ -15,10 +15,11 @@ class EditBKTree{
 
     Index* editBk;
     public:
+        EditBKTree(){ editBk = new Index();}
+        ~EditBKTree(){ delete editBk;}
+
         Index* getBKtree() const { return editBk; }
-        EditBKTree(){
-            editBk = new Index();
-        }
+
 };
 
 #endif

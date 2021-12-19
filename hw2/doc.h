@@ -14,37 +14,19 @@ class doc {
     doc* next;
 
     public:
+
         doc(DocID did);
 
-        DocID get_id() const{
-            return doc_id;
-        }
-        unsigned int get_num_res(){
-            return num_res;
-        }
-        QueryID* get_query_ids() const{
-            return query_ids;
-        }
-        doc* get_next() const{
-            return next;
-        }
-        void set_num_res(int tmp){
-            num_res = tmp;
-        }
-        void set_query_ids(payload_list* tmp,int num){
-            
-            query_ids = new QueryID[num];
-            payload_node* P = tmp->getFirst();
-            int i = 0;
-            while(P!=NULL){
-                query_ids[i] = P->getId();
-                i++;
-                P = P->getNext();
-            }
-        }
-        void set_next(doc *tmp){
-            next = tmp;
-        }
+        /* Getters */
+        DocID get_id() const{ return doc_id;}
+        unsigned int get_num_res(){ return num_res;}
+        QueryID* get_query_ids() const{ return query_ids;}
+        doc* get_next() const{ return next;}
+
+        /* Setters */
+        void set_num_res(int tmp){num_res = tmp;}
+        void set_query_ids(payload_list* tmp,int num);
+        void set_next(doc *tmp){ next = tmp;}
 };
 
 class doc_list{
@@ -57,8 +39,8 @@ class doc_list{
 
         //Prosthetei ena doc sto telos ths listas
         doc* add_doc(doc_list* el, DocID did);
+        doc* add_doc(doc_list* el, doc* D_temp, payload_list* pl);
 
-        doc* add_doc(doc_list* el, doc* D_temp,payload_list* pl);
         //epistrefei to prwto doc
         doc* get_first(const doc_list* el);
         
@@ -66,14 +48,8 @@ class doc_list{
         ErrorCode destroy_doc_list(doc_list** el);
         
         //Getters - Setters
-        doc* getfirst() const{
-            return first;
-        }
-
-        void setfirst(doc* tmp){
-            first = tmp;
-        }
-
+        doc* getfirst() const{ return first;}
+        void setfirst(doc* tmp){ first = tmp;}
 };
 
 #endif
