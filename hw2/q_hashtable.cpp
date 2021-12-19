@@ -5,13 +5,13 @@ using namespace std;
 
 /* ---------------------------------------------------------------- query_hash_node functions ---------------------------------------------------------------- */
 
-query_hash_node::query_hash_node(QueryID qid,const char * str,unsigned int m_dist){
+query_hash_node::query_hash_node(QueryID qid,const char * str, unsigned int m_dist){
     query_id = qid;
     word_count = 0;
     alive = 1;
     words_found = 0;
     curr_doc = 0;
-    char * pch;
+    char *pch;
     char* Str = new char[strlen(str)+1];
     strcpy(Str,str);
     pch = strtok (Str," ");
@@ -26,6 +26,8 @@ query_hash_node::query_hash_node(QueryID qid,const char * str,unsigned int m_dis
     }
     match_dist = m_dist;
     next = NULL;
+
+    delete []Str;
 }
 
 void query_hash_node::reset_val(){
@@ -37,16 +39,6 @@ void query_hash_node::reset_val(){
 
 
 /* ---------------------------------------------------------------- query_hash_list functions ---------------------------------------------------------------- */
-
-//Dhmioyrgei to query list
-ErrorCode query_hash_list::create_query_list(query_hash_list** el){
-    (*el) = new query_hash_list;
-    (*el)->setfirst(NULL);
-    if((*el)==NULL){
-        return EC_FAIL;
-    }
-    return EC_SUCCESS;
-}
 
 //Prosthetei ena query sto telos ths listas
 query_hash_node* query_hash_list::add_query(query_hash_list* el, QueryID qid,const char * str,unsigned int m_dist){
@@ -151,6 +143,14 @@ query_Hashtable::query_Hashtable(){
     for(int i =0;i<size;i++){
         buckets[i] = new query_hash_list();
     }
+}
+
+query_Hashtable::~query_Hashtable(){
+  
+    for(int i = 0; i < size;i++){
+        buckets[i]->destroy_query_list(&buckets[i]);
+    }
+    delete buckets;
 }
 
 query_hash_node* query_Hashtable::insert(QueryID qid,const char * str,unsigned int m_dist){

@@ -1,10 +1,12 @@
 #ifndef ENTRY_H
 #define ENTRY_H
+
 #include <cstring>
 #include <stdlib.h>
 #include <iostream>
 #include "core.h"
 #include "../../hw2/payload.h"
+
 using namespace std;
 
 //Struct word poy leitoyrgei ws String
@@ -13,24 +15,15 @@ class word {
     char* String;
 
     public:
-
         //Constructor - Destructor
         word(char* tmp=NULL);
         ~word();
 
-        //Copy contructor
-        // word(const word &ww);
-
-        //Setters - Getters
-        void setword(const char *ww){
-            if(String!=NULL){
-                delete[] String;
-            }
-            String = new char[strlen(ww)+1];
-            strcpy(String,ww);
-        }
-
+        /* Getters */
         char* getword() const{ return String; }
+
+        /* Setters */
+        void setword(const char *ww);
 };
 
 //Struct entry poy antistoixei se mia le3h
@@ -48,12 +41,8 @@ class entry {
 
         //Dhmioyrgia ths domhs
         ErrorCode create_entry(const word* w, entry** e);
-
-        //Diagrafei thn domh
         ErrorCode destroy_entry(entry **e);
-
-        //Copy constructor
-        // entry(const entry &ee);
+        payload_node* search_payload(int id);
 
         /* Getters */
         char* getword() const    { return myString->getword(); }
@@ -64,26 +53,8 @@ class entry {
         /* Setters */
         void setnext(entry *tmp) { next = tmp; }
         void setword(char *tmp)  { myString->setword(tmp); }
-        void setword(word *W){
-            myString->setword(W->getword());
-        }
-        void setpayload(payload_list* pl){
-            payload_node* pn = pl->getFirst();
-            while(pn!=NULL){
-                list->payload_insert(pn->getId());
-                pn = pn->getNext();
-            }
-        }
-        payload_node* search_payload(int id){
-            payload_node* pn = list->getFirst();
-            while(pn!=NULL){
-                if(pn->getId()==id){
-                    return pn;
-                }
-                pn = pn->getNext();
-            }
-            return NULL;
-        }
+        void setword(word *W)    {myString->setword(W->getword()); }
+        void setpayload(payload_list* pl);
 };
 
 //Lista apo komvoys entries
@@ -102,9 +73,6 @@ class entry_list{
         
         //Prosthetei ena entry sto telos ths listas
         ErrorCode add_entry(entry_list* el, const entry* e,int id);
-
-        //epistrefei to prwto entry
-        entry* get_first(const entry_list* el);
 
         //Epistrefei ton epomeno komvo apo ayton sto orisma
         entry* get_next(const entry_list* el,const entry* e);
@@ -130,27 +98,13 @@ class entry_list{
             return NULL;
         }
 
-        ErrorCode merge_lists(entry_list* el1, entry_list* el2){
-
-            this->setlast(el1->getfirst());
-            el1->setlast(el2->getfirst());
-
-            return EC_SUCCESS;
-        }
-
         //Getters - Setters
-        entry* getfirst() const{
-            return first;
-        }
-        entry* getlast() const{
-            return last;
-        }
-        void setfirst(entry* tmp){
-            first = tmp;
-        }
-        void setlast(entry* tmp){
-            last = tmp;
-        }
+        entry* getlast() const{ return last; }
+        entry* getfirst() const{ return first; }
+        entry* get_first(const entry_list* el);
+
+        void setfirst(entry* tmp){ first = tmp; }
+        void setlast(entry* tmp){ last = tmp; }
 };
 #endif
 

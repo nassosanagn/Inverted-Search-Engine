@@ -50,9 +50,6 @@ class query_hash_list{
 
     public:
 
-        //Dhmioyrgei thn query list
-        ErrorCode create_query_list(query_hash_list** el);
-
         ErrorCode delete_query(QueryID query_id);
         ErrorCode print_list();
         //Diagrafei kathe komvo ths listas
@@ -80,6 +77,8 @@ class query_Hashtable {
     public:
 
         query_Hashtable();
+        ~query_Hashtable();
+        
         unsigned long hash_function(int id,int size_tmp);
         
         query_hash_node* insert(QueryID qid,const char * str,unsigned int m_dist);
@@ -88,7 +87,7 @@ class query_Hashtable {
     
         ErrorCode add_one(word* myword, int qid, unsigned int current_doc);
         ErrorCode add_one_tree(word* myword, int qid, unsigned int current_doc, unsigned int threshold);         
-        ErrorCode add_one_payload(payload_list* pl,word* w,int current_doc,int threshold,payload_list* q_result);
+        ErrorCode add_one_payload(payload_list* pl,word* w, int current_doc, int threshold, payload_list* q_result);
 
         ErrorCode delete_query(int qid);
 };
