@@ -14,22 +14,25 @@ class job_node {
     char* str;
     MatchType match_type;
     unsigned int match_dist;
+    JobType jtype;
     job_node* next;
 
     public:
 
         /* Constructor - Destructor */
-        job_node(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd) {
+        job_node(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype) {
             this->id = tmpId;
             this->str = new char[strlen(tmpstr)+1];
 			strcpy(this->str, tmpstr);
             this->match_type = tmpmtp;
             this->match_dist = tmpmd;
+            this->jtype = tmpjtype;
             this->next = NULL;
         }
 
         /* Getters */
         int getId() const    { return this->id; }
+        int getjtype() const    { return this->jtype; }
         char* getstr() const    { return this->str; }
         MatchType getmatch_type() const    { return this->match_type; }
         unsigned int getmatch_dist() const    { return this->match_dist; }
@@ -52,8 +55,9 @@ class job_list{
         ~job_list();
 
         ErrorCode print_list();
-        ErrorCode job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd);
-        ErrorCode job_insert_asc(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd);
+        ErrorCode job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype);
+        ErrorCode job_insert_asc(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype);
+        job_node* job_pop();
         ErrorCode destroy_job_list();
 
         ErrorCode search_id(int id){

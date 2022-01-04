@@ -42,7 +42,7 @@ ErrorCode job_list::print_list(){
     job_node* current = this->getFirst();
 
     while (current != NULL){
-        cout << current->getId() << " ";
+        cout << current->getId() << " "<<current->getjtype()<<"  ";
         current = current->getNext();
     }
 
@@ -50,36 +50,47 @@ ErrorCode job_list::print_list(){
     return EC_SUCCESS;
 }
 
+job_node* job_list::job_pop(){
+    if(head == NULL){
+        return NULL;
+    }
+    counter--;
+    job_node* temp = head->getNext();
+    job_node* return_val = head;
+    head = temp; 
+    return return_val;
+}
 
-ErrorCode job_list::job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd){
+ErrorCode job_list::job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype){
 
     
-    job_node* new_node = new job_node(tmpId,tmpstr,tmpmtp,tmpmd);
+    job_node* new_node = new job_node(tmpId,tmpstr,tmpmtp,tmpmd,tmpjtype);
     job_node* current = this->getLast();
 
     if (current == NULL){
+        counter = 1;
         this->setFirst(new_node);
         this->setLast(new_node);
         return EC_SUCCESS;
     }
-
+    counter++;
     current->setNext(new_node);
     this->setLast(new_node);
     return EC_SUCCESS;
 
 }
 
-ErrorCode job_list::job_insert_asc(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd){
+ErrorCode job_list::job_insert_asc(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype){
 
-    job_node *new_node = new job_node(tmpId,tmpstr,tmpmtp,tmpmd);
+    job_node *new_node = new job_node(tmpId,tmpstr,tmpmtp,tmpmd,tmpjtype);
     job_node *current = this->head;
     job_node *prev = NULL;
 
     // job_node* new_node = new job_node(tmpId);
     // job_node* current = this->getFirst();
     if (current == NULL){
+        counter = 1;
         this->setFirst(new_node);
-        counter++;
         return EC_SUCCESS;
     }
     while (current != NULL) {

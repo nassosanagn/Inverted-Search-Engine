@@ -87,6 +87,13 @@ typedef enum{
 }
 MatchType;
 
+/// Matching types:
+typedef enum{
+    QUERY,
+    DOCUMENT
+}
+JobType;
+
 /// Error codes:			
 typedef enum{
     /**

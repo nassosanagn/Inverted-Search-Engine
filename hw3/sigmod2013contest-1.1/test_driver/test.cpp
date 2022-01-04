@@ -123,9 +123,6 @@ void TestSigmod(const char* test_file_str)
 				if(doc_id<first_result || doc_id-first_result>=(unsigned int)num_cur_results)
 				{
 
-					printf("doc_id res %d \n", doc_id);
-					printf("first res %d \n", first_result);
-					printf("num_cur_results res %d \n", num_cur_results);
 					printf("The call to GetNextAvailRes() returned unknown document ID %u.\n", doc_id);
 					fflush(NULL);
 					return;
