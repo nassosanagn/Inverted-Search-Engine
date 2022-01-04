@@ -31,6 +31,7 @@
 #include <cstdio>
 #include <vector>
 #include <pthread.h>
+#include "../Lists/jobs.h"
 #include "../Lists/doc.h"
 #include "../Lists/payload.h"
 
@@ -56,17 +57,68 @@ doc_list* D_list;
 HammingIndex* ham_index;
 Hashtable* hash_index;
 EditBKTree* edit_index;
+job_list* j_list;
 int flg = 1;
 doc* D_tmp;
 
+
+
+// thread data
+class job_scheduler{
+   public:
+      job_list* j_list;
+};
+
+pthread_cond_t cond_nonempty;
+pthread_mutex_t mutex;
+job_scheduler c_buffer;
+pthread_cond_t cond_nonfull;
+pthread_mutex_t write_mutex;
+pthread_t tids[NUM_THREADS];
+
 //Thread functions
 
-struct JobScheduler{
-	int execution_threads; // number of execution threads
-	// job_list* j_list; // a queue that holds submitted jobs / tasks
-	//p_thread_t* tids; // execution threads
-	// mutex, condition variable, ...
-};
+job_node* obtain(job_scheduler * c_buffer) {
+   job_node* data;
+   pthread_mutex_lock(&mutex);
+   while (c_buffer->j_list->get_counter() <= 0) {
+      pthread_cond_wait(&cond_nonempty, &mutex);
+   }
+	//data = c_buffer->data[c_buffer->start];// TODO: POP from buffer
+   pthread_mutex_unlock(&mutex);
+   return data;
+}
+
+int place(job_scheduler* c_buffer, job_node* input_data){
+   	pthread_mutex_lock(&mutex);
+	//TODO: ADD INPUTDATA TO JOBLIST
+   	pthread_mutex_unlock(&mutex);
+}
+
+void * consumer(void * ptr){
+   while (1) {
+      	job_node* path = obtain(&c_buffer);
+      	pthread_mutex_lock(&write_mutex);
+		//TODO:  DO THE THING 
+      	pthread_mutex_unlock(&write_mutex);
+      	pthread_cond_signal(&cond_nonfull);
+   }
+   pthread_exit(0);
+}
+
+void * producer(void * ptr){
+   int i = 0;
+   int *ret;
+   job_node* input_node;
+   while (1) {
+      place(&c_buffer, input_node);
+      i++;
+      pthread_cond_signal(&cond_nonempty);
+   }
+   return ret;
+}
+
+
 
 void* thread_func(void* ptr){
 	char* message = (char *) ptr;
@@ -97,9 +149,13 @@ ErrorCode InitializeIndex(){
     if(edit_index == NULL){
         return EC_FAIL;
     }
+	j_list = new job_list();
+    if(j_list == NULL){
+        return EC_FAIL;
+    }
 
 
-	pthread_t tids[NUM_THREADS];
+	
 	int ret;
 	char *message1 = new char[strlen("Thread 1")+1];
     strcpy(message1,"Thread 1"); 
@@ -109,6 +165,7 @@ ErrorCode InitializeIndex(){
 		cout <<"Ret "<<ret<<endl;
 	}
 	 
+	
     return EC_SUCCESS;
 }
 
@@ -148,6 +205,9 @@ ErrorCode check_hash_del(QueryID qid){
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist)
 {
 	query_hash_node* Q;
+	//create job node that for a new query
+
+	
 	Q = Q_hash->insert(query_id,query_str,match_dist);
 	switch(match_type){
         case MT_HAMMING_DIST:
