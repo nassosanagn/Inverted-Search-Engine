@@ -90,7 +90,8 @@ MatchType;
 /// Matching types:
 typedef enum{
     QUERY,
-    DOCUMENT
+    DOCUMENT,
+    BARRIER
 }
 JobType;
 

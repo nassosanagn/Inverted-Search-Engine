@@ -31,7 +31,7 @@ class job_node {
         }
 
         /* Getters */
-        int getId() const    { return this->id; }
+        QueryID getId() const    { return this->id; }
         int getjtype() const    { return this->jtype; }
         char* getstr() const    { return this->str; }
         MatchType getmatch_type() const    { return this->match_type; }
@@ -55,12 +55,12 @@ class job_list{
         ~job_list();
 
         ErrorCode print_list();
-        ErrorCode job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype);
+        job_node* job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype);
         ErrorCode job_insert_asc(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype);
         job_node* job_pop();
         ErrorCode destroy_job_list();
 
-        ErrorCode search_id(int id){
+        ErrorCode search_id(QueryID id){
             job_node* n = head;
             while(n!=NULL){
                 if(n->getId() == id){

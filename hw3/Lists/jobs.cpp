@@ -61,22 +61,22 @@ job_node* job_list::job_pop(){
     return return_val;
 }
 
-ErrorCode job_list::job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype){
+job_node* job_list::job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype){
 
     
     job_node* new_node = new job_node(tmpId,tmpstr,tmpmtp,tmpmd,tmpjtype);
     job_node* current = this->getLast();
 
     if (current == NULL){
-        counter = 1;
         this->setFirst(new_node);
         this->setLast(new_node);
-        return EC_SUCCESS;
+        counter = 1;
+        return new_node;
     }
-    counter++;
     current->setNext(new_node);
     this->setLast(new_node);
-    return EC_SUCCESS;
+    counter++;
+    return new_node;
 
 }
 

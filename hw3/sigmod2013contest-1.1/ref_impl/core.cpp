@@ -29,18 +29,18 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include <unistd.h>
 #include <vector>
 #include <pthread.h>
 #include "../Lists/jobs.h"
 #include "../Lists/doc.h"
 #include "../Lists/payload.h"
-
 #include "../Indexes//hashtable.h"
 #include "../Indexes/hammingindex.h"
 #include "../Indexes//editDistBkTree.h"
 
 #include "../q_hashtable.h"
-#define NUM_THREADS 2
+#define NUM_THREADS 1
 
 using namespace std;
 
@@ -60,7 +60,8 @@ EditBKTree* edit_index;
 int flg = 1;
 doc* D_tmp;
 
-
+int br_flag;
+int flag_q;
 
 // thread data
 class job_scheduler{
@@ -71,32 +72,56 @@ class job_scheduler{
 pthread_cond_t cond_nonempty;
 pthread_mutex_t mutex;
 job_scheduler J_s;
-pthread_cond_t cond_nonfull;
-pthread_mutex_t write_mutex;
+pthread_cond_t cond_br;
+pthread_mutex_t br_mutex;
 pthread_t tids[NUM_THREADS];
-
+pthread_barrier_t barrier;
 //Thread functions
 
 job_node* obtain() {
-   job_node* data;
-   while (J_s.j_list->get_counter() <= 0) {
-      pthread_cond_wait(&cond_nonempty, &mutex);
-   }
+	job_node* data;
+	pthread_mutex_lock(&br_mutex);
+	while(J_s.j_list->get_counter() <= 0) {
+		pthread_cond_wait(&cond_nonempty, &br_mutex);
+	}
+	// cout<<"dasdasdasdasdas"<<J_s.j_list->get_counter()<<endl;
+	if(J_s.j_list->getFirst()==NULL){
+		cout<<"ADJKSSSSSSSSSSSSSSSSS "<<pthread_self()<<" "<<J_s.j_list->get_counter()<<endl;
+	}
 	data = J_s.j_list->job_pop();
-	pthread_mutex_unlock(&mutex);
-   return data;
+	if(data->getjtype() == BARRIER){
+		br_flag = 1;
+	}
+	pthread_mutex_unlock(&br_mutex);
+	return data;
 }
 
 void * consumer(void * ptr){
 	int i = 0 ;
-   while (i<50) {
-      	job_node* data = obtain();
-      	// pthread_mutex_lock(&write_mutex);
-		cout<<"DAta : "<<data->getId()<<" "<<data->getjtype()<<endl;
-      	// pthread_mutex_unlock(&write_mutex);
+	while (i<300){
+		// pthread_mutex_lock(&mutex);
+		if(br_flag){
+			// pthread_mutex_unlock(&mutex);
+			pthread_barrier_wait(&barrier);
+			// sleep(10);
+			cout<<"ALLLLLLLLLLLL\n";
+			br_flag = 0;
+		}
+		job_node* data = obtain();
+		cout<<"BARRRIrRIRRIRRRIR id:" <<pthread_self()<<"DAta : "<<data->getId()<<" "<<data->getjtype()<<endl;
+		// else{
+		// 	// pthread_mutex_unlock(&mutex);
+		// 	job_node* data = obtain();
+		// 	cout<<"thread id:" <<pthread_self()<<"DAta : "<<data->getId()<<" "<<data->getjtype()<<endl;
+		// }
+
+		// job_node* data = obtain();
+		// pthread_mutex_lock(&write_mutex);
+		// cout<<"Thread id:" <<pthread_self()<<"DAta : "<<data->getId()<<" "<<data->getjtype()<<endl;
+		// pthread_mutex_unlock(&write_mutex);
 		i++;
-   }
-   pthread_exit(0);
+	}
+	pthread_exit(0);
 }
 
 // void * producer(void * ptr){
@@ -137,20 +162,19 @@ ErrorCode InitializeIndex(){
 	J_s.j_list = new job_list();
 
 	pthread_mutex_init(&mutex, 0);
-	pthread_mutex_init(&write_mutex, 0);
+	pthread_mutex_init(&br_mutex, 0);
 	pthread_cond_init(&cond_nonempty, 0);
-	pthread_cond_init(&cond_nonfull, 0);
-	
-	int ret;
+	pthread_cond_init(&cond_br, 0);
+	pthread_barrier_init(&barrier,NULL,NUM_THREADS);
+	br_flag = 0;
+	flag_q = 0;
 	char *message1 = new char[strlen("Thread 1")+1];
     strcpy(message1,"Thread 1"); 
-	for (size_t i = 0; i < 1; i++)
+	for (size_t i = 0; i < NUM_THREADS; i++)
 	{
-	    ret = pthread_create( &tids[i], NULL, consumer, (void*) message1);
-		// cout <<"Ret "<<ret<<endl;
+	    pthread_create( &tids[i], NULL, consumer, (void*) message1);
 	}
 	 
-	
     return EC_SUCCESS;
 }
 
@@ -189,9 +213,16 @@ ErrorCode check_hash_del(QueryID qid){
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist)
 {
-	pthread_mutex_lock(&mutex);
+	if(flag_q){
+		pthread_mutex_lock(&br_mutex);
+		J_s.j_list->job_insert(8008,query_str,match_type,match_dist,BARRIER);
+		pthread_mutex_unlock(&br_mutex);
+		pthread_cond_signal(&cond_nonempty);
+	}
+	flag_q = 0;
+	pthread_mutex_lock(&br_mutex);
 	J_s.j_list->job_insert(query_id,query_str,match_type,match_dist,QUERY);
-   	pthread_mutex_unlock(&mutex);
+   	pthread_mutex_unlock(&br_mutex);
 	pthread_cond_signal(&cond_nonempty);
 
 	// query_hash_node* Q;
@@ -234,9 +265,20 @@ ErrorCode EndQuery(QueryID query_id)
 
 ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 {
-	pthread_mutex_lock(&mutex);
+	if(!flag_q){
+		pthread_mutex_lock(&br_mutex);
+		cout<<"counter"<<J_s.j_list->get_counter()<<endl;
+		J_s.j_list->job_insert(8008,doc_str,MT_EXACT_MATCH,0,BARRIER);
+		cout<<"counter after"<<J_s.j_list->get_counter()<<endl;
+		pthread_mutex_unlock(&br_mutex);
+		pthread_cond_signal(&cond_nonempty);
+		flag_q = 1;
+	}
+	pthread_mutex_lock(&br_mutex);
+	cout<<"counter"<<J_s.j_list->get_counter()<<endl;
 	J_s.j_list->job_insert(doc_id,doc_str,MT_EXACT_MATCH,0,DOCUMENT);
-   	pthread_mutex_unlock(&mutex);
+	cout<<"counter after"<<J_s.j_list->get_counter()<<" doc ididididi "<<doc_id<<endl;
+   	pthread_mutex_unlock(&br_mutex);
 	pthread_cond_signal(&cond_nonempty);
 	// word* myword = new word();
 	// payload_list* q_result = new payload_list();
@@ -292,6 +334,11 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 	// *p_query_ids = D_tmp->get_query_ids();
 	
 	// D_tmp = D_tmp->get_next();
+	//flag close threads
+	for (size_t i = 0; i < NUM_THREADS; i++)
+	{
+	    pthread_join(tids[i],NULL);
+	}
 	return EC_SUCCESS;
 }
 
