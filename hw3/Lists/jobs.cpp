@@ -57,12 +57,14 @@ job_node* job_list::job_pop(){
     counter--;
     job_node* temp = head->getNext();
     job_node* return_val = head;
-    head = temp; 
+    head = temp;
+    if(temp==NULL){
+        last = NULL;
+    }
     return return_val;
 }
 
 job_node* job_list::job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype){
-
     
     job_node* new_node = new job_node(tmpId,tmpstr,tmpmtp,tmpmd,tmpjtype);
     job_node* current = this->getLast();
@@ -113,3 +115,25 @@ ErrorCode job_list::job_insert_asc(QueryID tmpId,const char* tmpstr,MatchType tm
     counter++;
     return EC_SUCCESS;
 }
+
+
+// int main(){
+//     job_list* jl = new job_list();
+//     jl->job_insert(8008,"query_str",MT_EXACT_MATCH,1,BARRIER);
+//     jl->job_insert(9999,"query_str",MT_EXACT_MATCH,1,BARRIER);
+//     jl->print_list();
+//     job_node* jb;
+//     jb = jl->job_pop();
+//     cout<<jb->getId()<<endl;
+//     jb = jl->job_pop();
+//     cout<<jb->getId()<<endl;   
+//     if(jl->getFirst() == NULL){
+//         cout << "is bnull"<<endl;
+//     }
+//     jl->job_insert(111,"query_str",MT_EXACT_MATCH,1,BARRIER);
+//     if(jl->getFirst() == NULL){
+//         cout << "is bnull??"<<endl;
+//     }
+//     jl->print_list();
+//     return 1;
+// }

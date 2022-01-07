@@ -32,7 +32,7 @@ class job_node {
 
         /* Getters */
         QueryID getId() const    { return this->id; }
-        int getjtype() const    { return this->jtype; }
+        JobType getjtype() const    { return this->jtype; }
         char* getstr() const    { return this->str; }
         MatchType getmatch_type() const    { return this->match_type; }
         unsigned int getmatch_dist() const    { return this->match_dist; }
