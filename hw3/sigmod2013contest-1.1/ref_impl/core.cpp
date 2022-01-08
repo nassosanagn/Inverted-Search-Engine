@@ -35,13 +35,13 @@
 #include "../Lists/jobs.h"
 #include "../Lists/doc.h"
 #include "../Lists/payload.h"
-#include "../Indexes//hashtable.h"
+#include "../Indexes/hashtable.h"
 #include "../Indexes/hammingindex.h"
-#include "../Indexes//editDistBkTree.h"
+#include "../Indexes/editDistBkTree.h"
 
 #include "../q_hashtable.h"
 #define NUM_THREADS 1
-
+#define END_DOC 960
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +87,9 @@ job_node* obtain() {
 		pthread_cond_wait(&cond_nonempty, &br_mutex);
 	}
 	data = J_s.j_list->job_pop();
-
+	if(data == NULL){
+		cout<<"ISISISSSSNUULULLUULU"<<endl;
+	}
 	if(data->getjtype() == BARRIER){
 		br_flag = 1;
 	}
@@ -97,16 +99,20 @@ job_node* obtain() {
 
 void * consumer(void * ptr){
 	int i = 0 ;
-	while (i<500){
+	while (1){
 		// pthread_mutex_lock(&mutex);
 		if(br_flag){
 			// pthread_mutex_unlock(&mutex);
 			pthread_barrier_wait(&barrier);
-			cout<<"EL BARRIER"<<endl;
+			// cout<<"EL BARRIER"<<endl;
 			pthread_cond_signal(&cond_br);
 			br_flag = 0;
 		}
 		job_node* data = obtain();
+		if(data == NULL){
+			cout<<"IMAGE OF A DOHG"<<endl;
+		}
+		cout<<data->getId()<<" "<<data->getjtype()<<endl;
 		pthread_mutex_lock(&mutexD);
 		if(data->getjtype() == QUERY) {
 			query_hash_node* Q;
@@ -136,6 +142,7 @@ void * consumer(void * ptr){
 			}
 		}
 		else if(data->getjtype() == DOCUMENT){
+			// cout<<data->getstr()<<endl;
 			word* myword = new word();
 			payload_list* q_result = new payload_list();
 
@@ -154,7 +161,6 @@ void * consumer(void * ptr){
 			}
 			doc* D = new doc(data->getId());
 			D->set_num_res(q_result->get_counter());
-
 			// Add this result to the set of undelivered results
 			doc* D_tt;
 			D_tt = D_list->add_doc(D_list,D,q_result);
@@ -168,11 +174,20 @@ void * consumer(void * ptr){
 			// delete D->get_query_ids();
 			q_result->destroy_payload_list();
 		}
-		cout<<"BARRRIrRIRRIRRRIR id:" <<pthread_self()<<"DAta : "<<data->getId()<<" "<<data->getjtype()<<endl;
+		else if(data->getjtype() == END_QUERY){
+			Q_hash->delete_query(data->getId());
+		}
+		// cout<<"BARRRIrRIRRIRRRIR id:" <<pthread_self()<<"DAta : "<<data->getId()<<" "<<data->getjtype()<<endl;
 		pthread_mutex_unlock(&mutexD);
 
+		// cout<<"adasdssss"<<endl;
+		if(data && data->getId()==END_DOC && data->getjtype() == DOCUMENT){
+			cout<<"HE:LLO"<<endl;
+			break;
+		}
 		i++;
 	}
+	cout<<"EL END"<<endl;
 	pthread_exit(0);
 }
 
@@ -271,6 +286,8 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 	J_s.j_list->job_insert(query_id,query_str,match_type,match_dist,QUERY);
    	pthread_mutex_unlock(&br_mutex);
 	pthread_cond_signal(&cond_nonempty);
+	cout<<"qu_id "<<query_id<<endl;
+	// cout<<"Insert Query "<<query_id<<endl;
 
 	// query_hash_node* Q;
 	// Q = Q_hash->insert(query_id,query_str,match_dist);
@@ -302,9 +319,16 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-ErrorCode EndQuery(QueryID query_id)
-{
-	Q_hash->delete_query(query_id);
+ErrorCode EndQuery(QueryID query_id){	
+	pthread_mutex_lock(&br_mutex);
+	J_s.j_list->job_insert(query_id,"query_str",MT_EXACT_MATCH,0,END_QUERY);
+   	pthread_mutex_unlock(&br_mutex);
+	pthread_cond_signal(&cond_nonempty);
+	cout<<"qu_id "<<query_id<<endl;
+	// pthread_mutex_lock(&mutexD);
+	// cout<<"AAAAAAAAAAA"<<endl;
+	// Q_hash->delete_query(query_id);
+	// pthread_mutex_unlock(&mutexD);
 	return EC_SUCCESS;
 }
 
@@ -322,8 +346,10 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 	}
 	pthread_mutex_lock(&br_mutex);
 	J_s.j_list->job_insert(doc_id,doc_str,MT_EXACT_MATCH,0,DOCUMENT);
+	cout<<"doc id "<<doc_id<<endl;
    	pthread_mutex_unlock(&br_mutex);
 	pthread_cond_signal(&cond_nonempty);
+	// cout<<"Insert document "<<doc_id<<endl;
 	// word* myword = new word();
 	// payload_list* q_result = new payload_list();
 
@@ -370,6 +396,7 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 {
 	// Get the first undeliverd resuilt from "docs" and return it
 	// J_s.j_list->print_list();
+	cout<<"DASDASS"<<endl;
 	if(flag_q){
 		pthread_mutex_lock(&br_mutex);
 		J_s.j_list->job_insert(1111,"barrier",MT_EXACT_MATCH,0,BARRIER);
@@ -383,12 +410,22 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 	*p_doc_id=0; *p_num_res=0; *p_query_ids=0;
 	// J_s.j_list->print_list();
 	flg = 1;
+	pthread_mutex_lock(&mutexD);
+	cout<<"... "<<D_tmp->get_id()<<endl;
 
 	*p_doc_id = D_tmp->get_id();
 	*p_num_res=D_tmp->get_num_res();
 	*p_query_ids = D_tmp->get_query_ids();
-	cout<<"dasdas "<<D_tmp->get_id()<<endl;
+	// cout<<D_tmp->get_id()<<endl;
+	if(D_tmp->get_id() == END_DOC){
+		cout<<"LLOdasdas"<<endl;
+		for (size_t i = 0; i < NUM_THREADS; i++){
+		    pthread_join(tids[i],NULL);
+		}
+	}
+	// cout<<"Get next avail res "<<D_tmp->get_id()<<endl;
 	D_tmp = D_tmp->get_next();
+	pthread_mutex_unlock(&mutexD);
 	//flag close threads
 
 	// for (size_t i = 0; i < NUM_THREADS; i++)

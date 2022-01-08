@@ -91,6 +91,7 @@ MatchType;
 typedef enum{
     QUERY,
     DOCUMENT,
+    END_QUERY,
     BARRIER
 }
 JobType;
