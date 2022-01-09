@@ -41,7 +41,7 @@
 
 #include "../q_hashtable.h"
 
-#define NUM_THREADS 2
+#define NUM_THREADS 10
 #define END_DOC 960
 using namespace std;
 
@@ -70,6 +70,7 @@ pthread_mutex_t mutexQ;
 pthread_mutex_t mutexAR;
 job_scheduler J_s;
 pthread_cond_t cond_br;
+pthread_cond_t cond_br2;
 pthread_mutex_t br_mutex;
 pthread_t tids[NUM_THREADS];
 pthread_barrier_t barrier;
@@ -92,6 +93,8 @@ job_node* obtain() {
 			br_flag = 1;
 		else if (data->getId() == 1111)
 			br_flag = 2;
+		else if (data->getId() == 2222)
+			br_flag = 3;
 	}
 	pthread_mutex_unlock(&br_mutex);
 
@@ -109,7 +112,13 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 			// cout<<"EL BARRIER"<<endl;
 			if (br_flag == 2)
 				pthread_cond_signal(&cond_br);
-			br_flag = 0;
+			else if (br_flag == 3){
+				pthread_cond_signal(&cond_br2);
+				cout << "bgainei to threadddddddd" << endl;
+				pthread_exit(0);
+			}
+			if (br_flag != 3)
+				br_flag = 0;
 		}
 
 		job_node* data = obtain();
@@ -199,14 +208,16 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 		pthread_mutex_unlock(&mutexD);
 
 		cout<<"adasdssss"<<endl;
+		
 		if (data && data->getId()==END_DOC && data->getjtype() == DOCUMENT){
 			cout<<"HE:LLO"<<endl;
 			break;
 		}
 		i++;
 	}	
+	pthread_barrier_wait(&barrier);			// perimenoun ola ta threads
+	// sleep(1);
 	cout<<"EL END"<<endl;
-
 	pthread_cond_signal(&cond_br);
 	pthread_exit(0);
 }
@@ -254,6 +265,7 @@ ErrorCode InitializeIndex(){
 	pthread_mutex_init(&br_mutex, 0);
 	pthread_cond_init(&cond_nonempty, 0);
 	pthread_cond_init(&cond_br, 0);
+	pthread_cond_init(&cond_br2, 0);
 	pthread_barrier_init(&barrier,NULL,NUM_THREADS);
 	br_flag = 0;
 	flag_q = 0;
@@ -275,11 +287,11 @@ ErrorCode DestroyIndex(){
 
 	if(flag_q){
 		pthread_mutex_lock(&br_mutex);
-		J_s.j_list->job_insert(1111,"barrier",MT_EXACT_MATCH,0,BARRIER);
+		J_s.j_list->job_insert(2222,"barrier",MT_EXACT_MATCH,0,BARRIER);
 		pthread_mutex_unlock(&br_mutex);
 
 		pthread_cond_signal(&cond_nonempty);
-		pthread_cond_wait(&cond_br, &mutexAR);
+		pthread_cond_wait(&cond_br2, &mutexAR);
 		flag_q = 0;
 	}
 
