@@ -159,6 +159,9 @@ void * consumer(void * ptr){
 				edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result);
 				pch = strtok (NULL, " ");
 			}
+			if(data->getId() == END_DOC){
+				pthread_exit(0);
+			}
 			doc* D = new doc(data->getId());
 			D->set_num_res(q_result->get_counter());
 			// Add this result to the set of undelivered results
@@ -250,7 +253,7 @@ ErrorCode InitializeIndex(){
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode DestroyIndex(){
-	
+
 	D_list->destroy_doc_list(&D_list);
 
 	delete Q_hash;
@@ -324,7 +327,7 @@ ErrorCode EndQuery(QueryID query_id){
 	J_s.j_list->job_insert(query_id,"query_str",MT_EXACT_MATCH,0,END_QUERY);
    	pthread_mutex_unlock(&br_mutex);
 	pthread_cond_signal(&cond_nonempty);
-	cout<<"qu_id "<<query_id<<endl;
+	// cout<<"qu_id "<<query_id<<endl;
 	// pthread_mutex_lock(&mutexD);
 	// cout<<"AAAAAAAAAAA"<<endl;
 	// Q_hash->delete_query(query_id);
@@ -347,46 +350,9 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 	pthread_mutex_lock(&br_mutex);
 	J_s.j_list->job_insert(doc_id,doc_str,MT_EXACT_MATCH,0,DOCUMENT);
 	cout<<"doc id "<<doc_id<<endl;
+	J_s.j_list->print_list();
    	pthread_mutex_unlock(&br_mutex);
 	pthread_cond_signal(&cond_nonempty);
-	// cout<<"Insert document "<<doc_id<<endl;
-	// word* myword = new word();
-	// payload_list* q_result = new payload_list();
-
-	// // Iterate on all active queries to compare them with this new document
-    // char * pch;
-
-    // char* Str = new char[strlen(doc_str)+1];
-    // strcpy(Str,doc_str);
-    // pch = strtok (Str," ");
-
-    // while (pch != NULL){
-	// 	myword->setword(pch);
-
-	// 	hash_index->search(myword,Q_hash,doc_id,q_result);
-
-	// 	ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,doc_id,q_result);
-
-	// 	edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1, MT_EDIT_DIST,Q_hash,doc_id,q_result);
-    //     pch = strtok (NULL, " ");
-    // }
-
-	// doc* D = new doc(doc_id);
-	// D->set_num_res(q_result->get_counter());
-	// // D->set_query_ids(q_result,q_result->get_counter());
-
-	// // Add this result to the set of undelivered results
-	// doc* D_tt;
-	// D_tt = D_list->add_doc(D_list,D,q_result);
-	// if(flg==1){
-	// 	flg = 0;
-	// 	D_tmp = D_tt;
-	// }
-
-	// delete myword;
-	// delete[] Str;
-	// // delete D->get_query_ids();
-	// q_result->destroy_payload_list();
 	return EC_SUCCESS;
 }
 
@@ -396,7 +362,7 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 {
 	// Get the first undeliverd resuilt from "docs" and return it
 	// J_s.j_list->print_list();
-	cout<<"DASDASS"<<endl;
+	sleep(0.05);
 	if(flag_q){
 		pthread_mutex_lock(&br_mutex);
 		J_s.j_list->job_insert(1111,"barrier",MT_EXACT_MATCH,0,BARRIER);
@@ -426,12 +392,6 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 	// cout<<"Get next avail res "<<D_tmp->get_id()<<endl;
 	D_tmp = D_tmp->get_next();
 	pthread_mutex_unlock(&mutexD);
-	//flag close threads
-
-	// for (size_t i = 0; i < NUM_THREADS; i++)
-	// {
-	//     pthread_join(tids[i],NULL);
-	// }
 	return EC_SUCCESS;
 }
 
