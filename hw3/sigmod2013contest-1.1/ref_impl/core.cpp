@@ -41,7 +41,7 @@
 
 #include "../q_hashtable.h"
 
-#define NUM_THREADS 5
+#define NUM_THREADS 20
 #define END_DOC 960
 using namespace std;
 
@@ -63,13 +63,16 @@ class job_scheduler{
    public:
       job_list* j_list;
 };
+QueryID end_flg = 0;
 
 pthread_cond_t cond_nonempty;
+pthread_mutex_t mutex_end;
 pthread_mutex_t mutexD;
 pthread_mutex_t mutexQ;
 pthread_mutex_t mutexAR;
 pthread_mutex_t mutexAR2;
 job_scheduler J_s;
+pthread_cond_t cond_end;
 pthread_cond_t cond_br;
 pthread_cond_t cond_br2;
 pthread_cond_t cond_brt;
@@ -173,7 +176,10 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 			cout <<"Thread "<<pthread_self()<<" inserting query " << data->getId()<<endl; 
 			query_hash_node* Q;
 			Q = Q_hash->insert(data->getId(),data->getstr(),data->getmatch_dist());
-
+			if(end_flg == data->getId()){
+				cout<<"SIGNAL TO "<<data->getId()<<endl;
+				pthread_cond_signal(&cond_end);
+			}
 			switch(data->getmatch_type()){
 				case MT_HAMMING_DIST:
 					for(unsigned int i=0;i<Q->get_word_count();i++){
@@ -238,6 +244,13 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 		}
 		else if(data->getjtype() == END_QUERY){
 			cout<<"Job "<< pthread_self()<<"parsing end queyryr "<<data->getId() <<endl;
+			if(Q_hash->search(data->getId())==NULL){
+				// end_flg = data->getId();
+				cout<<"WAIT TO "<<data->getId()<<endl;
+				// cout<<"DA"<<endl;
+				// pthread_cond_wait(&cond_end, &mutex_end);
+			}
+			cout<<"DASSDA"<<endl;
 			Q_hash->delete_query(data->getId());
 			cout<<"Job "<< pthread_self()<<" done parsing  end queyryr "<<data->getId() <<endl;
 
@@ -304,7 +317,9 @@ ErrorCode InitializeIndex(){
 	pthread_mutex_init(&mutexQ, 0);
 	pthread_mutex_init(&mutexAR, 0);
 	pthread_mutex_init(&mutexAR2, 0);
+	pthread_mutex_init(&mutex_end, 0);
 	pthread_mutex_init(&br_mutex, 0);
+	pthread_cond_init(&cond_end, 0);
 	pthread_cond_init(&cond_nonempty, 0);
 	pthread_cond_init(&cond_br, 0);
 	pthread_cond_init(&cond_br2, 0);
