@@ -72,6 +72,8 @@ job_scheduler J_s;
 pthread_cond_t cond_br;
 pthread_cond_t cond_br2;
 pthread_mutex_t br_mutex;
+pthread_mutex_t cout_mutex;
+pthread_mutex_t ne_mutex;
 pthread_t tids[NUM_THREADS];
 pthread_barrier_t barrier;
 pthread_barrier_t barrier2;
@@ -81,15 +83,17 @@ pthread_barrier_t barrier3;
 job_node* obtain() {
 	job_node* data;
 	pthread_mutex_lock(&br_mutex);
+	cout <<" Obtaining "<<endl;
+	cout <<"1\n";
 	while(J_s.j_list->get_counter() <= 0) {					// perimenei na mpei ena job sth lista
-		pthread_cond_wait(&cond_nonempty, &br_mutex);
+		pthread_mutex_unlock(&br_mutex);
+		pthread_cond_wait(&cond_nonempty, &ne_mutex);
+		pthread_mutex_lock(&br_mutex);
 	}
 	data = J_s.j_list->job_pop();						// pairnei to 1o stoixeio ths listas
-
 	if(data == NULL){
 		cout<<"ISISISSSSNUULULLUULU"<<endl;
 	}
-
 	if(data->getjtype() == BARRIER){			
 		if (data->getId() == 8008)
 			br_flag = 1;
@@ -97,10 +101,10 @@ job_node* obtain() {
 			br_flag = 2;
 		else if (data->getId() == 2222)
 		{
-			cout <<"Should not happen \n\n\n\n\n\n\n\n";
 			br_flag = 3;
 		}
 	}
+	cout << "Obtained " << data->getId() <<" " << data->getjtype() <<endl;
 	pthread_mutex_unlock(&br_mutex);
 
 
@@ -111,18 +115,22 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 	int i = 0 ;
 	while (1){
 		// pthread_mutex_lock(&mutex);
+		job_node* data = obtain();
+		
+		cout <<"Br flag "<< br_flag<<endl;
 		if(br_flag){
+
 			// pthread_mutex_unlock(&mutex);
 					// perimenoun ola ta threads
-			if (br_flag == 1){
+			if (br_flag == 1){ // from queries to documents
 				pthread_barrier_wait(&barrier);	
 			}
 			
-			if (br_flag == 2){
+			if (br_flag == 2){ // from documents to get next available res
 				pthread_barrier_wait(&barrier2);
 				pthread_cond_signal(&cond_br);
 				}
-			else if (br_flag == 3){
+			else if (br_flag == 3){ // closing thread
 				// pthread_cond_signal(&cond_br2);
 				cout << "bgainei to threadddddddd" << endl;
 				break;
@@ -131,7 +139,6 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 				br_flag = 0;
 		}
 
-		job_node* data = obtain();
 
 		if(data == NULL){
 			cout<<"IMAGE OF A DOHG"<<endl;
@@ -140,7 +147,7 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 		cout<< "obtain: " << data->getId()<<" "<<data->getjtype()<<endl;
 
 		pthread_mutex_lock(&mutexD);
-		// cout << ""
+		// cout << "Job list\n";
 		// J_s.j_list->print_list();
 		if(data->getjtype() == QUERY) {
 			cout <<"Thread "<<*(int*)ptr<<" inserting query " << data->getId()<<endl; 
@@ -275,6 +282,7 @@ ErrorCode InitializeIndex(){
 	pthread_mutex_init(&mutexQ, 0);
 	pthread_mutex_init(&mutexAR, 0);
 	pthread_mutex_init(&br_mutex, 0);
+	pthread_mutex_init(&ne_mutex, 0);
 	pthread_cond_init(&cond_nonempty, 0);
 	pthread_cond_init(&cond_br, 0);
 	pthread_cond_init(&cond_br2, 0);
@@ -345,6 +353,8 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 {
 	pthread_mutex_lock(&br_mutex);
 	J_s.j_list->job_insert(query_id,query_str,match_type,match_dist,QUERY);		// bazw 1 query sto job list
+	cout <<" signaling condnonempty sq"<< endl;
+
    	pthread_mutex_unlock(&br_mutex);
 
 	pthread_cond_signal(&cond_nonempty);
@@ -403,6 +413,8 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 		// cout<<"counter"<<J_s.j_list->get_counter()<<endl;
 		J_s.j_list->job_insert(8008,doc_str,MT_EXACT_MATCH,0,BARRIER);
 		// cout<<"counter after"<<J_s.j_list->get_counter()<<endl;
+		cout <<" signaling condnonempty md"<< endl;
+
 		pthread_mutex_unlock(&br_mutex);
 
 		pthread_cond_signal(&cond_nonempty);
@@ -467,13 +479,17 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 	// J_s.j_list->print_list();
 	if(flag_q){
 		pthread_mutex_lock(&br_mutex);
+		cout<<"gettingnext"<<endl;
 		J_s.j_list->job_insert(1111,"barrier",MT_EXACT_MATCH,0,BARRIER);
 		pthread_mutex_unlock(&br_mutex);
 
 		pthread_cond_signal(&cond_nonempty);
+		cout<<"waiting for next"<<endl;
 		pthread_cond_wait(&cond_br, &mutexAR);
+		cout<<"done for next"<<endl;
 		flag_q = 0;
 	}
+	cout<<"gotnext"<<endl;
 	// sleep(1);
 	// J_s.j_list->print_list();
 	*p_doc_id=0; *p_num_res=0; *p_query_ids=0;
