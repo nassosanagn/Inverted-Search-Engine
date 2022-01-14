@@ -41,7 +41,7 @@
 
 #include "../q_hashtable.h"
 
-#define NUM_THREADS 20
+#define NUM_THREADS 40
 #define END_DOC 960
 using namespace std;
 
@@ -112,7 +112,6 @@ job_node* obtain() {
 
 	return data;
 }
-
 void * consumer(void * ptr){		// consumer tha trexei kathe thread
 	int i = 0 ;
 	while (1){
@@ -142,21 +141,24 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 			continue;
 		}
 		if(br_flag){
-			cout<<"AAA"<<endl;
+			cout<<"AAA1"<<endl;
 			// pthread_mutex_unlock(&mutex);
 					// perimenoun ola ta threads
 			if (br_flag == 1){
-				cout<<"EYEEYE"<<endl;
-				pthread_barrier_wait(&barrier);	
+				cout<<"EYEEYE111111111111111111111111111"<<endl;
+				// sleep(1);
+				//data = query 10
+				pthread_barrier_wait(&barrier);
+
 			}
-			
 			if (br_flag == 2){
+				cout<<"iuouououo1"<<endl;
 				pthread_barrier_wait(&barrier2);
 				pthread_cond_signal(&cond_br);
-				}
+			}
 			else if (br_flag == 3){
 				// pthread_cond_signal(&cond_br2);
-				cout << "bgainei to threadddddddd" << endl;
+				cout << "bgainei to threadddddddd1" << endl;
 				break;
 			}
 			if (br_flag != 3)
@@ -167,7 +169,7 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 			cout<<"IMAGE OF A DOHG"<<endl;
 		}
 
-		cout<< "obtain: " << data->getId()<<" "<<data->getjtype()<<endl;
+		// cout<< "obtain: " << data->getId()<<" "<<data->getjtype()<<endl;
 
 		pthread_mutex_lock(&mutexD);
 		// cout << ""
@@ -176,10 +178,6 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 			cout <<"Thread "<<pthread_self()<<" inserting query " << data->getId()<<endl; 
 			query_hash_node* Q;
 			Q = Q_hash->insert(data->getId(),data->getstr(),data->getmatch_dist());
-			if(end_flg == data->getId()){
-				cout<<"SIGNAL TO "<<data->getId()<<endl;
-				pthread_cond_signal(&cond_end);
-			}
 			switch(data->getmatch_type()){
 				case MT_HAMMING_DIST:
 					for(unsigned int i=0;i<Q->get_word_count();i++){
@@ -202,6 +200,10 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 					delete[] Str;
 					delete E;
 					break;
+			}
+			if(end_flg == data->getId()){
+				cout<<"SIGNAL TO "<<data->getId()<<endl;
+				pthread_cond_signal(&cond_end);
 			}
 			cout <<"Thread "<<pthread_self()<<" done with query " << data->getId()<<endl; 
 
@@ -243,16 +245,18 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 			cout<<"Job "<< pthread_self() <<" done parsing document "<<data->getId() <<endl;
 		}
 		else if(data->getjtype() == END_QUERY){
-			cout<<"Job "<< pthread_self()<<"parsing end queyryr "<<data->getId() <<endl;
+			cout<<"Job END"<< pthread_self()<<"parsing end queyryr "<<data->getId() <<endl;
 			if(Q_hash->search(data->getId())==NULL){
-				// end_flg = data->getId();
+				end_flg = data->getId();
+				pthread_mutex_unlock(&mutexD);
 				cout<<"WAIT TO "<<data->getId()<<endl;
 				// cout<<"DA"<<endl;
-				// pthread_cond_wait(&cond_end, &mutex_end);
+				pthread_cond_wait(&cond_end, &mutex_end);
+				pthread_mutex_lock(&mutexD);
 			}
 			cout<<"DASSDA"<<endl;
 			Q_hash->delete_query(data->getId());
-			cout<<"Job "<< pthread_self()<<" done parsing  end queyryr "<<data->getId() <<endl;
+			cout<<"Job END"<< pthread_self()<<" done parsing  end queyryr "<<data->getId() <<endl;
 
 		}
 
@@ -356,7 +360,6 @@ ErrorCode DestroyIndex(){
 	}
 
 	cout << "BGAINEIIIIII" << endl;
-
 	D_list->destroy_doc_list(&D_list);
 	delete Q_hash;
 
@@ -519,6 +522,7 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 		pthread_cond_wait(&cond_br, &mutexAR);
 		flag_q = 0;
 	}
+	cout<<"AFTER Barrier getnextavailres"<<endl;
 	// sleep(1);
 	// J_s.j_list->print_list();
 	*p_doc_id=0; *p_num_res=0; *p_query_ids=0;
