@@ -41,7 +41,7 @@
 
 #include "../q_hashtable.h"
 
-#define NUM_THREADS 40
+#define NUM_THREADS 49
 #define END_DOC 960
 using namespace std;
 
@@ -83,6 +83,99 @@ pthread_barrier_t barrier;
 pthread_barrier_t barrier2;
 pthread_barrier_t barrier3;
 //Thread functions
+ErrorCode match_doc(job_node* data){
+	pthread_mutex_lock(&mutexD);
+	cout<<"Job "<< pthread_self() <<" parsing document "<<data->getId() <<endl;
+	word* myword = new word();
+	payload_list* q_result = new payload_list();
+
+	// Iterate on all active queries to compare them with this new document
+	char * pch;
+
+	char* Str = new char[strlen(data->getstr())+1];
+	strcpy(Str,data->getstr());
+	pch = strtok (Str," ");
+	while (pch != NULL){
+		myword->setword(pch);
+		// cout << " prin apo to searchh " << endl;
+		hash_index->search(myword,Q_hash,data->getId(),q_result);
+		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result);
+		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result);
+		// cout << " meta apo to searchh " << endl;
+		pch = strtok (NULL, " ");
+	}
+	doc* D = new doc(data->getId());
+	D->set_num_res(q_result->get_counter());
+	// Add this result to the set of undelivered results
+	doc* D_tt;
+	D_tt = D_list->add_doc(D_list,D,q_result);
+	if(flg==1){
+		flg = 0;
+		D_tmp = D_tt;
+	}
+
+	delete myword;
+	delete[] Str;
+	// delete D->get_query_ids();
+	q_result->destroy_payload_list();
+	cout<<"Job22222 "<< pthread_self() <<" done parsing document "<<data->getId() <<endl;
+	pthread_mutex_unlock(&mutexD);
+	return EC_SUCCESS;
+}
+ErrorCode start_q(job_node* data){
+	pthread_mutex_lock(&mutexD);
+	cout <<"Thread2222 "<<pthread_self()<<" inserting query " << data->getId()<<endl; 
+	query_hash_node* Q;
+	Q = Q_hash->insert(data->getId(),data->getstr(),data->getmatch_dist());
+	switch(data->getmatch_type()){
+		case MT_HAMMING_DIST:
+			for(unsigned int i=0;i<Q->get_word_count();i++){
+				ham_index->insert(&(Q->get_word_arr()[i]),data->getId());
+			}
+			break;
+		case MT_EDIT_DIST:
+			for(unsigned int i=0;i<Q->get_word_count();i++){
+				edit_index->getBKtree()->insertWord(&(Q->get_word_arr()[i]),edit_index->getBKtree(),data->getmatch_type(),data->getId());
+			}
+			break;
+		case MT_EXACT_MATCH:
+			char* Str = new char[strlen("small")+1];
+			strcpy(Str, "small");
+			entry* E = new entry(Str);
+			for(unsigned int i=0;i<Q->get_word_count();i++){
+				E->setword(&(Q->get_word_arr()[i]));
+				hash_index->insert(E,data->getId());
+			}
+			delete[] Str;
+			delete E;
+			break;
+	}
+	if(end_flg == data->getId()){
+		cout<<"SIGNAL TO22222 "<<data->getId()<<endl;
+		pthread_cond_signal(&cond_end);
+	}
+	cout <<"Thread22222 "<<pthread_self()<<" done with query " << data->getId()<<endl;
+	pthread_mutex_unlock(&mutexD);
+	return EC_SUCCESS;
+}
+
+ErrorCode end_q(job_node* data){
+	pthread_mutex_lock(&mutexD);
+	cout<<"Job END222222"<< pthread_self()<<"parsing end queyryr "<<data->getId() <<endl;
+	if(Q_hash->search(data->getId())==NULL){
+		end_flg = data->getId();
+		pthread_mutex_unlock(&mutexD);
+		cout<<"WAIT TO "<<data->getId()<<endl;
+		// cout<<"DA"<<endl;
+		pthread_cond_wait(&cond_end, &mutex_end);
+		pthread_mutex_lock(&mutexD);
+	}
+	cout<<"DASSDA22222"<<endl;
+	Q_hash->delete_query(data->getId());
+	cout<<"Job END22222"<< pthread_self()<<" done parsing  end queyryr "<<data->getId() <<endl;
+	pthread_mutex_unlock(&mutexD);
+	return EC_SUCCESS;
+}
 
 job_node* obtain() {
 	job_node* data;
@@ -112,6 +205,7 @@ job_node* obtain() {
 
 	return data;
 }
+int mmflg = 0;
 void * consumer(void * ptr){		// consumer tha trexei kathe thread
 	int i = 0 ;
 	while (1){
@@ -146,13 +240,26 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 					// perimenoun ola ta threads
 			if (br_flag == 1){
 				cout<<"EYEEYE111111111111111111111111111"<<endl;
-				// sleep(1);
-				//data = query 10
+				if(data->getjtype()==QUERY){
+					mmflg = 1;
+					start_q(data);
+					continue;
+				}
+				else if(data->getjtype()==END_QUERY){
+					mmflg = 1;
+					end_q(data);
+					continue;
+				}
 				pthread_barrier_wait(&barrier);
 
 			}
 			if (br_flag == 2){
 				cout<<"iuouououo1"<<endl;
+				if(data->getjtype()==DOCUMENT){
+					mmflg = 1;
+					match_doc(data);
+					continue;
+				}
 				pthread_barrier_wait(&barrier2);
 				pthread_cond_signal(&cond_br);
 			}
@@ -206,8 +313,8 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 				pthread_cond_signal(&cond_end);
 			}
 			cout <<"Thread "<<pthread_self()<<" done with query " << data->getId()<<endl; 
-
-		}else if(data->getjtype() == DOCUMENT){
+		}
+		else if(data->getjtype() == DOCUMENT){
 			// int* jobid = (int*) ptr;
 			cout<<"Job "<< pthread_self() <<" parsing document "<<data->getId() <<endl;
 			word* myword = new word();
@@ -359,6 +466,7 @@ ErrorCode DestroyIndex(){
 		flag_q = 0;
 	}
 
+	cout<<"MMMMMMMMMMMMMMMMMMMMMMMMM = "<<mmflg<<endl;
 	cout << "BGAINEIIIIII" << endl;
 	D_list->destroy_doc_list(&D_list);
 	delete Q_hash;
