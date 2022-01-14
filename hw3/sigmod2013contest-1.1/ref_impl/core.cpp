@@ -411,6 +411,7 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 
 ErrorCode EndQuery(QueryID query_id){	
 
+	
 	pthread_mutex_lock(&br_mutex);
 	J_s.j_list->job_insert(query_id,"query_str",MT_EXACT_MATCH,0,END_QUERY);
    	pthread_mutex_unlock(&br_mutex);
