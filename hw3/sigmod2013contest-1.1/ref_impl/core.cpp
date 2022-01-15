@@ -41,7 +41,7 @@
 
 #include "../q_hashtable.h"
 
-#define NUM_THREADS 49
+#define NUM_THREADS 5
 #define END_DOC 960
 using namespace std;
 
@@ -190,7 +190,8 @@ job_node* obtain() {
 		cout<<"ISISISSSSNUULULLUULU"<<endl;
 	}
 
-	if(data->getjtype() == BARRIER){			
+	if(data->getjtype() == BARRIER){		
+		cout<<"I JUST TOOK A BARRIER WITH ID:"<<data->getId()<<endl;
 		if (data->getId() == 8008)
 			br_flag = 1;
 		else if (data->getId() == 1111)
@@ -211,17 +212,18 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 	while (1){
 		// pthread_mutex_lock(&mutex);
 		if(br_flag){
+			cout<<"AA"<<endl;
 			// pthread_mutex_unlock(&mutex);
 					// perimenoun ola ta threads
 			if (br_flag == 1){
 				cout<<"EYEEYE"<<endl;
-				pthread_barrier_wait(&barrier);	
+				pthread_barrier_wait(&barrier);
 			}
-			
-			if (br_flag == 2){
+			else if (br_flag == 2){
+				cout<<"MOUTHMOUTHMOUTH"<<endl;
 				pthread_barrier_wait(&barrier2);
 				pthread_cond_signal(&cond_br);
-				}
+			}
 			else if (br_flag == 3){
 				// pthread_cond_signal(&cond_br2);
 				cout << "bgainei to threadddddddd" << endl;
@@ -622,12 +624,12 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 	// J_s.j_list->print_list();
 	if(flag_q){
 		pthread_mutex_lock(&br_mutex);
+		cout<<"EVALA BARRIER !!!!!"<<endl;
 		J_s.j_list->job_insert(1111,"barrier",MT_EXACT_MATCH,0,BARRIER);
 		pthread_mutex_unlock(&br_mutex);
-
 		pthread_cond_signal(&cond_nonempty);
-
 		pthread_cond_wait(&cond_br, &mutexAR);
+		cout<<"WAIT A SECOND"<<endl;
 		flag_q = 0;
 	}
 	cout<<"AFTER Barrier getnextavailres"<<endl;
