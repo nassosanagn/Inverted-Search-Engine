@@ -44,7 +44,16 @@ class doc_list{
 
         //epistrefei to prwto doc
         doc* get_first(const doc_list* el);
-        doc* get_last(){ return last;};
+        doc* get_last(){ return last;}
+
+        void print_list(){
+            doc* temp = first;
+            while(temp!=NULL){
+                cout<<" "<<temp->get_id();
+                temp = temp->get_next();
+            }
+            cout<<endl;
+        }
         
         //Diagrafei kathe komvo ths listas
         ErrorCode destroy_doc_list(doc_list** el);
