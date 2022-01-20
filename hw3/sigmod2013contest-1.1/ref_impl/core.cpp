@@ -221,6 +221,10 @@ job_node* obtain() {
 	pthread_mutex_lock(&br_mutex);
 	
 	while(J_s.j_list->get_counter() <= 0) {					// perimenei na mpei ena job sth lista
+<<<<<<< HEAD
+=======
+		cout << realid(pthread_self())<<" obtain wait with br_flag "<<br_flag;
+>>>>>>> df1cb4529cb6d379980c10c8443774b0bfd8f5c1
 		pthread_cond_wait(&cond_nonempty, &br_mutex);
 	}
 	data = J_s.j_list->job_pop();						// pairnei to 1o stoixeio ths listas
@@ -232,7 +236,15 @@ job_node* obtain() {
 	if(data->getjtype() == BARRIER){			
 		if (data->getId() == 8008)
 			br_flag = 1;
+<<<<<<< HEAD
 		else if (data->getId() == 1111)
+=======
+		else if (data->getId() == 1111){
+			for (size_t i = 0; i < 1; i++)
+			{
+				cout <<"setting br_flag to 2\n";
+			}
+>>>>>>> df1cb4529cb6d379980c10c8443774b0bfd8f5c1
 			br_flag = 2;
 		else if (data->getId() == 2222)
 		{
