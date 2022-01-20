@@ -245,29 +245,6 @@ job_node* obtain() {
 	
 	pthread_mutex_lock(&br_mutex);
 	while(J_s.j_list->get_counter() <= 0) {					// perimenei na mpei ena job sth lista
-	if(br_flag){
-		pthread_mutex_unlock(&br_mutex);
-			cout <<"ENTERING BR FLAG IF";
-			
-			if (br_flag == 1){
-				pthread_barrier_wait(&barrier);    
-			}
-			if (br_flag == 2){
-				
-			
-				pthread_barrier_wait(&barrier2);
-
-				if (pthread_self() == tids[0]){
-					pthread_cond_signal(&cond_br);
-				}            
-			}else if (br_flag == 3){
-				return NULL;
-			}
-			if (br_flag != 3){
-				pthread_mutex_lock(&br_mutex);
-				br_flag = 0;
-			}
-	}
 		cout << realid(pthread_self())<<" obtain wait with br_flag "<<br_flag;
 		pthread_cond_wait(&cond_nonempty, &br_mutex);
 		cout << realid(pthread_self())<<" obtain wait done\n";
@@ -282,9 +259,9 @@ job_node* obtain() {
 		if (data->getId() == 8008)
 			br_flag = 1;
 		else if (data->getId() == 1111){
-			for (size_t i = 0; i < 100; i++)
+			for (size_t i = 0; i < 1; i++)
 			{
-				cout <<"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\n";
+				cout <<"setting br_flag to 2\n";
 			}
 			br_flag = 2;
 		}
