@@ -109,8 +109,6 @@ pthread_mutex_t mutexdoc;
 
 
 
-
-
 job_scheduler J_s;
 pthread_cond_t cond_end[3];
 pthread_cond_t cond_br;
@@ -244,11 +242,17 @@ job_node* obtain() {
 	cout << realid(pthread_self())<<" obtain mutex with br_flag "<<br_flag;
 	
 	pthread_mutex_lock(&br_mutex);
+	cout<<realid(pthread_self())<<" up while"<<endl;
 	while(J_s.j_list->get_counter() <= 0) {					// perimenei na mpei ena job sth lista
 		cout << realid(pthread_self())<<" obtain wait with br_flag "<<br_flag;
+		if(br_flag == 2){
+			pthread_mutex_unlock(&br_mutex);
+			return NULL;
+		}
 		pthread_cond_wait(&cond_nonempty, &br_mutex);
 		cout << realid(pthread_self())<<" obtain wait done\n";
 	}	
+	cout<<realid(pthread_self())<<" down while"<<endl;
 	data = J_s.j_list->job_pop();						// pairnei to 1o stoixeio ths listas
 
 	if(data == NULL){
@@ -259,7 +263,7 @@ job_node* obtain() {
 		if (data->getId() == 8008)
 			br_flag = 1;
 		else if (data->getId() == 1111){
-			for (size_t i = 0; i < 1; i++)
+			for (size_t i = 0; i < 100; i++)
 			{
 				cout <<"setting br_flag to 2\n";
 			}
@@ -322,6 +326,10 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 		cout << realid(pthread_self())<<" point 1\n";
 		
 		data = obtain();
+
+		if(data == NULL){
+			continue;
+		}
 		if(data->getjtype()==BARRIER){
 			cout << realid(pthread_self())<<" point 1.0\n";
 			continue;
@@ -380,7 +388,7 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 		if(data == NULL){
 			// cout<<"IMAGE OF A DOHG"<<endl;
 		}
-	cout << realid(pthread_self())<<" point 2\n";
+		cout << realid(pthread_self())<<" point 2\n";
 		// cout<< "obtain: " << data->getId()<<" "<<data->getjtype()<<endl;
 
 		// pthread_mutex_lock(&mutexD);
