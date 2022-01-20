@@ -301,10 +301,14 @@ treeNode* BKList::popfirst(int* threshold){
 // Syanrthsh gia thn eyresh omoiwn le3ewn
 
 ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
+    
+    // pthread_mutex_lock(&mutexqhash);
+
     //Lista ypopshfiwn le3ewn
     treeNode* root = ix->getRoot();
     if (root==NULL)
-    {
+    {   
+        // pthread_mutex_unlock(&mutexqhash);
         return EC_FAIL;
     }
     // BKList_node* blns = new BKList_node(root,threshold);
@@ -368,6 +372,8 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
 
     delete cand_list;
     delete input_entry;
-    delete[] tmpStr; 
+    delete[] tmpStr;
+
+    // pthread_mutex_unlock(&mutexqhash);
     return EC_SUCCESS;
 }

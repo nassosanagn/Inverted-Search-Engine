@@ -41,7 +41,7 @@
 
 #include "../q_hashtable.h"
 
-#define NUM_THREADS 40
+#define NUM_THREADS 2
 #define END_DOC 960
 using namespace std;
 
@@ -242,9 +242,7 @@ job_node* obtain() {
 		else if (data->getId() == 1111)
 			br_flag = 2;
 		else if (data->getId() == 2222)
-		{
 			br_flag = 3;
-		}
 	}
 	pthread_mutex_unlock(&br_mutex);
 

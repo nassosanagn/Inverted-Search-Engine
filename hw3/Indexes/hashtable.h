@@ -8,6 +8,8 @@
 
 #define SIZE 10000
 
+extern pthread_mutex_t mutexqhash;
+
 class Hashtable {
     entry_list** buckets;
     int size;
@@ -21,6 +23,8 @@ class Hashtable {
         ErrorCode print();
         ErrorCode rehash();
         ErrorCode search(word *W,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
+
+            // pthread_mutex_lock(&mutexqhash);
             int func_out = hash_function(W->getword(),size);
             entry* e = buckets[func_out]->search_word(W);
             if(e){
@@ -29,10 +33,12 @@ class Hashtable {
                 while(pNode != NULL){
                     if (Q_hash->add_one(e->getmyword(), pNode->getId(),current_doc) == EC_SUCCESS){
                         q_result->payload_insert_asc(pNode->getId());
+                        // cout << " search - Inserted: " << pNode->getId() << endl;
                     }
                     pNode = pNode->getNext();
                 }
             }
+            // pthread_mutex_unlock(&mutexqhash);
             return EC_SUCCESS;
         }
 };

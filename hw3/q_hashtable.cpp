@@ -184,7 +184,7 @@ ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_d
     }
 
     for(unsigned int i = 0; i < qNode->get_word_count(); i++){
-        if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((qNode->get_word_c())[i] == 0)){
+        if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword())) && ((qNode->get_word_c())[i] == 0)){
             qNode->set_found(i);
         }
     }

@@ -7,6 +7,16 @@
 
 #define Q_SIZE 100000
 
+// class query_sat_node{
+//     int word_c[MAX_QUERY_WORDS];
+//     unsigned int curr_doc;
+//     unsigned int words_found;
+
+//     query_sat_node* next
+
+//     public:
+// };
+
 class query_hash_node {
 
     QueryID query_id;
@@ -16,7 +26,7 @@ class query_hash_node {
 	unsigned int words_found;
     unsigned int match_dist;
     unsigned int word_count;
-    unsigned int curr_doc;
+    int curr_doc;
     int alive;
     query_hash_node* next;
 
@@ -39,7 +49,7 @@ class query_hash_node {
         void set_next(query_hash_node *tmp){ next = tmp;}
         void set_curr_doc(unsigned int tmp){ curr_doc = tmp;}
         void set_alive(){ alive = 0;}
-        void set_found(int x){ word_c[x] = 1; words_found++;}
+        void set_found(int x){word_c[x] = 1; words_found++;}       // na prosthesoume doc_id san orisma
 
         void reset_val();
 };
@@ -101,5 +111,6 @@ class query_Hashtable {
 
         ErrorCode delete_query(int qid);
 };
+
 
 #endif

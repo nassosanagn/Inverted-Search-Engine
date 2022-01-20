@@ -4,11 +4,12 @@
 #include <iostream>
 #include <cstring>
 #include <stdlib.h>
-#include "../../hw2/q_hashtable.h"
+#include "../q_hashtable.h"
 #include "../Lists/entry.h"
 
 using namespace std;
 
+extern pthread_mutex_t mutexqhash;
 //Domh poy leitoyrgei ws komvos sto dentro-eyrethrio
 class treeNode{
 
