@@ -66,6 +66,7 @@ job_node* job_list::job_pop(){
 
 job_node* job_list::job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp,unsigned int tmpmd,JobType tmpjtype){
     
+    pthread_mutex_lock(&br_mutex);
     job_node* new_node = new job_node(tmpId,tmpstr,tmpmtp,tmpmd,tmpjtype);
     job_node* current = this->getLast();
 
@@ -73,11 +74,14 @@ job_node* job_list::job_insert(QueryID tmpId,const char* tmpstr,MatchType tmpmtp
         this->setFirst(new_node);
         this->setLast(new_node);
         counter = 1;
+        pthread_mutex_unlock(&br_mutex);
         return new_node;
     }
     current->setNext(new_node);
     this->setLast(new_node);
     counter++;
+    
+    pthread_mutex_unlock(&br_mutex);
     return new_node;
 
 }

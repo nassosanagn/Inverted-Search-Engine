@@ -8,6 +8,8 @@
 
 using namespace std;
 
+extern pthread_mutex_t br_mutex;
+
 class job_node {
 
     QueryID id;
