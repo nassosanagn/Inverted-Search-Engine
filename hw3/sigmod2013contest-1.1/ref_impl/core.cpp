@@ -83,8 +83,6 @@ pthread_mutex_t mutexdoc;
 
 
 
-
-
 job_scheduler J_s;
 pthread_cond_t cond_end[3];
 pthread_cond_t cond_br;
@@ -99,7 +97,6 @@ pthread_barrier_t barrier3;
 //Thread functions
 
 ErrorCode match_doc(job_node* data){
-	pthread_mutex_lock(&mutexqhash);
 	if(Q_hash->search(data->getId())==NULL){
 		cout<<"EL PROBLEMO"<<endl;
 	}
@@ -112,16 +109,23 @@ ErrorCode match_doc(job_node* data){
 
 	char* Str = new char[strlen(data->getstr())+1];
 	strcpy(Str,data->getstr());
-	pch = strtok (Str," ");
+
+    char *rest = NULL;
+
+	pch = strtok_r (Str," ",&rest);
 	cout<<"data::::"<<data->getId()<<endl;
+
+	pthread_mutex_lock(&mutexqhash);
 	while (pch != NULL){
 		myword->setword(pch);
 		hash_index->search(myword,Q_hash,data->getId(),q_result);
 		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result);
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result);
-		pch = strtok (NULL, " ");
+		pch = strtok_r (NULL, " ",&rest);
 	}
 	pthread_mutex_unlock(&mutexqhash);
+
+
 	pthread_mutex_lock(&mutexdoc);
 	doc* D = new doc(data->getId());
 	D->set_num_res(q_result->get_counter());
