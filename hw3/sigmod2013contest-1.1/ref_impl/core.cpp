@@ -95,10 +95,11 @@ QueryID end_flg[3];
 pthread_cond_t cond_nonempty;
 pthread_mutex_t mutex_end[3];
 pthread_mutex_t mutexD;
-pthread_mutex_t mutexQ;
+pthread_mutex_t mutexq;
 pthread_mutex_t mutexAR;
 pthread_mutex_t mutexAR2;
 pthread_mutex_t mutexcout;
+pthread_mutex_t mutexif;
 
 pthread_mutex_t mutexqhash;
 pthread_mutex_t mutexedit;
@@ -111,6 +112,7 @@ pthread_mutex_t mutexdoc;
 
 job_scheduler J_s;
 pthread_cond_t cond_end[3];
+pthread_cond_t cond_q;
 pthread_cond_t cond_br;
 pthread_cond_t cond_br2;
 pthread_cond_t cond_brt;
@@ -127,7 +129,7 @@ ErrorCode match_doc(job_node* data){
 	if(Q_hash->search(data->getId())==NULL){
 		//cout<<"EL PROBLEMO"<<endl;
 	}
-	//cout<<"Job "<< realid(pthread_self()) <<" parsing document..  "<<data->getId() <<endl;
+	// cout<<"Job "<< realid(pthread_self()) <<" parsing document..  "<<data->getId() <<endl;
 	word* myword = new word();
 	payload_list* q_result = new payload_list();
 
@@ -239,35 +241,39 @@ ErrorCode end_q(job_node* data){
 
 job_node* obtain() {
 	job_node* data;
+	// cout << realid(pthread_self())<<" obtain mutex with br_flag "<<br_flag<<endl;
+
 	pthread_mutex_lock(&br_mutex);
 
-	// cout << realid(pthread_self())<<" obtain mutex with br_flag "<<br_flag<<endl;
+	// cout<<realid(pthread_self())<<" after mutex with br_flag "<<br_flag<<endl;
 	
 	// pthread_mutex_lock(&br_mutex);
 	//cout<<realid(pthread_self())<<" up while"<<endl;
 	while(J_s.j_list->get_counter() <= 0) {					// perimenei na mpei ena job sth lista
-		cout << realid(pthread_self())<<" obtain wait with br_flag "<<br_flag<<endl;
-		if(br_flag == 2){
+		// cout << realid(pthread_self())<<" obtain wait with br_flag "<<br_flag<<endl;
+		if(br_flag == 2||br_flag == 1){
 			pthread_mutex_unlock(&br_mutex);
 			return NULL;
 		}
 		pthread_cond_wait(&cond_nonempty, &br_mutex);
-		cout << realid(pthread_self())<<" obtain wait done\n";
+		if(br_flag == 1||br_flag == 2){
+			pthread_mutex_unlock(&br_mutex);
+			return NULL;
+		}
+		// cout << realid(pthread_self())<<" obtain wait done\n";
 	}	
-	cout<<realid(pthread_self())<<" down while"<<endl;
+	// cout<<realid(pthread_self())<<" down while"<<endl;
+
 	data = J_s.j_list->job_pop();    // pairnei to 1o stoixeio ths listas
 
-	if(data == NULL){
-		// //cout<<"ISISISSSSNUULULLUULU"<<endl;
-	}
 
 	if(data->getjtype() == BARRIER){		
 		if (data->getId() == 8008){
-			cout <<"setting br_flag to 1\n";
+			// cout <<"setting br_flag to 1\n";
 			br_flag = 1;
 		}
 		else if (data->getId() == 1111){
-			cout <<"setting br_flag to 2\n";
+			// cout <<"setting br_flag to 2\n";
 			br_flag = 2;
 		}
 		else if (data->getId() == 2222)
@@ -282,8 +288,6 @@ job_node* obtain() {
 	return data;
 }
 
-
-
 int mmflg = 0;
 void * consumer(void * ptr){		// consumer tha trexei kathe thread
 	
@@ -294,36 +298,48 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 		//cout << realid(pthread_self())<<" starting loop\n";
 		// pthread_mutex_lock(&mutex);
 		if(br_flag){
-			// pthread_mutex_unlock(&mutex);
-			// perimenoun ola ta threads
+			// cout<<realid(pthread_self())<<" AAAA"<<endl;
 			if (br_flag == 1){
-				//cout << realid(pthread_self())<<" point 0.1 ";
-				// //cout<<"EYEEYE"<<endl;
-				pthread_barrier_wait(&barrier);	
-				//cout << realid(pthread_self())<<" point 0.1 passed with br_flag " <<br_flag<<endl;
+				// cout<<realid(pthread_self())<<" AAAA111111"<<endl;
+				pthread_cond_signal(&cond_nonempty);
+
+				pthread_barrier_wait(&barrier);
+				pthread_mutex_lock(&mutexif);
+				if(br_flag == 1){
+					br_flag = 0;
+				}
+				pthread_mutex_unlock(&mutexif);
+				if (pthread_self() == tids[0])
+					pthread_cond_signal(&cond_q);
 			}
 			else if (br_flag == 2){
-				//cout << realid(pthread_self())<<" point 0.2\n";
+				// cout<<realid(pthread_self())<<" AAAA222222"<<endl;
+
 				test ++;
 				status[realid(pthread_self())] = 1;
-				//cout <<endl<< realid(pthread_self())<<" waiting for barrier -->"<<test<<endl;
 				// print_status();
+
+				pthread_cond_signal(&cond_nonempty);
 				pthread_barrier_wait(&barrier2);
+
+				pthread_mutex_lock(&mutexif);
+				if(br_flag == 2){
+					br_flag = 0;
+				}
+				pthread_mutex_unlock(&mutexif);
+
 				test=0;
 				status[realid(pthread_self())] = 0;
-				//cout << realid(pthread_self())<<" out of barrier\n";
 				if (pthread_self() == tids[0]){
 					pthread_cond_signal(&cond_br);
 				}
-			}else if (br_flag == 3){
-				//cout << realid(pthread_self())<<" point 0.3\n";
-				// //cout << "bgainei to threadddddddd" << endl;
+			}
+			else if (br_flag == 3){
 				break;
 			}
-			cout<<realid(pthread_self())<<" BR FLAG ZERO"<<endl;
-			br_flag = 0;
+			// cout<<realid(pthread_self())<<" BR FLAG ZERO"<<endl;
+			// br_flag = 0;
 		}
-		// cout<<"BR FLAG + "<<br_flag<<endl;
 
 		data = obtain();
 
@@ -332,66 +348,72 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 		}
 
 		if(data->getjtype()==BARRIER){
-			cout<<realid(pthread_self())<<" barrier"<<endl;
+			// cout<<realid(pthread_self())<<" barrier"<<endl;
 			continue;
 		}
 
 		if(br_flag){
-			cout<<realid(pthread_self())<<"AA"<<endl;
-			// //cout<<"AAA1"<<endl;
-			// pthread_mutex_unlock(&mutex);
-					// perimenoun ola ta threads
+			// cout<<realid(pthread_self())<<" BBBB "<<br_flag<<endl;
 			if (br_flag == 1){
-				// //cout<<"EYEEYE111111111111111111111111111"<<endl;
+				// cout<<realid(pthread_self())<<" BBBBB111111"<<endl;
 				if(data->getjtype()==QUERY){
 					mmflg = 1;
 					start_q(data);
-					//cout << realid(pthread_self())<<" point 1.1\n";
 					continue;
 				}
 				else if(data->getjtype()==END_QUERY){
 					mmflg = 1;
 					end_q(data);
-					//cout << realid(pthread_self())<<" point 1.2\n";
 					continue;
 				}
+				pthread_cond_signal(&cond_nonempty);
+
 				pthread_barrier_wait(&barrier);
 
+				pthread_mutex_lock(&mutexif);
+				if(br_flag == 1){
+					br_flag = 0;
+				}
+				pthread_mutex_unlock(&mutexif);
+
+				if (pthread_self() == tids[0])
+					pthread_cond_signal(&cond_q);
 			}
 			else if (br_flag == 2){
-				//cout << realid(pthread_self())<<"point 1.1.1  ";
+				// cout<<realid(pthread_self())<<" BBBBB222222"<<endl;
+
 				if(data->getjtype()==DOCUMENT){
 					mmflg = 1;
 					match_doc(data);
-					//cout << realid(pthread_self())<<" point 1.3\n";
 					continue;
 				}
 				test ++;
 				status[realid(pthread_self())] = 1;
-				//cout <<endl<< realid(pthread_self())<<" waiting for barrier -->"<<test<<endl;
-				print_status();
+				// print_status();
+
+				pthread_cond_signal(&cond_nonempty);
+
 				pthread_barrier_wait(&barrier2);
+
+				pthread_mutex_lock(&mutexif);
+				if(br_flag == 2){
+					br_flag = 0;
+				}
+				pthread_mutex_unlock(&mutexif);
+
 				test=0;
 				status[realid(pthread_self())] = 0;
-				//cout << realid(pthread_self())<<" out of barrier\n";
 				if (pthread_self() == tids[0])
 					pthread_cond_signal(&cond_br);
-
 			}
 			else if (br_flag == 3){
-				// pthread_cond_signal(&cond_br2);
-				// //cout << "bgainei to threadddddddd1" << endl;
 				break;
 			}
-			cout<<realid(pthread_self())<<" 22222222 BR FLAG ZERO"<<endl;
-			br_flag = 0;
-		}
-		//cout << realid(pthread_self())<<" point 2\n";
-		// //cout<< "obtain: " << data->getId()<<" "<<data->getjtype()<<endl;
 
-		// pthread_mutex_lock(&mutexD);
-		// //cout << ""
-		// J_s.j_list->print_list();
+			// cout<<realid(pthread_self())<<" 22222222 BR FLAG ZERO "<<data->getjtype()<<" "<<br_flag<<endl;
+			// br_flag = 0;
+		}
+
 		if(data->getjtype() == QUERY) {
 			start_q(data);
 		}
@@ -401,7 +423,6 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 		else if(data->getjtype() == END_QUERY){
 			end_q(data);
 		}
-		// //cout<<"BARRRIrRIRRIRRRIR id:" <<pthread_self()<<"DAta : "<<data->getId()<<" "<<data->getjtype()<<endl;
 
 		// if (J_s.j_list->getFirst() != NULL)
 		// 	J_s.j_list->print_list();
@@ -459,8 +480,9 @@ ErrorCode InitializeIndex(){
     }
 	J_s.j_list = new job_list();
 
+	pthread_mutex_init(&mutexif, 0);
 	pthread_mutex_init(&mutexD, 0);
-	pthread_mutex_init(&mutexQ, 0);
+	pthread_mutex_init(&mutexq, 0);
 	pthread_mutex_init(&mutexAR, 0);
 	pthread_mutex_init(&mutexAR2, 0);
 	pthread_mutex_init(&mutexcout, 0);
@@ -481,6 +503,7 @@ ErrorCode InitializeIndex(){
 	}
 
 	pthread_cond_init(&cond_nonempty, 0);
+	pthread_cond_init(&cond_q, 0);
 	pthread_cond_init(&cond_br, 0);
 	pthread_cond_init(&cond_br2, 0);
 	pthread_cond_init(&cond_brt, 0);
@@ -614,6 +637,8 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 		pthread_mutex_unlock(&br_mutex);
 
 		pthread_cond_signal(&cond_nonempty);
+
+		pthread_cond_wait(&cond_q, &mutexq);
 		flag_q = 1;
 	}
 
