@@ -5,7 +5,7 @@ using namespace std;
 #include <stdlib.h>
 
 #include "BKTree.h"
-
+extern pthread_mutex_t mutexqhash;
 //constructor gia to Index
 Index::Index(){ 
     root = NULL;
@@ -300,11 +300,16 @@ treeNode* BKList::popfirst(int* threshold){
 
 // Syanrthsh gia thn eyresh omoiwn le3ewn
 
-ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
+ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result,int thread_id){
     //Lista ypopshfiwn le3ewn
+    pthread_mutex_lock(&mutexqhash);
+
     treeNode* root = ix->getRoot();
     if (root==NULL)
     {
+
+        pthread_mutex_unlock(&mutexqhash);
+
         return EC_FAIL;
     }
     // BKList_node* blns = new BKList_node(root,threshold);
@@ -341,7 +346,7 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
                 input_entry->setword(current_candidate->getString());
                 input_entry->setpayload(current_candidate->getEntry()->getpayload());
                 
-                Q_hash->add_one_payload(current_candidate->getEntry()->getpayload(),current_candidate->getWord(),current_doc,i,q_result);
+                Q_hash->add_one_payload(current_candidate->getEntry()->getpayload(),current_candidate->getWord(),current_doc,i,q_result,thread_id);
                 //add_entry(hashtable,input_entry,-1); sto hashmap
                 //an to query exei megalytero h iso match dist apo to i tote kanei insert
                 break;
@@ -368,6 +373,7 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
 
     delete cand_list;
     delete input_entry;
-    delete[] tmpStr; 
+    delete[] tmpStr;
+    pthread_mutex_unlock(&mutexqhash);
     return EC_SUCCESS;
 }

@@ -41,7 +41,7 @@
 
 #include "../q_hashtable.h"
 
-#define NUM_THREADS 45
+
 #define END_DOC 960
 using namespace std;
 
@@ -76,9 +76,8 @@ int realid(int thread_self){
 		{
 			return thread;
 		}
-		
+
 	}
-	
 	return -99999;
 }
 
@@ -125,7 +124,7 @@ pthread_barrier_t barrier3;
 //Thread functions
 
 ErrorCode match_doc(job_node* data){
-	pthread_mutex_lock(&mutexqhash);
+	// pthread_mutex_lock(&mutexqhash);
 	if(Q_hash->search(data->getId())==NULL){
 		//cout<<"EL PROBLEMO"<<endl;
 	}
@@ -138,16 +137,18 @@ ErrorCode match_doc(job_node* data){
 
 	char* Str = new char[strlen(data->getstr())+1];
 	strcpy(Str,data->getstr());
-	pch = strtok (Str," ");
+	char* rest = NULL;
+	pch = strtok_r (Str," ",&rest);
+	int thread_id = realid(pthread_self());
 	//cout<<"data::::"<<data->getId()<<endl;
 	while (pch != NULL){
 		myword->setword(pch);
-		hash_index->search(myword,Q_hash,data->getId(),q_result);
-		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result);
-		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result);
-		pch = strtok (NULL, " ");
+		hash_index->search(myword,Q_hash,data->getId(),q_result,thread_id);
+		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result,thread_id);
+		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result,thread_id);
+		pch = strtok_r(NULL, " ",&rest);
 	}
-	pthread_mutex_unlock(&mutexqhash);
+	// pthread_mutex_unlock(&mutexqhash);
 	pthread_mutex_lock(&mutexdoc);
 	doc* D = new doc(data->getId());
 	D->set_num_res(q_result->get_counter());
@@ -267,7 +268,7 @@ job_node* obtain() {
 	data = J_s.j_list->job_pop();    // pairnei to 1o stoixeio ths listas
 
 
-	if(data->getjtype() == BARRIER){		
+	if(data->getjtype() == BARRIER){
 		if (data->getId() == 8008){
 			// cout <<"setting br_flag to 1\n";
 			br_flag = 1;
