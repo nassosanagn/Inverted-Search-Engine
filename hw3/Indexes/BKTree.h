@@ -85,7 +85,7 @@ class Index{
         void printTree();
 
         //O deikths result deixnei se le3eis poy moiazoyn me thn le3h sto prwto orisma
-        ErrorCode lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result);
+        ErrorCode lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result,int thread_id);
         ErrorCode insertWord(word* W, Index* ix, MatchType mt,int qid);
 };
 

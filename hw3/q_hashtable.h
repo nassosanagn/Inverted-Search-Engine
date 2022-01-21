@@ -5,24 +5,19 @@
 #include <stdlib.h>
 #include "./Lists/entry.h"
 #include "./q_satisfied.h"
-
-extern pthread_mutex_t mutexqhash;
-extern int num_threads;
-
 #define Q_SIZE 100000
 
 class query_hash_node {
 
     QueryID query_id;
     word word_arr[MAX_QUERY_WORDS];
+    // int word_c[MAX_QUERY_WORDS];
 
-
+	// unsigned int words_found;
+    query_sat_node* query_arr;
     unsigned int match_dist;
     unsigned int word_count;
-
-    query_sat_list* q_sat_list;
-    // query_sat_node q_sat_array[num_threads];
-    
+    // unsigned int curr_doc;
     int alive;
     query_hash_node* next;
 
@@ -37,20 +32,13 @@ class query_hash_node {
         query_sat_list* get_q_sat_list(){ return q_sat_list;}
 
         int get_alive(){ return alive;}
+
+        query_sat_node* get_arr(){ return query_arr;}
+
         unsigned int get_dist() const{ return match_dist;}
         unsigned int get_word_count() const{ return word_count;}
-
         // unsigned int get_word_found() const { return words_found;}
-        unsigned int get_word_found(unsigned int doc_id) { 
-            return this->get_q_sat_list()->get_word_found(doc_id);
-        }
-
         // int* get_word_c() { return word_c;}
-        int* get_word_c(unsigned int doc_id) { 
-            // cout << "mpaineii " << endl;
-            return this->get_q_sat_list()->get_word_c(doc_id); 
-        }
-
         // unsigned int get_curr_doc() { return curr_doc;}
         query_hash_node* get_next() const{ return next;}
 
@@ -58,7 +46,7 @@ class query_hash_node {
         void set_next(query_hash_node *tmp){ next = tmp;}
         // void set_curr_doc(unsigned int tmp){ curr_doc = tmp;}
         void set_alive(){ alive = 0;}
-       
+        // void set_found(int x){ word_c[x] = 1; words_found++;}
 
         ErrorCode set_found(unsigned int doc_id, int x){           
             return this->get_q_sat_list()->update(doc_id,x);
@@ -118,9 +106,9 @@ class query_Hashtable {
         query_hash_node* search(QueryID qid);
         // ErrorCode print();
     
-        ErrorCode add_one(word* myword, int qid, unsigned int current_doc);
-        ErrorCode add_one_tree(word* myword, int qid, unsigned int current_doc, unsigned int threshold);         
-        ErrorCode add_one_payload(payload_list* pl,word* w, int current_doc, int threshold, payload_list* q_result);
+        ErrorCode add_one(word* myword, int qid, unsigned int current_doc,int thread_id);
+        ErrorCode add_one_tree(word* myword, int qid, unsigned int current_doc, unsigned int threshold,int thread_id);         
+        ErrorCode add_one_payload(payload_list* pl,word* w, int current_doc, int threshold, payload_list* q_result,int thread_id);
 
         ErrorCode delete_query(int qid);
 };

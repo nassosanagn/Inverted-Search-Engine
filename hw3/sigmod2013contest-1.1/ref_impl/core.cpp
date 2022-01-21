@@ -41,7 +41,7 @@
 
 #include "../q_hashtable.h"
 
-#define NUM_THREADS 45
+
 #define END_DOC 960
 using namespace std;
 
@@ -76,9 +76,8 @@ int realid(int thread_self){
 		{
 			return thread;
 		}
-		
+
 	}
-	
 	return -99999;
 }
 
@@ -137,16 +136,16 @@ ErrorCode match_doc(job_node* data){
 	char *rest = NULL;
 	char* Str = new char[strlen(data->getstr())+1];
 	strcpy(Str,data->getstr());
-	
-	char* pch = strtok_r (Str," ", &rest);
-
+	char* rest = NULL;
+	pch = strtok_r (Str," ",&rest);
+	int thread_id = realid(pthread_self());
 	//cout<<"data::::"<<data->getId()<<endl;
 	while (pch != NULL){
 		myword->setword(pch);
-		hash_index->search(myword,Q_hash,data->getId(),q_result);
-		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result);
-		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result);
-		pch = strtok_r (NULL, " ", &rest);
+		hash_index->search(myword,Q_hash,data->getId(),q_result,thread_id);
+		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result,thread_id);
+		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result,thread_id);
+		pch = strtok_r(NULL, " ",&rest);
 	}
 	// pthread_mutex_unlock(&mutexqhash);
 	pthread_mutex_lock(&mutexdoc);
@@ -268,7 +267,7 @@ job_node* obtain() {
 	data = J_s.j_list->job_pop();    // pairnei to 1o stoixeio ths listas
 
 
-	if(data->getjtype() == BARRIER){		
+	if(data->getjtype() == BARRIER){
 		if (data->getId() == 8008){
 			// cout <<"setting br_flag to 1\n";
 			br_flag = 1;
@@ -631,11 +630,11 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 {
 	if(!flag_q){
 
-		// pthread_mutex_lock(&br_mutex);
+		pthread_mutex_lock(&br_mutex);
 		// //cout<<"counter"<<J_s.j_list->get_counter()<<endl;
 		J_s.j_list->job_insert(8008,doc_str,MT_EXACT_MATCH,0,BARRIER);
 		// //cout<<"counter after"<<J_s.j_list->get_counter()<<endl;
-		// pthread_mutex_unlock(&br_mutex);
+		pthread_mutex_unlock(&br_mutex);
 
 		pthread_cond_signal(&cond_nonempty);
 
@@ -646,7 +645,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 	// pthread_mutex_lock(&br_mutex);
 	J_s.j_list->job_insert(doc_id,doc_str,MT_EXACT_MATCH,0,DOCUMENT); 	// bazei to docuent sto job lst
 	// //cout<<"doc id "<<doc_id<<endl;
-   	// pthread_mutex_unlock(&br_mutex);
+   	pthread_mutex_unlock(&br_mutex);
 
 
 	pthread_cond_signal(&cond_nonempty);
@@ -701,7 +700,7 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 	if (flag_q){
 		
 		//cout<<"List will be \n";
-		// pthread_mutex_lock(&br_mutex);
+		pthread_mutex_lock(&br_mutex);
 		J_s.j_list->job_insert(1111,"barrier",MT_EXACT_MATCH,0,BARRIER);
 		// pthread_mutex_unlock(&br_mutex);
 

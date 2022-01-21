@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include "./sigmod2013contest-1.1/include/core.h"
-
+using namespace std;
 
 class query_sat_node{
     
@@ -17,12 +17,13 @@ class query_sat_node{
 
     public:
 
-        query_sat_node(unsigned int doc_id){
+        query_sat_node(){
         
             words_found = 0;
-            this->doc_id = doc_id;
+            doc_id = 0;
+            // this->doc_id = doc_id;
 
-            for (int i = 0; i< MAX_QUERY_WORDS; i++){
+            for (int i = 0;i< MAX_QUERY_WORDS; i++){
                 word_c[i] = 0;
             }
             this->next = NULL;
@@ -35,7 +36,12 @@ class query_sat_node{
 
         void set_next(query_sat_node *tmp){ next = tmp;}
         void set_doc_id(unsigned int tmp){ doc_id = tmp;}
-
+        void reset_val(int word_count){
+            for(int i = 0; i < word_count; i++){
+                word_c[i] = 0;
+            }
+            words_found = 0;
+        }
 
         void update_node(int x){
             this->word_c[x] = 1;
@@ -43,110 +49,109 @@ class query_sat_node{
         }
 };
 
+// class query_sat_list {
 
-class query_sat_list {
+//     query_sat_node* head;
+//     query_sat_node* last;
 
-    query_sat_node* head;
-    query_sat_node* last;
+//     public:
 
-    public:
+//         query_sat_list(){
+//             this->head = NULL;
+//             this->last = NULL;
+//         }
 
-        query_sat_list(){
-            this->head = NULL;
-            this->last = NULL;
-        }
+//         ErrorCode update(unsigned int doc_id, int x){
+//             query_sat_node* qn = head;
 
-        ErrorCode update(unsigned int doc_id, int x){
-            query_sat_node* qn = head;
+//             while(qn!=NULL){
+//                 if(qn->get_doc_id() == doc_id){   // update that doc
 
-            while(qn!=NULL){
-                if(qn->get_doc_id() == doc_id){   // update that doc
+//                     qn->update_node(x);
+//                     return EC_SUCCESS;
+//                 }
+//                 qn = qn->get_next();
+//             }
+//             return EC_FAIL;
+//         }
 
-                    qn->update_node(x);
-                    return EC_SUCCESS;
-                }
-                qn = qn->get_next();
-            }
-            return EC_FAIL;
-        }
+//         unsigned int get_word_found(unsigned int doc_id){
+//             query_sat_node* qn = head;
 
-        unsigned int get_word_found(unsigned int doc_id){
-            query_sat_node* qn = head;
+//             while(qn!=NULL){
+//                 if(qn->get_doc_id() == doc_id){   // update that doc
 
-            while(qn!=NULL){
-                if(qn->get_doc_id() == doc_id){   // update that doc
+//                    return qn->get_word_found();
+//                 }
+//                 qn = qn->get_next();
+//             }
+//             return 999;
+//         }
 
-                   return qn->get_word_found();
-                }
-                qn = qn->get_next();
-            }
-            return 999;
-        }
+//         int* get_word_c(unsigned int doc_id){
+//             query_sat_node* qn = head;
 
-        int* get_word_c(unsigned int doc_id){
-            query_sat_node* qn = head;
+//             while(qn!=NULL){
+//                 if(qn->get_doc_id() == doc_id){   // update that doc
 
-            while(qn!=NULL){
-                if(qn->get_doc_id() == doc_id){   // update that doc
+//                    return qn->get_word_c();
+//                 }
+//                 qn = qn->get_next();
+//             }
+//             return NULL;
+//         }
 
-                   return qn->get_word_c();
-                }
-                qn = qn->get_next();
-            }
-            return NULL;
-        }
+//         query_sat_node* query_sat_add(unsigned int doc_id){
 
-        query_sat_node* query_sat_add(unsigned int doc_id){
+//             query_sat_node* new_node = new query_sat_node(doc_id);
+//             query_sat_node* current = this->get_last();
 
-            query_sat_node* new_node = new query_sat_node(doc_id);
-            query_sat_node* current = this->get_last();
+//             if (current == NULL){
+//                 this->set_first(new_node);
+//                 this->set_last(new_node);
+//                 return new_node;
+//             }
 
-            if (current == NULL){
-                this->set_first(new_node);
-                this->set_last(new_node);
-                return new_node;
-            }
+//             current->set_next(new_node);
+//             this->set_last(new_node);
+//             return new_node;
 
-            current->set_next(new_node);
-            this->set_last(new_node);
-            return new_node;
+//         }
 
-        }
-
-        void print_list(){
+//         void print_list(){
     
-            if (head == NULL){
-                return;
-            }
+//             if (head == NULL){
+//                 return;
+//             }
 
-            query_sat_node* current = this->get_first();
+//             query_sat_node* current = this->get_first();
 
-            while (current != NULL){
-                cout << current->get_doc_id() << " ";
-                current = current->get_next();
-            }
+//             while (current != NULL){
+//                 cout << current->get_doc_id() << " ";
+//                 current = current->get_next();
+//             }
 
-            cout << endl;
-        }
+//             cout << endl;
+//         }
       
-        query_sat_node* search_doc_id(unsigned int doc_id){
-            query_sat_node* qn = head;
-            while(qn!=NULL){
-                if(qn->get_doc_id() == doc_id){
-                    return qn;
-                }
-                qn = qn->get_next();
-            }
-            return NULL;
-        }
+//         query_sat_node* search_doc_id(unsigned int doc_id){
+//             query_sat_node* qn = head;
+//             while(qn!=NULL){
+//                 if(qn->get_doc_id() == doc_id){
+//                     return qn;
+//                 }
+//                 qn = qn->get_next();
+//             }
+//             return NULL;
+//         }
 
-        /* Getters */
-        query_sat_node* get_first() const{ return head;}
-        query_sat_node* get_last() const{ return last;}
+//         /* Getters */
+//         query_sat_node* get_first() const{ return head;}
+//         query_sat_node* get_last() const{ return last;}
 
-        /* Setters */
-        void set_first(query_sat_node* tmp){ head = tmp; }
-        void set_last(query_sat_node* tmp){ last = tmp; }
-};
+//         /* Setters */
+//         void set_first(query_sat_node* tmp){ head = tmp; }
+//         void set_last(query_sat_node* tmp){ last = tmp; }
+// };
 
 #endif

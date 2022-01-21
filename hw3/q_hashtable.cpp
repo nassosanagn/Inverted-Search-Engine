@@ -7,8 +7,8 @@ using namespace std;
 
 query_hash_node::query_hash_node(QueryID qid,const char * str, unsigned int m_dist){
 
-    q_sat_list = new query_sat_list();
-    // q_sat_list->q_sat_add()
+    query_arr = new query_sat_node[NUM_THREADS];
+
     query_id = qid;
     word_count = 0;
     alive = 1;
@@ -33,12 +33,12 @@ query_hash_node::query_hash_node(QueryID qid,const char * str, unsigned int m_di
     delete []Str;
 }
 
-// void query_hash_node::reset_val(){
-//     for(unsigned int i = 0; i < word_count; i++){
-//         word_c[i] = 0;
-//     }
-//     words_found = 0;
-// }
+void query_hash_node::reset_val(){
+    for(unsigned int i = 0; i < word_count; i++){
+        // word_c[i] = 0;
+    }
+    // words_found = 0;
+}
 
 
 /* ---------------------------------------------------------------- query_hash_list functions ---------------------------------------------------------------- */
@@ -89,19 +89,19 @@ ErrorCode query_hash_list::destroy_query_list(query_hash_list** el){
 
 // ErrorCode query_hash_list::print_list(){
     
-    // if (first == NULL){
-    //     return EC_FAIL;
-    // }
-    // query_hash_node* current = first;
-    // while (current != NULL){
-    //     // cout << "ID = "<<current->get_id() << " get_word_count: "<<current->get_word_count()<<" words found: "<< current->get_word_found() << " ";
-    //     for(unsigned int i = 0 ;i<current->get_word_count();i++){
-    //         // cout<<(current->get_word_c())[i]<<" ";
-    //     }
-    //     current = current->get_next();
-    // }
-    // cout << endl;
-    // return EC_SUCCESS;
+//     if (first == NULL){
+//         return EC_FAIL;
+//     }
+//     query_hash_node* current = first;
+//     while (current != NULL){
+//         cout << "ID = "<<current->get_id() << " get_word_count: "<<current->get_word_count()<<" words found: "<<current->get_word_found()<<" CURR "<<current->get_curr_doc()<<" ";
+//         for(unsigned int i = 0 ;i<current->get_word_count();i++){
+//             cout<<(current->get_word_c())[i]<<" ";
+//         }
+//         current = current->get_next();
+//     }
+//     cout << endl;
+//     return EC_SUCCESS;
 // }
 
 ErrorCode query_hash_list::delete_query(QueryID query_id){
@@ -169,9 +169,8 @@ unsigned long query_Hashtable::hash_function(int id,int size_tmp){
 //     return EC_SUCCESS;
 // }
 
-ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_doc ){
-    
-    // pthread_mutex_lock(&mutexqhash);
+ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_doc,int thread_id){
+            
     query_hash_node* qNode;
     int func_out = hash_function(qid,size);
     qNode = buckets[func_out]->search_id(qid);           
@@ -179,30 +178,23 @@ ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_d
         // pthread_mutex_unlock(&mutexqhash);
         return EC_FAIL;
     }
-
-    query_sat_node* tempNode = qNode->get_q_sat_list()->search_doc_id(current_doc);
-
-    if(tempNode == NULL){          // if found
-
-        // qNode->set_curr_doc(current_doc);
-        // qNode->reset_val();
-
-        tempNode = qNode->get_q_sat_list()->query_sat_add(current_doc);  // added that on the list with doc ids
+    query_sat_node* temp = qNode->get_arr();
+    if(temp[thread_id].get_doc_id() != current_doc){
+        temp[thread_id].set_doc_id(current_doc);
+        temp[thread_id].reset_val(qNode->get_word_count());
     }
 
-    if (tempNode->get_word_found() == qNode->get_word_count()){
-        // pthread_mutex_unlock(&mutexqhash);
+    if (temp[thread_id].get_word_found() == qNode->get_word_count()){
         return EC_FAIL;
     }
 
     for(unsigned int i = 0; i < qNode->get_word_count(); i++){
-        if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword())) && ((tempNode->get_word_c())[i] == 0)){
-           tempNode->update_node(i);
+        if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((temp[thread_id].get_word_c())[i] == 0)){
+            temp[thread_id].update_node(i);
         }
     }
     
-    if (tempNode->get_word_found() == qNode->get_word_count()){
-        // pthread_mutex_unlock(&mutexqhash);
+    if (temp[thread_id].get_word_found() == qNode->get_word_count()){
         return EC_SUCCESS;
     }
 
@@ -210,8 +202,8 @@ ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_d
     return EC_FAIL;
 }
 
-ErrorCode query_Hashtable::add_one_tree(word* myword, int qid, unsigned int current_doc, unsigned int threshold){
 
+ErrorCode query_Hashtable::add_one_tree(word* myword, int qid, unsigned int current_doc, unsigned int threshold,int thread_id){
     query_hash_node* qNode;
     int func_out = hash_function(qid,size);
     qNode = buckets[func_out]->search_id(qid);  
@@ -219,44 +211,37 @@ ErrorCode query_Hashtable::add_one_tree(word* myword, int qid, unsigned int curr
     if(qNode->get_alive() == 0){
         return EC_FAIL;
     }
-
-    query_sat_node* tempNode = qNode->get_q_sat_list()->search_doc_id(current_doc);
-
-    if (tempNode == NULL){
-
-        // qNode->set_curr_doc(current_doc);
-        // qNode->reset_val();
-
-        tempNode = qNode->get_q_sat_list()->query_sat_add(current_doc);                // added that on the list with doc ids
+    query_sat_node* temp = qNode->get_arr();
+    if(temp[thread_id].get_doc_id() != current_doc){
+        temp[thread_id].set_doc_id(current_doc);
+        temp[thread_id].reset_val(qNode->get_word_count());
     }
-    
-    if (tempNode->get_word_found() == qNode->get_word_count()){
+
+    if (temp[thread_id].get_word_found() == qNode->get_word_count()){
         return EC_FAIL;
     }
-
     if(qNode->get_dist() < threshold){
         return EC_FAIL;
     }
 
     for(unsigned int i = 0; i < qNode->get_word_count(); i++){
-        if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((tempNode->get_word_c())[i] == 0)){
-            tempNode->update_node(i);
+        if ((!strcmp(((qNode->get_word_arr())[i]).getword(),myword->getword()) ) && ((temp[thread_id].get_word_c())[i] == 0)){
+            temp[thread_id].update_node(i);
         }
     }
-
-    if (tempNode->get_word_found() == qNode->get_word_count()){        // thelei allaghhhhhhhhh
+    
+    if (temp[thread_id].get_word_found() == qNode->get_word_count()){
         return EC_SUCCESS;
     }
 
     return EC_FAIL;
 }
 
-ErrorCode query_Hashtable::add_one_payload(payload_list* pl,word* w,int current_doc,int threshold,payload_list* q_result){
-    
+ErrorCode query_Hashtable::add_one_payload(payload_list* pl,word* w,int current_doc,int threshold,payload_list* q_result,int thread_id){
     payload_node* pn;
     pn = pl->getFirst();
     while(pn!=NULL){
-        if(add_one_tree(w,pn->getId(),current_doc,threshold) == EC_SUCCESS){
+        if(add_one_tree(w,pn->getId(),current_doc,threshold,thread_id) == EC_SUCCESS){
             q_result->payload_insert_asc(pn->getId());
         }
         pn = pn->getNext();
