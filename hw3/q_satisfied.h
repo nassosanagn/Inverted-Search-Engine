@@ -6,6 +6,7 @@
 
 #include "./sigmod2013contest-1.1/include/core.h"
 
+
 class query_sat_node{
     
     int word_c[MAX_QUERY_WORDS];
@@ -21,7 +22,7 @@ class query_sat_node{
             words_found = 0;
             this->doc_id = doc_id;
 
-            for (int i = 0;i< MAX_QUERY_WORDS; i++){
+            for (int i = 0; i< MAX_QUERY_WORDS; i++){
                 word_c[i] = 0;
             }
             this->next = NULL;
@@ -41,6 +42,7 @@ class query_sat_node{
             this->words_found++;
         }
 };
+
 
 class query_sat_list {
 

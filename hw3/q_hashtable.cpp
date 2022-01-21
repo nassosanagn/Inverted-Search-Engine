@@ -169,7 +169,7 @@ unsigned long query_Hashtable::hash_function(int id,int size_tmp){
 //     return EC_SUCCESS;
 // }
 
-ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_doc){
+ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_doc ){
     
     // pthread_mutex_lock(&mutexqhash);
     query_hash_node* qNode;
@@ -183,6 +183,10 @@ ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_d
     query_sat_node* tempNode = qNode->get_q_sat_list()->search_doc_id(current_doc);
 
     if(tempNode == NULL){          // if found
+
+        // qNode->set_curr_doc(current_doc);
+        // qNode->reset_val();
+
         tempNode = qNode->get_q_sat_list()->query_sat_add(current_doc);  // added that on the list with doc ids
     }
 
@@ -219,6 +223,10 @@ ErrorCode query_Hashtable::add_one_tree(word* myword, int qid, unsigned int curr
     query_sat_node* tempNode = qNode->get_q_sat_list()->search_doc_id(current_doc);
 
     if (tempNode == NULL){
+
+        // qNode->set_curr_doc(current_doc);
+        // qNode->reset_val();
+
         tempNode = qNode->get_q_sat_list()->query_sat_add(current_doc);                // added that on the list with doc ids
     }
     

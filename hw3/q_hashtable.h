@@ -7,6 +7,7 @@
 #include "./q_satisfied.h"
 
 extern pthread_mutex_t mutexqhash;
+extern int num_threads;
 
 #define Q_SIZE 100000
 
@@ -15,14 +16,12 @@ class query_hash_node {
     QueryID query_id;
     word word_arr[MAX_QUERY_WORDS];
 
-    // int word_c[MAX_QUERY_WORDS];
-	// unsigned int words_found;
 
     unsigned int match_dist;
     unsigned int word_count;
 
-    // int curr_doc;
     query_sat_list* q_sat_list;
+    // query_sat_node q_sat_array[num_threads];
     
     int alive;
     query_hash_node* next;
@@ -65,7 +64,7 @@ class query_hash_node {
             return this->get_q_sat_list()->update(doc_id,x);
         }
                
-        // void reset_val();
+        void reset_val();
 };
 
 class query_hash_list{
