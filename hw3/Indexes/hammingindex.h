@@ -48,7 +48,6 @@ class HammingIndex{
         }
 
         ErrorCode lookup_hamming_index(const word* w, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
-            // pthread_mutex_lock(&mutexqhash);
             // cout << "LOKUPPPPPPPPP" << endl;
             int word_len = strlen(w->getword());
             Index* target_tree = &(mytrees[word_len-MIN_WORD_LENGTH]);

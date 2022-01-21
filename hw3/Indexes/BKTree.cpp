@@ -302,13 +302,13 @@ treeNode* BKList::popfirst(int* threshold){
 
 ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
     
-    // pthread_mutex_lock(&mutexqhash);
+    pthread_mutex_lock(&mutexqhash);
 
     //Lista ypopshfiwn le3ewn
     treeNode* root = ix->getRoot();
     if (root==NULL)
     {   
-        // pthread_mutex_unlock(&mutexqhash);
+        pthread_mutex_unlock(&mutexqhash);
         return EC_FAIL;
     }
     // BKList_node* blns = new BKList_node(root,threshold);
@@ -346,6 +346,7 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
                 input_entry->setpayload(current_candidate->getEntry()->getpayload());
                 
                 Q_hash->add_one_payload(current_candidate->getEntry()->getpayload(),current_candidate->getWord(),current_doc,i,q_result);
+                // pthread_mutex_unlock(&mutexqhash);
                 //add_entry(hashtable,input_entry,-1); sto hashmap
                 //an to query exei megalytero h iso match dist apo to i tote kanei insert
                 break;
@@ -374,6 +375,6 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
     delete input_entry;
     delete[] tmpStr;
 
-    // pthread_mutex_unlock(&mutexqhash);
+    pthread_mutex_unlock(&mutexqhash);
     return EC_SUCCESS;
 }

@@ -116,18 +116,16 @@ ErrorCode match_doc(job_node* data){
 	// cout << "data::::"<< data->getId() << endl; TO XAMEEEEEEEEEEEEE
 	// cout << "---------------------- Document ---------------------- " << endl;
 
-	pthread_mutex_lock(&mutexqhash);
 	while (pch != NULL){
-		
+
 		myword->setword(pch);
+		
 		hash_index->search(myword,Q_hash,data->getId(),q_result);
 		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result);
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1, MT_EDIT_DIST,Q_hash,data->getId(),q_result);
 
 		pch = strtok_r (NULL, " ", &rest);
-
 	}
-	pthread_mutex_unlock(&mutexqhash);
 
 	pthread_mutex_lock(&mutexdoc);
 	doc* D = new doc(data->getId());

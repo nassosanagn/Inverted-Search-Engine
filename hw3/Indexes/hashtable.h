@@ -24,12 +24,12 @@ class Hashtable {
         ErrorCode rehash();
         ErrorCode search(word *W,query_Hashtable* Q_hash,int current_doc,payload_list* q_result){
 
-            // pthread_mutex_lock(&mutexqhash);
             int func_out = hash_function(W->getword(),size);
             entry* e = buckets[func_out]->search_word(W);
             if(e){
                 payload_node* pNode = e->getpayload()->getFirst();
 
+                pthread_mutex_lock(&mutexqhash);
                 while(pNode != NULL){
                     if (Q_hash->add_one(e->getmyword(), pNode->getId(),current_doc) == EC_SUCCESS){
                         q_result->payload_insert_asc(pNode->getId());
@@ -37,9 +37,9 @@ class Hashtable {
                     }
                     pNode = pNode->getNext();
                 }
+                pthread_mutex_unlock(&mutexqhash);
             }
-            // pthread_mutex_unlock(&mutexqhash);
-            return EC_SUCCESS;
+            return EC_FAIL;
         }
 };
 

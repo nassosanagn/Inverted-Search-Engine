@@ -4,29 +4,26 @@
 #include <iostream>
 #include <stdlib.h>
 #include "./Lists/entry.h"
+#include "./q_satisfied.h"
+
+extern pthread_mutex_t mutexqhash;
 
 #define Q_SIZE 100000
-
-// class query_sat_node{
-//     int word_c[MAX_QUERY_WORDS];
-//     unsigned int curr_doc;
-//     unsigned int words_found;
-
-//     query_sat_node* next
-
-//     public:
-// };
 
 class query_hash_node {
 
     QueryID query_id;
     word word_arr[MAX_QUERY_WORDS];
-    int word_c[MAX_QUERY_WORDS];
 
-	unsigned int words_found;
+    // int word_c[MAX_QUERY_WORDS];
+	// unsigned int words_found;
+
     unsigned int match_dist;
     unsigned int word_count;
-    int curr_doc;
+
+    // int curr_doc;
+    query_sat_list* q_sat_list;
+    
     int alive;
     query_hash_node* next;
 
@@ -37,21 +34,38 @@ class query_hash_node {
         /* Getters */
         QueryID get_id() const{ return query_id;}
         word* get_word_arr(){ return word_arr;}
+
+        query_sat_list* get_q_sat_list(){ return q_sat_list;}
+
         int get_alive(){ return alive;}
         unsigned int get_dist() const{ return match_dist;}
         unsigned int get_word_count() const{ return word_count;}
-        unsigned int get_word_found() const { return words_found;}
-        int* get_word_c() { return word_c;}
-        unsigned int get_curr_doc() { return curr_doc;}
+
+        // unsigned int get_word_found() const { return words_found;}
+        unsigned int get_word_found(unsigned int doc_id) { 
+            return this->get_q_sat_list()->get_word_found(doc_id);
+        }
+
+        // int* get_word_c() { return word_c;}
+        int* get_word_c(unsigned int doc_id) { 
+            // cout << "mpaineii " << endl;
+            return this->get_q_sat_list()->get_word_c(doc_id); 
+        }
+
+        // unsigned int get_curr_doc() { return curr_doc;}
         query_hash_node* get_next() const{ return next;}
 
         /* Setters */
         void set_next(query_hash_node *tmp){ next = tmp;}
-        void set_curr_doc(unsigned int tmp){ curr_doc = tmp;}
+        // void set_curr_doc(unsigned int tmp){ curr_doc = tmp;}
         void set_alive(){ alive = 0;}
-        void set_found(int x){word_c[x] = 1; words_found++;}       // na prosthesoume doc_id san orisma
+       
 
-        void reset_val();
+        ErrorCode set_found(unsigned int doc_id, int x){           
+            return this->get_q_sat_list()->update(doc_id,x);
+        }
+               
+        // void reset_val();
 };
 
 class query_hash_list{
@@ -61,7 +75,7 @@ class query_hash_list{
     public:
 
         ErrorCode delete_query(QueryID query_id);
-        ErrorCode print_list();
+        // ErrorCode print_list();
         //Diagrafei kathe komvo ths listas
         ErrorCode destroy_query_list(query_hash_list** el);
 
@@ -103,7 +117,7 @@ class query_Hashtable {
         
         query_hash_node* insert(QueryID qid,const char * str,unsigned int m_dist);
         query_hash_node* search(QueryID qid);
-        ErrorCode print();
+        // ErrorCode print();
     
         ErrorCode add_one(word* myword, int qid, unsigned int current_doc);
         ErrorCode add_one_tree(word* myword, int qid, unsigned int current_doc, unsigned int threshold);         
