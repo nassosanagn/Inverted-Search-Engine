@@ -4,11 +4,7 @@
 #include <cstring>
 #include <stdlib.h>
 #include <iostream>
-<<<<<<< HEAD
-#include "./payload.h"
-=======
 #include "payload.h"
->>>>>>> 5e09bfaa3e7a3a1bd594af046d747041711ef970
 
 using namespace std;
 

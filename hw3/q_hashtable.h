@@ -29,7 +29,7 @@ class query_hash_node {
         QueryID get_id() const{ return query_id;}
         word* get_word_arr(){ return word_arr;}
 
-        query_sat_list* get_q_sat_list(){ return q_sat_list;}
+        // query_sat_list* get_q_sat_list(){ return q_sat_list;}
 
         int get_alive(){ return alive;}
 
@@ -48,9 +48,9 @@ class query_hash_node {
         void set_alive(){ alive = 0;}
         // void set_found(int x){ word_c[x] = 1; words_found++;}
 
-        ErrorCode set_found(unsigned int doc_id, int x){           
-            return this->get_q_sat_list()->update(doc_id,x);
-        }
+        // ErrorCode set_found(unsigned int doc_id, int x){           
+        //     return this->get_q_sat_list()->update(doc_id,x);
+        // }
                
         void reset_val();
 };

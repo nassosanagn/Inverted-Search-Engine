@@ -52,36 +52,17 @@ doc_list* D_list;
 HammingIndex* ham_index;
 Hashtable* hash_index;
 EditBKTree* edit_index;
-int flg = 1;
-int flg2 = 1;
-int test =0;
+
 doc* D_tmp;
 
 int status[NUM_THREADS];
-
-void print_status(){
-	for (int i = 0; i < NUM_THREADS; i++)
-	{
-		cout <<"[" <<i <<"-"<<status[i]<<"] ";
-	}
-	cout << endl;
-}
-
 int id_assign[NUM_THREADS];
 
-int realid(int thread_self){
-	for (int thread = 0; thread < NUM_THREADS; thread++)
-	{
-		if (thread_self == id_assign[thread])
-		{
-			return thread;
-		}
+void print_status();
+int realid(int thread_self);
 
-	}
-	return -99999;
-}
-
-int br_flag;
+int br_type;
+int flag = 1;
 int flag_q;
 
 // thread data
@@ -89,6 +70,7 @@ class job_scheduler{
    public:
       job_list* j_list;
 };
+
 QueryID end_flg[3];
 
 pthread_cond_t cond_nonempty;
@@ -106,40 +88,35 @@ pthread_mutex_t mutexhamm;
 pthread_mutex_t mutexexact;
 pthread_mutex_t mutexdoc;
 
-
-
-
 job_scheduler J_s;
 pthread_cond_t cond_end[3];
 pthread_cond_t cond_q;
 pthread_cond_t cond_br;
 pthread_cond_t cond_br2;
-pthread_cond_t cond_brt;
+
 pthread_mutex_t br_mutex;
 pthread_t tids[NUM_THREADS];
 
 pthread_barrier_t barrier;
 pthread_barrier_t barrier2;
 pthread_barrier_t barrier3;
-//Thread functions
+
 
 ErrorCode match_doc(job_node* data){
-	// pthread_mutex_lock(&mutexqhash);
-	if(Q_hash->search(data->getId())==NULL){
-		//cout<<"EL PROBLEMO"<<endl;
-	}
-	// cout<<"Job "<< realid(pthread_self()) <<" parsing document..  "<<data->getId() <<endl;
+	
+	// cout <<"Job "<< realid(pthread_self()) <<" parsing document..  "<<data->getId() <<endl;
+	
 	word* myword = new word();
 	payload_list* q_result = new payload_list();
 
-	// Iterate on all active queries to compare them with this new document
-	char *rest = NULL;
 	char* Str = new char[strlen(data->getstr())+1];
 	strcpy(Str,data->getstr());
+
 	char* rest = NULL;
-	pch = strtok_r (Str," ",&rest);
+	char* pch = strtok_r (Str," ",&rest);
+
 	int thread_id = realid(pthread_self());
-	//cout<<"data::::"<<data->getId()<<endl;
+
 	while (pch != NULL){
 		myword->setword(pch);
 		hash_index->search(myword,Q_hash,data->getId(),q_result,thread_id);
@@ -147,36 +124,39 @@ ErrorCode match_doc(job_node* data){
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result,thread_id);
 		pch = strtok_r(NULL, " ",&rest);
 	}
-	// pthread_mutex_unlock(&mutexqhash);
+
 	pthread_mutex_lock(&mutexdoc);
+
 	doc* D = new doc(data->getId());
 	D->set_num_res(q_result->get_counter());
+
 	// Add this result to the set of undelivered results
 	doc* D_tt;
 	D_tt = D_list->add_doc(D_list,D,q_result);
 
-	if(flg==1){
-		flg = 0;
+	if (flag == 1){
+		flag = 0;
 		D_tmp = D_tt;
 	}
 
 	delete myword;
 	delete[] Str;
-	// delete D->get_query_ids();
 	q_result->destroy_payload_list();
-	//cout<<"Job "<< realid(pthread_self()) <<" done parsing document "<<data->getId() <<endl;
+
 	pthread_mutex_unlock(&mutexdoc);
 	return EC_SUCCESS;
 }
 
 
 ErrorCode start_q(job_node* data){
+
 	pthread_mutex_lock(&mutexqhash);
-	//cout <<"Thread "<<realid(pthread_self())<<" inserting query " << data->getId()<<endl; 
 	query_hash_node* Q;
 	Q = Q_hash->insert(data->getId(),data->getstr(),data->getmatch_dist());
 	pthread_mutex_unlock(&mutexqhash);
+
 	switch(data->getmatch_type()){
+
 		case MT_HAMMING_DIST:
 			pthread_mutex_lock(&mutexhamm);
 			for(unsigned int i=0;i<Q->get_word_count();i++){
@@ -184,6 +164,7 @@ ErrorCode start_q(job_node* data){
 			}
 			pthread_mutex_unlock(&mutexhamm);
 			break;
+
 		case MT_EDIT_DIST:
 			pthread_mutex_lock(&mutexedit);
 			for(unsigned int i=0;i<Q->get_word_count();i++){
@@ -191,12 +172,14 @@ ErrorCode start_q(job_node* data){
 			}
 			pthread_mutex_unlock(&mutexedit);
 			break;
+
 		case MT_EXACT_MATCH:
 			pthread_mutex_lock(&mutexexact);
 			char* Str = new char[strlen("small")+1];
 			strcpy(Str, "small");
 			entry* E = new entry(Str);
-			for(unsigned int i=0;i<Q->get_word_count();i++){
+
+			for (unsigned int i = 0; i < Q->get_word_count(); i++){
 				E->setword(&(Q->get_word_arr()[i]));
 				hash_index->insert(E,data->getId());
 			}
@@ -205,279 +188,225 @@ ErrorCode start_q(job_node* data){
 			pthread_mutex_unlock(&mutexexact);
 			break;
 	}
-	for(int i =0;i<3;i++){
+	for (int i = 0; i < 3;i++){
 		if(end_flg[i] == data->getId()){
 			pthread_cond_signal(&(cond_end[i]));
 		}
 	}
-	//cout <<"Thread "<<realid(pthread_self())<<" done with query " << data->getId()<<endl; 
+
 	return EC_SUCCESS;
 }
 
 ErrorCode end_q(job_node* data){
+
 	pthread_mutex_lock(&mutexqhash);
-	//cout<<"Job END"<< realid(pthread_self())<<"parsing end queyryr "<<data->getId() <<endl;
-	if(Q_hash->search(data->getId())==NULL){
+
+	if (Q_hash->search(data->getId()) == NULL){
 		int i;
-		for(i = 0;i<3;i++){
+		for(i = 0; i < 3; i++){
 			if(end_flg[i] == 0){
 				end_flg[i] = data->getId();
 				break;
 			}
 		}
-		// end_flg = data->getId();
+
 		pthread_mutex_unlock(&mutexqhash);
 		pthread_cond_wait(&(cond_end[i]), &(mutex_end[i]));
+
 		end_flg[i] = 0;
 		pthread_mutex_lock(&mutexqhash);
 	}
-	// //cout<<"DASSDA"<<endl;
-
+	
 	Q_hash->delete_query(data->getId());
-	//cout<<"Job END"<< realid(pthread_self())<<" done parsing  end queyryr "<<data->getId() <<endl;
 	pthread_mutex_unlock(&mutexqhash);
 	return EC_SUCCESS;
 }
 
-job_node* obtain() {
-	job_node* data;
-	// cout << realid(pthread_self())<<" obtain mutex with br_flag "<<br_flag<<endl;
+job_node* obtain(){
 
+	job_node* data;
 	pthread_mutex_lock(&br_mutex);
 
-	// cout<<realid(pthread_self())<<" after mutex with br_flag "<<br_flag<<endl;
-	
-	// pthread_mutex_lock(&br_mutex);
-	//cout<<realid(pthread_self())<<" up while"<<endl;
 	while(J_s.j_list->get_counter() <= 0) {					// perimenei na mpei ena job sth lista
-		// cout << realid(pthread_self())<<" obtain wait with br_flag "<<br_flag<<endl;
-		if(br_flag == 2||br_flag == 1){
+		
+		if(br_type == 2 || br_type == 1){
 			pthread_mutex_unlock(&br_mutex);
 			return NULL;
 		}
+
 		pthread_cond_wait(&cond_nonempty, &br_mutex);
-		if(br_flag == 1||br_flag == 2){
+
+		if(br_type == 1 || br_type == 2){
 			pthread_mutex_unlock(&br_mutex);
 			return NULL;
 		}
-		// cout << realid(pthread_self())<<" obtain wait done\n";
 	}	
-	// cout<<realid(pthread_self())<<" down while"<<endl;
 
-	data = J_s.j_list->job_pop();    // pairnei to 1o stoixeio ths listas
+	data = J_s.j_list->job_pop();   
 
+	if (data->getjtype() == BARRIER){
 
-	if(data->getjtype() == BARRIER){
 		if (data->getId() == 8008){
-			// cout <<"setting br_flag to 1\n";
-			br_flag = 1;
-		}
-		else if (data->getId() == 1111){
-			// cout <<"setting br_flag to 2\n";
-			br_flag = 2;
-		}
-		else if (data->getId() == 2222)
-		{
-			br_flag = 3;
+			br_type = 1;
+
+		}else if (data->getId() == 1111){
+			br_type = 2;
+	
+		}else if (data->getId() == 2222){
+			br_type = 3;
 		}
 	}
-	pthread_mutex_unlock(&br_mutex);
-	// pthread_mutex_unlock(&br_mutex);
-	//cout << realid(pthread_self())<<" obtain mutex done\n";
 
+	pthread_mutex_unlock(&br_mutex);
 	return data;
 }
 
-int mmflg = 0;
 void * consumer(void * ptr){		// consumer tha trexei kathe thread
-	
-	int i = 0 ;
-	job_node* data;
 
-	while (1){
-		//cout << realid(pthread_self())<<" starting loop\n";
-		// pthread_mutex_lock(&mutex);
-		if(br_flag){
-			// cout<<realid(pthread_self())<<" AAAA"<<endl;
-			if (br_flag == 1){
-				// cout<<realid(pthread_self())<<" AAAA111111"<<endl;
+	while(true){
+		
+		if (br_type){
+			
+			if (br_type == 1){
+			
 				pthread_cond_signal(&cond_nonempty);
-
 				pthread_barrier_wait(&barrier);
+
 				pthread_mutex_lock(&mutexif);
-				if(br_flag == 1){
-					br_flag = 0;
-				}
+				if (br_type == 1)
+					br_type = 0;
 				pthread_mutex_unlock(&mutexif);
+
 				if (pthread_self() == tids[0])
 					pthread_cond_signal(&cond_q);
 			}
-			else if (br_flag == 2){
-				// cout<<realid(pthread_self())<<" AAAA222222"<<endl;
-
-				test ++;
+			else if (br_type == 2){
+				
 				status[realid(pthread_self())] = 1;
-				// print_status();
 
 				pthread_cond_signal(&cond_nonempty);
 				pthread_barrier_wait(&barrier2);
 
 				pthread_mutex_lock(&mutexif);
-				if(br_flag == 2){
-					br_flag = 0;
+				if(br_type == 2){
+					br_type = 0;
 				}
 				pthread_mutex_unlock(&mutexif);
 
-				test=0;
 				status[realid(pthread_self())] = 0;
 				if (pthread_self() == tids[0]){
 					pthread_cond_signal(&cond_br);
 				}
-			}
-			else if (br_flag == 3){
+
+			}else if (br_type == 3){
 				break;
 			}
-			// cout<<realid(pthread_self())<<" BR FLAG ZERO"<<endl;
-			// br_flag = 0;
 		}
 
-		data = obtain();
+		job_node* data = obtain();
 
-		if(data == NULL){
-			continue;
+		if ((data == NULL) || (data->getjtype() == BARRIER)){
+		 	continue;
 		}
 
-		if(data->getjtype()==BARRIER){
-			// cout<<realid(pthread_self())<<" barrier"<<endl;
-			continue;
-		}
-
-		if(br_flag){
-			// cout<<realid(pthread_self())<<" BBBB "<<br_flag<<endl;
-			if (br_flag == 1){
-				// cout<<realid(pthread_self())<<" BBBBB111111"<<endl;
+		if (br_type){
+			if (br_type == 1){
+				
 				if(data->getjtype()==QUERY){
-					mmflg = 1;
 					start_q(data);
 					continue;
-				}
-				else if(data->getjtype()==END_QUERY){
-					mmflg = 1;
+				
+				}else if(data->getjtype()==END_QUERY){
 					end_q(data);
 					continue;
 				}
 				pthread_cond_signal(&cond_nonempty);
-
 				pthread_barrier_wait(&barrier);
 
 				pthread_mutex_lock(&mutexif);
-				if(br_flag == 1){
-					br_flag = 0;
-				}
+				if (br_type == 1)
+					br_type = 0;
 				pthread_mutex_unlock(&mutexif);
 
 				if (pthread_self() == tids[0])
 					pthread_cond_signal(&cond_q);
-			}
-			else if (br_flag == 2){
-				// cout<<realid(pthread_self())<<" BBBBB222222"<<endl;
+			
+			}else if (br_type == 2){
 
 				if(data->getjtype()==DOCUMENT){
-					mmflg = 1;
 					match_doc(data);
 					continue;
 				}
-				test ++;
+
 				status[realid(pthread_self())] = 1;
-				// print_status();
 
 				pthread_cond_signal(&cond_nonempty);
-
 				pthread_barrier_wait(&barrier2);
 
 				pthread_mutex_lock(&mutexif);
-				if(br_flag == 2){
-					br_flag = 0;
+				if(br_type == 2){
+					br_type = 0;
 				}
 				pthread_mutex_unlock(&mutexif);
 
-				test=0;
 				status[realid(pthread_self())] = 0;
 				if (pthread_self() == tids[0])
 					pthread_cond_signal(&cond_br);
-			}
-			else if (br_flag == 3){
+			
+			}else if (br_type == 3){
 				break;
 			}
-
-			// cout<<realid(pthread_self())<<" 22222222 BR FLAG ZERO "<<data->getjtype()<<" "<<br_flag<<endl;
-			// br_flag = 0;
 		}
 
 		if(data->getjtype() == QUERY) {
 			start_q(data);
-		}
-		else if(data->getjtype() == DOCUMENT){
+		
+		}else if(data->getjtype() == DOCUMENT){
 			match_doc(data);
-		}
-		else if(data->getjtype() == END_QUERY){
+		
+		}else if(data->getjtype() == END_QUERY){
 			end_q(data);
 		}
-
-		// if (J_s.j_list->getFirst() != NULL)
-		// 	J_s.j_list->print_list();
-		// pthread_mutex_unlock(&mutexD);
 		
 		if (data && data->getId()==END_DOC && data->getjtype() == DOCUMENT){
-			// //cout<<"HE:LLO"<<endl;
 			break;
 		}
-		i++;
-		//cout << realid(pthread_self())<<" ending loop\n";
 	}	
 	pthread_barrier_wait(&barrier3);			// perimenoun ola ta threads
-	// sleep(1);
-	// //cout<<"EL END"<<endl;
-
 	pthread_cond_signal(&cond_br2);
+
 	pthread_exit(0);
 }
-
-// void * producer(void * ptr){
-//    int i = 0;
-//    int *ret;
-//    job_node* input_node;
-//    while (1) {
-//       place(&J_s, input_node);
-//       i++;
-//       pthread_cond_signal(&cond_nonempty);
-//    }
-//    return ret;
-// 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ErrorCode InitializeIndex(){
+
     Q_hash = new query_Hashtable();
-    if(Q_hash == NULL){
+    if (Q_hash == NULL){
         return EC_FAIL;
     }
+
     D_list = new doc_list();
-    if(D_list == NULL){
+    if (D_list == NULL){
         return EC_FAIL;
     }
+
     ham_index = new HammingIndex();
-    if(ham_index == NULL){
+    if (ham_index == NULL){
         return EC_FAIL;
     }
+
     hash_index = new Hashtable();
-    if(hash_index == NULL){
+    if (hash_index == NULL){
         return EC_FAIL;
     }
+
     edit_index = new EditBKTree();
     if(edit_index == NULL){
         return EC_FAIL;
     }
+
 	J_s.j_list = new job_list();
 
 	pthread_mutex_init(&mutexif, 0);
@@ -494,25 +423,22 @@ ErrorCode InitializeIndex(){
 	pthread_mutex_init(&mutexexact, 0);
 	pthread_mutex_init(&mutexdoc, 0);
 
-
 	for(int i =0;i<3;i++){
-		pthread_cond_init(&(cond_end[i]), 0);
 		end_flg[i] = 0;
+		pthread_cond_init(&(cond_end[i]), 0);
 		pthread_mutex_init(&(mutex_end[i]), 0);
-
 	}
 
 	pthread_cond_init(&cond_nonempty, 0);
 	pthread_cond_init(&cond_q, 0);
 	pthread_cond_init(&cond_br, 0);
 	pthread_cond_init(&cond_br2, 0);
-	pthread_cond_init(&cond_brt, 0);
 
 	pthread_barrier_init(&barrier,NULL,NUM_THREADS);
 	pthread_barrier_init(&barrier2,NULL,NUM_THREADS);
 	pthread_barrier_init(&barrier3,NULL,NUM_THREADS);
 
-	br_flag = 0;
+	br_type = 0;
 	flag_q = 0;
 	int* k = new int();
 	*k = 0;
@@ -531,22 +457,18 @@ ErrorCode InitializeIndex(){
 
 ErrorCode DestroyIndex(){
 	
-	// //cout << "KALEITAIIII" << endl;
 	if(flag_q){
-		// pthread_mutex_lock(&br_mutex);
+
 		J_s.j_list->job_insert(2222,"barrier",MT_EXACT_MATCH,0,BARRIER);
-		// pthread_mutex_unlock(&br_mutex);
 
 		pthread_cond_signal(&cond_nonempty);
 		pthread_cond_wait(&cond_br2, &mutexAR2);
 		flag_q = 0;
 	}
 
-	// //cout<<"MMMMMMMMMMMMMMMMMMMMMMMMM = "<<mmflg<<endl;
-	// //cout << "BGAINEIIIIII" << endl;
 	D_list->destroy_doc_list(&D_list);
-	delete Q_hash;
 
+	delete Q_hash;
 	delete ham_index;
 	delete hash_index;
 	delete edit_index;
@@ -574,38 +496,10 @@ ErrorCode check_hash_del(QueryID qid){
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist)
 {
-	// pthread_mutex_lock(&br_mutex);
+
 	J_s.j_list->job_insert(query_id,query_str,match_type,match_dist,QUERY);		// bazw 1 query sto job list
-   	// pthread_mutex_unlock(&br_mutex);
-
 	pthread_cond_signal(&cond_nonempty);
-	// //cout<<"Insert Query "<<query_id<<endl;
 
-	// query_hash_node* Q;
-	// Q = Q_hash->insert(query_id,query_str,match_dist);
-	// switch(match_type){
-    //     case MT_HAMMING_DIST:
-	// 		for(unsigned int i=0;i<Q->get_word_count();i++){
-	// 			ham_index->insert(&(Q->get_word_arr()[i]),query_id);
-	// 		}
-    //         break;
-    //     case MT_EDIT_DIST:
-	// 		for(unsigned int i=0;i<Q->get_word_count();i++){
-	// 			edit_index->getBKtree()->insertWord(&(Q->get_word_arr()[i]),edit_index->getBKtree(),match_type,query_id);
-	// 		}
-    //         break;
-    //     case MT_EXACT_MATCH:
-	// 		char* Str = new char[strlen("small")+1];
-	// 		strcpy(Str, "small");
-	// 		entry* E = new entry(Str);
-	// 		for(unsigned int i=0;i<Q->get_word_count();i++){
-	// 			E->setword(&(Q->get_word_arr()[i]));
-	// 			hash_index->insert(E,query_id);
-	// 		}
-	// 		delete[] Str;
-	// 		delete E;
-    //         break;
-    // }
 	return EC_SUCCESS;
 }
 
@@ -613,15 +507,10 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 
 ErrorCode EndQuery(QueryID query_id){	
 
-	// pthread_mutex_lock(&br_mutex);
+	
 	J_s.j_list->job_insert(query_id,"query_str",MT_EXACT_MATCH,0,END_QUERY);
-   	// pthread_mutex_unlock(&br_mutex);
-
 	pthread_cond_signal(&cond_nonempty);
-	// pthread_mutex_lock(&mutexD);
-	// //cout<<"AAAAAAAAAAA"<<endl;
-	// Q_hash->delete_query(query_id);
-	// pthread_mutex_unlock(&mutexD);
+	
 	return EC_SUCCESS;
 }
 
@@ -630,64 +519,16 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 {
 	if(!flag_q){
 
-		pthread_mutex_lock(&br_mutex);
-		// //cout<<"counter"<<J_s.j_list->get_counter()<<endl;
 		J_s.j_list->job_insert(8008,doc_str,MT_EXACT_MATCH,0,BARRIER);
-		// //cout<<"counter after"<<J_s.j_list->get_counter()<<endl;
-		pthread_mutex_unlock(&br_mutex);
-
+	
 		pthread_cond_signal(&cond_nonempty);
-
 		pthread_cond_wait(&cond_q, &mutexq);
 		flag_q = 1;
 	}
 
-	// pthread_mutex_lock(&br_mutex);
 	J_s.j_list->job_insert(doc_id,doc_str,MT_EXACT_MATCH,0,DOCUMENT); 	// bazei to docuent sto job lst
-	// //cout<<"doc id "<<doc_id<<endl;
-   	pthread_mutex_unlock(&br_mutex);
-
-
 	pthread_cond_signal(&cond_nonempty);
 
-	// //cout<<"Insert document "<<doc_id<<endl;
-	// word* myword = new word();
-	// payload_list* q_result = new payload_list();
-
-	// // Iterate on all active queries to compare them with this new document
-    // char * pch;
-
-    // char* Str = new char[strlen(doc_str)+1];
-    // strcpy(Str,doc_str);
-    // pch = strtok (Str," ");
-
-    // while (pch != NULL){
-	// 	myword->setword(pch);
-
-	// 	hash_index->search(myword,Q_hash,doc_id,q_result);
-
-	// 	ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,doc_id,q_result);
-
-	// 	edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1, MT_EDIT_DIST,Q_hash,doc_id,q_result);
-    //     pch = strtok (NULL, " ");
-    // }
-
-	// doc* D = new doc(doc_id);
-	// D->set_num_res(q_result->get_counter());
-	// // D->set_query_ids(q_result,q_result->get_counter());
-
-	// // Add this result to the set of undelivered results
-	// doc* D_tt;
-	// D_tt = D_list->add_doc(D_list,D,q_result);
-	// if(flg==1){
-	// 	flg = 0;
-	// 	D_tmp = D_tt;
-	// }
-
-	// delete myword;
-	// delete[] Str;
-	// // delete D->get_query_ids();
-	// q_result->destroy_payload_list();
 	return EC_SUCCESS;
 }
 
@@ -695,55 +536,54 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 
 ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_query_ids)
 {
-	//cout<<"Getnextavailres......"<<endl;
 
 	if (flag_q){
-		
-		//cout<<"List will be \n";
-		pthread_mutex_lock(&br_mutex);
+	
 		J_s.j_list->job_insert(1111,"barrier",MT_EXACT_MATCH,0,BARRIER);
-		// pthread_mutex_unlock(&br_mutex);
 
-		
 		pthread_cond_signal(&cond_nonempty);
-		//cout <<"nextavail Waiting\n";
 		pthread_cond_wait(&cond_br, &mutexAR);
-		//cout<<"List is \n";
+		
 		J_s.j_list->print_list();
-		//cout<<"List was \n";
-		// sleep(0.01);
+		
 		flag_q = 0;
 	}
-
-	//cout<<"AFTER Barrier getnextavailres"<<endl;
-
+	
 	pthread_mutex_lock(&mutexdoc);
-	// D_list->print_list();
 
-	//cout<<endl;
-	*p_doc_id=0; *p_num_res=0; *p_query_ids=0;
-	flg = 1;
+	*p_doc_id=0; *p_num_res=0; *p_query_ids=0; flag = 1;
 
-
-	// //cout<<"AFTER Barrier hereeeeeee"<<endl;
-
-	// if (D_tmp == NULL)
-		//cout << "EINAI NULL" << endl;
-
-	//cout<<"... "<<D_tmp->get_id()<<endl;
 	*p_doc_id = D_tmp->get_id();
 	*p_num_res=D_tmp->get_num_res();
 	*p_query_ids = D_tmp->get_query_ids();
-	// //cout<<D_tmp->get_id()<<endl;
-	if(D_tmp->get_id() == END_DOC){
-		// //cout<<"LLOdasdas"<<endl;
+	
+	if (D_tmp->get_id() == END_DOC){
+	
 		for (size_t i = 0; i < NUM_THREADS; i++){
 		    pthread_join(tids[i],NULL);
 		}
 	}
 
-	// cout<<"Get next avail res "<<D_tmp->get_id()<<endl;
 	D_tmp = D_tmp->get_next();
 	pthread_mutex_unlock(&mutexdoc);
 	return EC_SUCCESS;
+}
+
+/* ------------------------------------------ Functions ------------------------------------------ */
+
+/* Used for debugging */
+void print_status(){
+	for (int i = 0; i < NUM_THREADS; i++)
+	{
+		cout <<"[" <<i <<"-"<<status[i]<<"] ";
+	}
+	cout << endl;
+}
+
+int realid(int thread_self){
+	for (int thread = 0; thread < NUM_THREADS; thread++){
+		if (thread_self == id_assign[thread])
+			return thread;
+	}
+	return -99999;
 }
