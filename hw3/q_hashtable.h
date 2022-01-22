@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "./Lists/entry.h"
 #include "./q_satisfied.h"
-#define Q_SIZE 100000
+#define Q_SIZE 5000000
 
 class query_hash_node {
 

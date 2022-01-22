@@ -119,11 +119,15 @@ ErrorCode match_doc(job_node* data){
 
 	while (pch != NULL){
 
-		cout << "whileee: " << pch << endl;
+		cout << "whileee " << pch << endl;
 		myword->setword(pch);
+		cout << "search " << endl;
 		hash_index->search(myword,Q_hash,data->getId(),q_result,thread_id);
+		cout << "lookup_hamming_index " << endl;
 		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result,thread_id);
+		cout << "lookup_entry_index " << endl;
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result,thread_id);
+		cout << "lookup_entry_index ended" << endl;
 		pch = strtok_r(NULL, " ",&rest);
 	}
 
@@ -532,7 +536,7 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 		J_s.j_list->job_insert(8008,doc_str,MT_EXACT_MATCH,0,BARRIER);
 	
 		pthread_cond_signal(&cond_nonempty);
-		pthread_cond_wait(&cond_q, &mutexq);
+		// pthread_cond_wait(&cond_q, &mutexq);
 		flag_q = 1;
 	}
 
