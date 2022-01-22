@@ -42,7 +42,7 @@
 #include "../q_hashtable.h"
 
 
-#define END_DOC 960
+#define END_DOC 60
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ pthread_barrier_t barrier3;
 
 ErrorCode match_doc(job_node* data){
 	
-	// cout <<"Job "<< realid(pthread_self()) <<" parsing document..  "<<data->getId() <<endl;
+	cout <<"Job "<< realid(pthread_self()) <<" parsing document..  "<<data->getId() <<endl;
 	
 	word* myword = new word();
 	payload_list* q_result = new payload_list();
@@ -118,6 +118,8 @@ ErrorCode match_doc(job_node* data){
 	int thread_id = realid(pthread_self());
 
 	while (pch != NULL){
+
+		cout << "whileee: " << pch << endl;
 		myword->setword(pch);
 		hash_index->search(myword,Q_hash,data->getId(),q_result,thread_id);
 		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result,thread_id);
@@ -143,6 +145,9 @@ ErrorCode match_doc(job_node* data){
 	delete[] Str;
 	q_result->destroy_payload_list();
 
+
+	cout <<"Job "<< realid(pthread_self()) <<" parsing document done..  "<<data->getId() <<endl;
+	
 	pthread_mutex_unlock(&mutexdoc);
 	return EC_SUCCESS;
 }
@@ -154,6 +159,8 @@ ErrorCode start_q(job_node* data){
 	query_hash_node* Q;
 	Q = Q_hash->insert(data->getId(),data->getstr(),data->getmatch_dist());
 	pthread_mutex_unlock(&mutexqhash);
+
+	// cout << "Parsing query " << data->getId() << endl;
 
 	switch(data->getmatch_type()){
 
