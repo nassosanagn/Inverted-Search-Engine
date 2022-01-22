@@ -302,13 +302,12 @@ treeNode* BKList::popfirst(int* threshold){
 
 ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result,int thread_id){
     //Lista ypopshfiwn le3ewn
-    pthread_mutex_lock(&mutexqhash);
 
     treeNode* root = ix->getRoot();
     if (root==NULL)
     {
 
-        pthread_mutex_unlock(&mutexqhash);
+        // pthread_mutex_unlock(&mutexqhash);
 
         return EC_FAIL;
     }
@@ -323,6 +322,7 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
     entry* input_entry = new entry(tmpStr);
 
     // Oso den yparxoyn alles ypopshfies le3eis
+    // pthread_mutex_lock(&mutexqhash);
     while (cand_list->getfirst()!=NULL){
         //Dexetai ton prwto komvo-le3h apo thn lista
         treeNode* current_candidate = cand_list->popfirst(&threshold);
@@ -370,10 +370,10 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
             temp_tnode=temp_tnode->getnextNode();
         }
     }
+    // pthread_mutex_unlock(&mutexqhash);
 
     delete cand_list;
     delete input_entry;
     delete[] tmpStr;
-    pthread_mutex_unlock(&mutexqhash);
     return EC_SUCCESS;
 }
