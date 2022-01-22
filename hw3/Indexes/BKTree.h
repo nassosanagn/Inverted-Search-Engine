@@ -74,7 +74,8 @@ class Index{
         ErrorCode build_entry_index(const entry_list* el, MatchType type, Index* ix, int qid);
 
         int HammingDistance(const char*,const char*);
-        int EditDistance(char* a, int na, char* b, int nb);
+        // int EditDistance(char* a, char* b);
+        int EditDistance(char* a, char* b);
 
         //Getter
         treeNode* getRoot() const { return root; }

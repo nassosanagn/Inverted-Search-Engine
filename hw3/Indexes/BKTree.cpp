@@ -45,92 +45,106 @@ int Index::HammingDistance(const char* word1, const char* word2){
     return j;
 }
 
-// int Index::EditDistance(char *str1,int str1Len, char *str2, int str2Len) {
-//   int row, column;
-//   int array[str2Len + 1][str1Len + 1];
-//   array[0][0] = 0;
-//   for (row = 1; row <= str2Len; row++)
-//     array[row][0] = array[row - 1][0] + 1;
-//   for (column = 1; column <= str1Len; column++)
-//     array[0][column] = array[0][column - 1] + 1;
-//   for (row = 1; row <= str2Len; row++) {
-//     for (column = 1; column <= str1Len; column++) {
-//       int upper_cell = array[row - 1][column] + 1;
-//       int left_cell = array[row][column - 1] + 1;
-//       int diagonal_cell = array[row - 1][column - 1];
-//       if (str1[column - 1] != str2[row - 1]) {
-//         diagonal_cell++;
-//       }
-//       if (upper_cell < left_cell) {
-//         if (upper_cell < diagonal_cell) {
-//           array[row][column] = upper_cell;
-//         } else {
-//           array[row][column] = diagonal_cell;
-//         }
-//       } else {
-//         if (left_cell < diagonal_cell) {
-//           array[row][column] = left_cell;
-//         } else {
-//           array[row][column] = diagonal_cell;
-//         }
-//       }
-//     }
-//   }
+int Index::EditDistance(char *str1, char *str2) {
+  int row, column;
 
-//   return array[str2Len][str1Len];
-// }
+    int na = 0;
+    while ( str1[na] ) ++na;
 
-int Index::EditDistance(char* a, int na, char* b, int nb)
-{
-	int oo=0x7FFFFFFF;
+    int nb = 0;
+    while ( str2[nb] ) ++nb;
 
-	static int T[2][MAX_WORD_LENGTH+1];
+  int array[nb + 1][na + 1];
+  array[0][0] = 0;
+  for (row = 1; row <= nb; row++)
+    array[row][0] = array[row - 1][0] + 1;
+  for (column = 1; column <= na; column++)
+    array[0][column] = array[0][column - 1] + 1;
+  for (row = 1; row <= nb; row++) {
+    for (column = 1; column <= na; column++) {
+      int upper_cell = array[row - 1][column] + 1;
+      int left_cell = array[row][column - 1] + 1;
+      int diagonal_cell = array[row - 1][column - 1];
+      if (str1[column - 1] != str2[row - 1]) {
+        diagonal_cell++;
+      }
+      if (upper_cell < left_cell) {
+        if (upper_cell < diagonal_cell) {
+          array[row][column] = upper_cell;
+        } else {
+          array[row][column] = diagonal_cell;
+        }
+      } else {
+        if (left_cell < diagonal_cell) {
+          array[row][column] = left_cell;
+        } else {
+          array[row][column] = diagonal_cell;
+        }
+      }
+    }
+  }
 
-	int ia, ib;
-
-	int cur=0;
-	ia=0;
-
-	for(ib=0;ib<=nb;ib++)
-		T[cur][ib]=ib;
-
-	cur=1-cur;
-
-	for(ia=1;ia<=na;ia++)
-	{
-		for(ib=0;ib<=nb;ib++)
-			T[cur][ib]=oo;
-
-		int ib_st=0;
-		int ib_en=nb;
-
-		if(ib_st==0)
-		{
-			ib=0;
-			T[cur][ib]=ia;
-			ib_st++;
-		}
-
-		for(ib=ib_st;ib<=ib_en;ib++)
-		{
-			int ret=oo;
-
-			int d1=T[1-cur][ib]+1;
-			int d2=T[cur][ib-1]+1;
-			int d3=T[1-cur][ib-1]; if(a[ia-1]!=b[ib-1]) d3++;
-
-			if(d1<ret) ret=d1;
-			if(d2<ret) ret=d2;
-			if(d3<ret) ret=d3;
-
-			T[cur][ib]=ret;
-		}
-
-		cur=1-cur;
-	}
-	int ret=T[1-cur][nb];
-	return ret;
+  return array[nb][na];
 }
+
+// int Index::EditDistance(char* a, char* b)
+// {   
+	
+//     int oo=0x7FFFFFFF;
+
+//     int na = 0;
+//     while ( a[na] ) ++na;
+
+//     int nb = 0;
+//     while ( b[nb] ) ++nb;
+
+// 	static int T[2][MAX_WORD_LENGTH+1];
+
+// 	int ia, ib;
+
+// 	int cur=0;
+// 	ia=0;
+
+// 	for(ib=0;ib<=nb;ib++)
+// 		T[cur][ib]=ib;
+
+// 	cur=1-cur;
+
+// 	for(ia=1;ia<=na;ia++)
+// 	{
+// 		for(ib=0;ib<=nb;ib++)
+// 			T[cur][ib]=oo;
+
+// 		int ib_st=0;
+// 		int ib_en=nb;
+
+// 		if(ib_st==0)
+// 		{
+// 			ib=0;
+// 			T[cur][ib]=ia;
+// 			ib_st++;
+// 		}
+
+// 		for(ib=ib_st;ib<=ib_en;ib++)
+// 		{
+// 			int ret=oo;
+
+// 			int d1=T[1-cur][ib]+1;
+// 			int d2=T[cur][ib-1]+1;
+// 			int d3=T[1-cur][ib-1]; if(a[ia-1]!=b[ib-1]) d3++;
+
+// 			if(d1<ret) ret=d1;
+// 			if(d2<ret) ret=d2;
+// 			if(d3<ret) ret=d3;
+
+// 			T[cur][ib]=ret;
+// 		}
+
+// 		cur=1-cur;
+// 	}
+// 	int ret=T[1-cur][nb];
+// 	return ret;
+// }
 
 ErrorCode Index::build_entry_index(const entry_list* el, MatchType type, Index* ix, int qid){
 
@@ -181,7 +195,7 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
             tempDiff = HammingDistance(str, cmpWord);
             break;
         case MT_EDIT_DIST:
-            tempDiff = EditDistance(str, strlen(str),cmpWord, strlen(cmpWord));
+            tempDiff = EditDistance(str, cmpWord);
             break;
         default:
             break;
@@ -208,7 +222,7 @@ ErrorCode Index::insertTree(entry* entry, char* cmpWord, treeNode* tempNode, Mat
                     tempDiff = HammingDistance(str, tempNode->getString());
                     break;
                 case MT_EDIT_DIST:
-                    tempDiff = EditDistance(str,strlen(str),tempNode->getString(),strlen(tempNode->getString()));
+                    tempDiff = EditDistance(str,tempNode->getString());
                     break;
                 default:
                     break;
@@ -302,13 +316,12 @@ treeNode* BKList::popfirst(int* threshold){
 
 ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, MatchType m_type,query_Hashtable* Q_hash,int current_doc,payload_list* q_result,int thread_id){
     //Lista ypopshfiwn le3ewn
-    pthread_mutex_lock(&mutexqhash);
 
     treeNode* root = ix->getRoot();
     if (root==NULL)
     {
 
-        pthread_mutex_unlock(&mutexqhash);
+        // pthread_mutex_unlock(&mutexqhash);
 
         return EC_FAIL;
     }
@@ -323,35 +336,45 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
     entry* input_entry = new entry(tmpStr);
 
     // Oso den yparxoyn alles ypopshfies le3eis
+
     while (cand_list->getfirst()!=NULL){
+        // pthread_mutex_lock(&mutexqhash);
+        
         //Dexetai ton prwto komvo-le3h apo thn lista
         treeNode* current_candidate = cand_list->popfirst(&threshold);
         //Ypologizei thn apostash
         int word_dis = 0;
+
+
         switch(m_type){
             case MT_HAMMING_DIST:
                 word_dis = HammingDistance(w->getword(),current_candidate->getString());
                 break;
+                
             case MT_EDIT_DIST:
-                word_dis = EditDistance(w->getword(),strlen(w->getword()),current_candidate->getString(),strlen(current_candidate->getString()));
+                word_dis = EditDistance(w->getword(),current_candidate->getString());
                 break;
             default:
                 break;
         }
         //An einai omoio me thn le3h
 
-        for(int i = threshold;i<=3;i++){
-            if (word_dis <= i)
-            {
+        for(int i = threshold; i <= 3;i++){
+            if (word_dis <= i){
+
                 input_entry->setword(current_candidate->getString());
                 input_entry->setpayload(current_candidate->getEntry()->getpayload());
                 
+                pthread_mutex_lock(&mutexqhash);
                 Q_hash->add_one_payload(current_candidate->getEntry()->getpayload(),current_candidate->getWord(),current_doc,i,q_result,thread_id);
+                pthread_mutex_unlock(&mutexqhash);
+
                 //add_entry(hashtable,input_entry,-1); sto hashmap
                 //an to query exei megalytero h iso match dist apo to i tote kanei insert
                 break;
             }
         }
+        
 
         //Ypologizei ta oria twn apostasewn gia na elegthoyn
         //Gia kathe paidi poy vrisketai endiamesa twn oriwn ta prosthetei san candidate
@@ -374,6 +397,5 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
     delete cand_list;
     delete input_entry;
     delete[] tmpStr;
-    pthread_mutex_unlock(&mutexqhash);
     return EC_SUCCESS;
 }
