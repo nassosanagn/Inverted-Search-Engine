@@ -3,7 +3,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Release: v1.0.0](https://img.shields.io/github/v/release/nassosanagn/Vaccine-Monitor-App?include_prereleases)
 
-Για την ανάλυση του προγράμματος δείτε [εδώ]()
+Για την ανάλυση του προγράμματος δείτε [εδώ](https://github.com/nassosanagn/Inverted-Search-Engine/blob/prj3/Project_analysis.pdf)
 
 ## Οδηγίες εκτέλεσης
 
