@@ -26,15 +26,14 @@ class Hashtable {
             entry* e = buckets[func_out]->search_word(W);
             if(e){
                 payload_node* pNode = e->getpayload()->getFirst();
-	            pthread_mutex_lock(&mutexqhash);
+	            // pthread_mutex_lock(&mutexqhash);
                 while(pNode != NULL){
                     if (Q_hash->add_one(e->getmyword(), pNode->getId(),current_doc,thread_id) == EC_SUCCESS){
                         q_result->payload_insert_asc(pNode->getId());
-                        // cout << " search - Inserted: " << pNode->getId() << endl;
                     }
                     pNode = pNode->getNext();
                 }
-	            pthread_mutex_unlock(&mutexqhash);
+	            // pthread_mutex_unlock(&mutexqhash);
 
             }
             return EC_FAIL;

@@ -110,15 +110,17 @@ ErrorCode match_doc(job_node* data){
 	char* pch = strtok_r (Str," ",&rest);
 
 	int thread_id = realid(pthread_self());
+	pthread_mutex_lock(&mutexqhash);
 
 	while (pch != NULL){
-
+		
 		myword->setword(pch);
 		hash_index->search(myword,Q_hash,data->getId(),q_result,thread_id);
 		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result,thread_id);
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result,thread_id);
 		pch = strtok_r(NULL, " ",&rest);
 	}
+	pthread_mutex_unlock(&mutexqhash);
 
 	pthread_mutex_lock(&mutexdoc);
 
@@ -524,9 +526,7 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 
 		pthread_cond_signal(&cond_nonempty);
 		pthread_cond_wait(&cond_br, &mutexAR);
-		
-		J_s.j_list->print_list();
-		
+				
 		flag_q = 0;
 	}
 	

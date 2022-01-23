@@ -360,9 +360,9 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
                 input_entry->setword(current_candidate->getString());
                 input_entry->setpayload(current_candidate->getEntry()->getpayload());
                 
-                pthread_mutex_lock(&mutexqhash);
+                // pthread_mutex_lock(&mutexqhash);
                 Q_hash->add_one_payload(current_candidate->getEntry()->getpayload(),current_candidate->getWord(),current_doc,i,q_result,thread_id);
-                pthread_mutex_unlock(&mutexqhash);
+                // pthread_mutex_unlock(&mutexqhash);
 
                 //add_entry(hashtable,input_entry,-1); sto hashmap
                 //an to query exei megalytero h iso match dist apo to i tote kanei insert
