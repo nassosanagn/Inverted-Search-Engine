@@ -110,7 +110,6 @@ ErrorCode match_doc(job_node* data){
 	char* pch = strtok_r (Str," ",&rest);
 
 	int thread_id = realid(pthread_self());
-	pthread_mutex_lock(&mutexqhash);
 
 	while (pch != NULL){
 		
@@ -120,7 +119,6 @@ ErrorCode match_doc(job_node* data){
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result,thread_id);
 		pch = strtok_r(NULL, " ",&rest);
 	}
-	pthread_mutex_unlock(&mutexqhash);
 
 	pthread_mutex_lock(&mutexdoc);
 
