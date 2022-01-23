@@ -3,21 +3,20 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include "./Lists/entry.h"
+#include "../Lists/entry.h"
 #include "./q_satisfied.h"
-#define Q_SIZE 5000000
+
+#define Q_SIZE 100000
 
 class query_hash_node {
 
     QueryID query_id;
     word word_arr[MAX_QUERY_WORDS];
-    // int word_c[MAX_QUERY_WORDS];
-
-	// unsigned int words_found;
+    
     query_sat_node* query_arr;
     unsigned int match_dist;
     unsigned int word_count;
-    // unsigned int curr_doc;
+   
     int alive;
     query_hash_node* next;
 

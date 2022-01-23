@@ -35,7 +35,7 @@ ENTRY_O=../Lists/entry.o
 DOC_O=../Lists/doc.o
 PAYLOAD_O=../Lists/payload.o
 HASHTABLE_O=../Indexes/hashtable.o
-Q_HASHTABLE_O=../q_hashtable.o
+Q_HASHTABLE_O=../Indexes/q_hashtable.o
 JOBS_O=../Lists/jobs.o
 ACUTEST_O=../acutest.o
 

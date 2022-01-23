@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include "./sigmod2013contest-1.1/include/core.h"
+#include "../sigmod2013contest-1.1/include/core.h"
 using namespace std;
 
 class query_sat_node{

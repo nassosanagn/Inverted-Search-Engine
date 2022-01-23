@@ -38,11 +38,9 @@
 #include "../Indexes/hashtable.h"
 #include "../Indexes/hammingindex.h"
 #include "../Indexes/editDistBkTree.h"
+#include "../Indexes/q_hashtable.h"
 
-#include "../q_hashtable.h"
-
-
-#define END_DOC 60
+#define END_DOC 960
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,18 +66,14 @@ int flag_q;
 // thread data
 class job_scheduler{
    public:
-      job_list* j_list;
+		job_list* j_list;
 };
-
-QueryID end_flg[3];
 
 pthread_cond_t cond_nonempty;
 pthread_mutex_t mutex_end[3];
-pthread_mutex_t mutexD;
 pthread_mutex_t mutexq;
 pthread_mutex_t mutexAR;
 pthread_mutex_t mutexAR2;
-pthread_mutex_t mutexcout;
 pthread_mutex_t mutexif;
 
 pthread_mutex_t mutexqhash;
@@ -88,23 +82,25 @@ pthread_mutex_t mutexhamm;
 pthread_mutex_t mutexexact;
 pthread_mutex_t mutexdoc;
 
+pthread_mutex_t br_mutex;
+
 job_scheduler J_s;
+
+QueryID end_flg[3];
 pthread_cond_t cond_end[3];
-pthread_cond_t cond_q;
+
 pthread_cond_t cond_br;
 pthread_cond_t cond_br2;
 
-pthread_mutex_t br_mutex;
 pthread_t tids[NUM_THREADS];
 
 pthread_barrier_t barrier;
 pthread_barrier_t barrier2;
 pthread_barrier_t barrier3;
 
-
 ErrorCode match_doc(job_node* data){
 	
-	cout <<"Job "<< realid(pthread_self()) <<" parsing document..  "<<data->getId() <<endl;
+	// cout <<"Job "<< realid(pthread_self()) <<" parsing document..  "<<data->getId() <<endl;
 	
 	word* myword = new word();
 	payload_list* q_result = new payload_list();
@@ -119,15 +115,15 @@ ErrorCode match_doc(job_node* data){
 
 	while (pch != NULL){
 
-		cout << "whileee " << pch << endl;
+		// cout << "whileee " << pch << endl;
 		myword->setword(pch);
-		cout << "search " << endl;
+		// cout << "search " << endl;
 		hash_index->search(myword,Q_hash,data->getId(),q_result,thread_id);
-		cout << "lookup_hamming_index " << endl;
+		// cout << "lookup_hamming_index " << endl;
 		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result,thread_id);
-		cout << "lookup_entry_index " << endl;
+		// cout << "lookup_entry_index " << endl;
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result,thread_id);
-		cout << "lookup_entry_index ended" << endl;
+		// cout << "lookup_entry_index ended" << endl;
 		pch = strtok_r(NULL, " ",&rest);
 	}
 
@@ -150,7 +146,7 @@ ErrorCode match_doc(job_node* data){
 	q_result->destroy_payload_list();
 
 
-	cout <<"Job "<< realid(pthread_self()) <<" parsing document done..  "<<data->getId() <<endl;
+	// cout <<"Job "<< realid(pthread_self()) <<" parsing document done..  "<<data->getId() <<endl;
 	
 	pthread_mutex_unlock(&mutexdoc);
 	return EC_SUCCESS;
@@ -289,8 +285,8 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 					br_type = 0;
 				pthread_mutex_unlock(&mutexif);
 
-				if (pthread_self() == tids[0])
-					pthread_cond_signal(&cond_q);
+				// if (pthread_self() == tids[0])
+				// 	pthread_cond_signal(&cond_q);
 			}
 			else if (br_type == 2){
 				
@@ -341,8 +337,8 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 					br_type = 0;
 				pthread_mutex_unlock(&mutexif);
 
-				if (pthread_self() == tids[0])
-					pthread_cond_signal(&cond_q);
+				// if (pthread_self() == tids[0])
+				// 	pthread_cond_signal(&cond_q);
 			
 			}else if (br_type == 2){
 
@@ -424,11 +420,9 @@ ErrorCode InitializeIndex(){
 	J_s.j_list = new job_list();
 
 	pthread_mutex_init(&mutexif, 0);
-	pthread_mutex_init(&mutexD, 0);
 	pthread_mutex_init(&mutexq, 0);
 	pthread_mutex_init(&mutexAR, 0);
 	pthread_mutex_init(&mutexAR2, 0);
-	pthread_mutex_init(&mutexcout, 0);
 	pthread_mutex_init(&br_mutex, 0);
 
 	pthread_mutex_init(&mutexqhash, 0);
@@ -444,7 +438,7 @@ ErrorCode InitializeIndex(){
 	}
 
 	pthread_cond_init(&cond_nonempty, 0);
-	pthread_cond_init(&cond_q, 0);
+	// pthread_cond_init(&cond_q, 0);
 	pthread_cond_init(&cond_br, 0);
 	pthread_cond_init(&cond_br2, 0);
 

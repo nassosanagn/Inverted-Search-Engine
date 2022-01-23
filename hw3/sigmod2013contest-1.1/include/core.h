@@ -36,13 +36,15 @@
 #ifndef __SIGMOD_CORE_H_
 #define __SIGMOD_CORE_H_
 
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //*********************************************************************************************
-#define NUM_THREADS 1
+#define NUM_THREADS 4
 /// Maximum document length in characters.
 #define MAX_DOC_LENGTH (1<<22)
 

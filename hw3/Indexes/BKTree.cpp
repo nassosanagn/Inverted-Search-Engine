@@ -5,7 +5,7 @@ using namespace std;
 #include <stdlib.h>
 
 #include "BKTree.h"
-extern pthread_mutex_t mutexqhash;
+
 //constructor gia to Index
 Index::Index(){ 
     root = NULL;
@@ -318,11 +318,7 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
     //Lista ypopshfiwn le3ewn
 
     treeNode* root = ix->getRoot();
-    if (root==NULL)
-    {
-
-        // pthread_mutex_unlock(&mutexqhash);
-
+    if (root==NULL){
         return EC_FAIL;
     }
     // BKList_node* blns = new BKList_node(root,threshold);
@@ -344,7 +340,6 @@ ErrorCode Index::lookup_entry_index(const word* w, Index* ix, int threshold, Mat
         treeNode* current_candidate = cand_list->popfirst(&threshold);
         //Ypologizei thn apostash
         int word_dis = 0;
-
 
         switch(m_type){
             case MT_HAMMING_DIST:

@@ -4,12 +4,13 @@
 #include <iostream>
 #include <cstring>
 #include <stdlib.h>
-#include "../q_hashtable.h"
+#include "./q_hashtable.h"
 #include "../Lists/entry.h"
 
 using namespace std;
 
 extern pthread_mutex_t mutexqhash;
+
 //Domh poy leitoyrgei ws komvos sto dentro-eyrethrio
 class treeNode{
 
@@ -17,7 +18,6 @@ class treeNode{
 
         //Le3h apo entry_list
         entry* myEntry;
-        //
         int diff;
         //Deikths se epomeno struct gia thn dhmioyrgeia listas gia to idio epipedo
         treeNode* nextNode;

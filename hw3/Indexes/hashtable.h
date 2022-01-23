@@ -4,11 +4,9 @@
 #include <stdlib.h>
 
 #include "../Lists/entry.h"
-#include "../q_hashtable.h"
+#include "../Indexes/q_hashtable.h"
 
 #define SIZE 10000
-extern pthread_mutex_t mutexqhash;
-
 extern pthread_mutex_t mutexqhash;
 
 class Hashtable {
