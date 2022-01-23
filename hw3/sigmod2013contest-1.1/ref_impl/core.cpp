@@ -329,7 +329,7 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 					start_q(data);
 					continue;
 				}
-				if(data->getjtype()==END_QUERY){
+				else if(data->getjtype()==END_QUERY){
 					end_q(data);
 					continue;
 				}
