@@ -30,7 +30,6 @@ class Hashtable {
                 while(pNode != NULL){
                     if (Q_hash->add_one(e->getmyword(), pNode->getId(),current_doc,thread_id) == EC_SUCCESS){
                         q_result->payload_insert_asc(pNode->getId());
-                        // cout << " search - Inserted: " << pNode->getId() << endl;
                     }
                     pNode = pNode->getNext();
                 }
