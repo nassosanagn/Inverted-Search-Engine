@@ -118,6 +118,10 @@ typedef enum{
 }
 ErrorCode;
 
+ErrorCode insertBarrier();
+ErrorCode Barrierwait();
+ErrorCode print_jlist();
+ErrorCode InitializeIndex_test();
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //*********************************************************************************************
 

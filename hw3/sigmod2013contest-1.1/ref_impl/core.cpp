@@ -189,7 +189,6 @@ ErrorCode start_q(job_node* data){
 			pthread_cond_signal(&(cond_end[i]));
 		}
 	}
-
 	return EC_SUCCESS;
 }
 
@@ -279,12 +278,12 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 				pthread_cond_signal(&cond_nonempty);
 				pthread_barrier_wait(&barrier2);
 
+
 				pthread_mutex_lock(&mutexif);
 				if(br_type == 2){
 					br_type = 0;
 				}
 				pthread_mutex_unlock(&mutexif);
-
 				if (pthread_self() == tids[0]){
 					pthread_cond_signal(&cond_br);
 				}
@@ -326,9 +325,19 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 					match_doc(data);
 					continue;
 				}
+				else if(data->getjtype()==QUERY){
+					start_q(data);
+					continue;
+				}
+				if(data->getjtype()==END_QUERY){
+					end_q(data);
+					continue;
+				}
 
 				pthread_cond_signal(&cond_nonempty);
+
 				pthread_barrier_wait(&barrier2);
+
 
 				pthread_mutex_lock(&mutexif);
 				if(br_type == 2){
@@ -336,8 +345,10 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 				}
 				pthread_mutex_unlock(&mutexif);
 
-				if (pthread_self() == tids[0])
+				if (pthread_self() == tids[0]){
 					pthread_cond_signal(&cond_br);
+				}
+
 			
 			}else if (br_type == 3){
 				pthread_cond_signal(&cond_nonempty);
@@ -568,3 +579,90 @@ int realid(int thread_self){
 	}
 	return -99999;
 }
+
+ErrorCode insertBarrier(){
+	J_s.j_list->job_insert(2,"barrier",MT_EXACT_MATCH,0,BARRIER);
+	pthread_cond_signal(&cond_nonempty);
+    
+	return EC_SUCCESS;
+}
+ErrorCode Barrierwait(){
+	// pthread_barrier_wait(&barrier);
+	pthread_cond_wait(&cond_br, &mutexAR);
+	return EC_SUCCESS;
+}
+
+ErrorCode print_jlist(){
+	J_s.j_list->print_list();
+	return EC_SUCCESS;
+}
+
+// ErrorCode InitializeIndex_test(){
+// 	cout <<NUM_THREADS<<endl;
+//     Q_hash = new query_Hashtable();
+//     if (Q_hash == NULL){
+//         return EC_FAIL;
+//     }
+
+//     D_list = new doc_list();
+//     if (D_list == NULL){
+//         return EC_FAIL;
+//     }
+
+//     ham_index = new HammingIndex();
+//     if (ham_index == NULL){
+//         return EC_FAIL;
+//     }
+
+//     hash_index = new Hashtable();
+//     if (hash_index == NULL){
+//         return EC_FAIL;
+//     }
+
+//     edit_index = new EditBKTree();
+//     if(edit_index == NULL){
+//         return EC_FAIL;
+//     }
+
+// 	J_s.j_list = new job_list();
+
+// 	pthread_mutex_init(&mutexif, 0);
+// 	pthread_mutex_init(&mutexq, 0);
+// 	pthread_mutex_init(&mutexAR, 0);
+// 	pthread_mutex_init(&mutexAR2, 0);
+// 	pthread_mutex_init(&br_mutex, 0);
+
+// 	pthread_mutex_init(&mutexqhash, 0);
+// 	pthread_mutex_init(&mutexedit, 0);
+// 	pthread_mutex_init(&mutexhamm, 0);
+// 	pthread_mutex_init(&mutexexact, 0);
+// 	pthread_mutex_init(&mutexdoc, 0);
+
+// 	for(int i =0;i<4;i++){
+// 		end_flg[i] = 0;
+// 		pthread_cond_init(&(cond_end[i]), 0);
+// 		pthread_mutex_init(&(mutex_end[i]), 0);
+// 	}
+
+// 	pthread_cond_init(&cond_nonempty, 0);
+// 	pthread_cond_init(&cond_br, 0);
+// 	pthread_cond_init(&cond_br2, 0);
+
+// 	pthread_barrier_init(&barrier,NULL,NUM_THREADS);
+// 	pthread_barrier_init(&barrier2,NULL,NUM_THREADS);
+// 	pthread_barrier_init(&barrier3,NULL,NUM_THREADS);
+
+// 	br_type = 0;
+// 	flag_q = 0;
+// 	int* k = new int();
+// 	*k = 0;
+// 	for (int i = 0; i < NUM_THREADS; i++)
+// 	{
+// 	    pthread_create( &tids[i], NULL, consumer, (void*) k);
+// 		id_assign[i] = tids[i];
+// 		status[i]=0;
+// 		(k)++;
+// 	}
+	 
+//     return EC_SUCCESS;
+// }
