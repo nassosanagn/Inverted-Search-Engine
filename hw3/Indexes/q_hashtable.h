@@ -6,7 +6,9 @@
 #include "../Lists/entry.h"
 #include "./q_satisfied.h"
 
-#define Q_SIZE 100000
+#define Q_SIZE 2000
+
+using namespace std;
 
 class query_hash_node {
 

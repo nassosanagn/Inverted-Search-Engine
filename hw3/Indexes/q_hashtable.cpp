@@ -1,6 +1,4 @@
 #include "q_hashtable.h"
-// #include <bits/stdc++.h>
-using namespace std;
 
 
 /* ---------------------------------------------------------------- query_hash_node functions ---------------------------------------------------------------- */
@@ -160,22 +158,12 @@ unsigned long query_Hashtable::hash_function(int id,int size_tmp){
     return id % size_tmp;
 }
 
-// ErrorCode query_Hashtable::print(){
-//     for(int i=0;i<size;i++){
-//         cout<<"bucket with id "<<i<<" ";
-//         buckets[i]->print_list();
-//         cout<<endl;
-//     }
-//     return EC_SUCCESS;
-// }
-
-ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_doc,int thread_id){
+ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_doc, int thread_id){
             
     query_hash_node* qNode;
     int func_out = hash_function(qid,size);
     qNode = buckets[func_out]->search_id(qid);           
     if(qNode->get_alive() == 0){
-        // pthread_mutex_unlock(&mutexqhash);
         return EC_FAIL;
     }
     query_sat_node* temp = qNode->get_arr();
@@ -198,7 +186,6 @@ ErrorCode query_Hashtable::add_one(word* myword, int qid, unsigned int current_d
         return EC_SUCCESS;
     }
 
-    // pthread_mutex_unlock(&mutexqhash);
     return EC_FAIL;
 }
 

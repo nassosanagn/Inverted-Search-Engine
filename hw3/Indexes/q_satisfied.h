@@ -9,9 +9,9 @@ using namespace std;
 
 class query_sat_node{
     
-    int word_c[MAX_QUERY_WORDS];
     unsigned int doc_id;
     unsigned int words_found;
+    int word_c[MAX_QUERY_WORDS];
 
     query_sat_node* next;
 
@@ -21,7 +21,6 @@ class query_sat_node{
         
             words_found = 0;
             doc_id = 0;
-            // this->doc_id = doc_id;
 
             for (int i = 0;i< MAX_QUERY_WORDS; i++){
                 word_c[i] = 0;

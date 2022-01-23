@@ -70,7 +70,7 @@ class job_scheduler{
 };
 
 pthread_cond_t cond_nonempty;
-pthread_mutex_t mutex_end[3];
+pthread_mutex_t mutex_end[4];
 pthread_mutex_t mutexq;
 pthread_mutex_t mutexAR;
 pthread_mutex_t mutexAR2;
@@ -86,8 +86,8 @@ pthread_mutex_t br_mutex;
 
 job_scheduler J_s;
 
-QueryID end_flg[3];
-pthread_cond_t cond_end[3];
+QueryID end_flg[4];
+pthread_cond_t cond_end[4];
 
 pthread_cond_t cond_br;
 pthread_cond_t cond_br2;
@@ -99,9 +99,7 @@ pthread_barrier_t barrier2;
 pthread_barrier_t barrier3;
 
 ErrorCode match_doc(job_node* data){
-	
-	// cout <<"Job "<< realid(pthread_self()) <<" parsing document..  "<<data->getId() <<endl;
-	
+		
 	word* myword = new word();
 	payload_list* q_result = new payload_list();
 
@@ -115,15 +113,10 @@ ErrorCode match_doc(job_node* data){
 
 	while (pch != NULL){
 
-		// cout << "whileee " << pch << endl;
 		myword->setword(pch);
-		// cout << "search " << endl;
 		hash_index->search(myword,Q_hash,data->getId(),q_result,thread_id);
-		// cout << "lookup_hamming_index " << endl;
 		ham_index->lookup_hamming_index(myword, 1, MT_HAMMING_DIST,Q_hash,data->getId(),q_result,thread_id);
-		// cout << "lookup_entry_index " << endl;
 		edit_index->getBKtree()->lookup_entry_index(myword,edit_index->getBKtree(), 1,MT_EDIT_DIST,Q_hash,data->getId(),q_result,thread_id);
-		// cout << "lookup_entry_index ended" << endl;
 		pch = strtok_r(NULL, " ",&rest);
 	}
 
@@ -146,8 +139,6 @@ ErrorCode match_doc(job_node* data){
 	q_result->destroy_payload_list();
 
 
-	// cout <<"Job "<< realid(pthread_self()) <<" parsing document done..  "<<data->getId() <<endl;
-	
 	pthread_mutex_unlock(&mutexdoc);
 	return EC_SUCCESS;
 }
@@ -159,8 +150,6 @@ ErrorCode start_q(job_node* data){
 	query_hash_node* Q;
 	Q = Q_hash->insert(data->getId(),data->getstr(),data->getmatch_dist());
 	pthread_mutex_unlock(&mutexqhash);
-
-	// cout << "Parsing query " << data->getId() << endl;
 
 	switch(data->getmatch_type()){
 
@@ -195,7 +184,7 @@ ErrorCode start_q(job_node* data){
 			pthread_mutex_unlock(&mutexexact);
 			break;
 	}
-	for (int i = 0; i < 3;i++){
+	for (int i = 0; i < 4;i++){
 		if(end_flg[i] == data->getId()){
 			pthread_cond_signal(&(cond_end[i]));
 		}
@@ -210,7 +199,7 @@ ErrorCode end_q(job_node* data){
 
 	if (Q_hash->search(data->getId()) == NULL){
 		int i;
-		for(i = 0; i < 3; i++){
+		for(i = 0; i < 4; i++){
 			if(end_flg[i] == 0){
 				end_flg[i] = data->getId();
 				break;
@@ -254,13 +243,13 @@ job_node* obtain(){
 
 	if (data->getjtype() == BARRIER){
 
-		if (data->getId() == 8008){
+		if (data->getId() == 1){
 			br_type = 1;
 
-		}else if (data->getId() == 1111){
+		}else if (data->getId() == 2){
 			br_type = 2;
 	
-		}else if (data->getId() == 2222){
+		}else if (data->getId() == 3){
 			br_type = 3;
 		}
 	}
@@ -284,13 +273,8 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 				if (br_type == 1)
 					br_type = 0;
 				pthread_mutex_unlock(&mutexif);
-
-				// if (pthread_self() == tids[0])
-				// 	pthread_cond_signal(&cond_q);
 			}
 			else if (br_type == 2){
-				
-				status[realid(pthread_self())] = 1;
 
 				pthread_cond_signal(&cond_nonempty);
 				pthread_barrier_wait(&barrier2);
@@ -301,7 +285,6 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 				}
 				pthread_mutex_unlock(&mutexif);
 
-				status[realid(pthread_self())] = 0;
 				if (pthread_self() == tids[0]){
 					pthread_cond_signal(&cond_br);
 				}
@@ -336,9 +319,6 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 				if (br_type == 1)
 					br_type = 0;
 				pthread_mutex_unlock(&mutexif);
-
-				// if (pthread_self() == tids[0])
-				// 	pthread_cond_signal(&cond_q);
 			
 			}else if (br_type == 2){
 
@@ -346,8 +326,6 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 					match_doc(data);
 					continue;
 				}
-
-				status[realid(pthread_self())] = 1;
 
 				pthread_cond_signal(&cond_nonempty);
 				pthread_barrier_wait(&barrier2);
@@ -358,7 +336,6 @@ void * consumer(void * ptr){		// consumer tha trexei kathe thread
 				}
 				pthread_mutex_unlock(&mutexif);
 
-				status[realid(pthread_self())] = 0;
 				if (pthread_self() == tids[0])
 					pthread_cond_signal(&cond_br);
 			
@@ -431,14 +408,13 @@ ErrorCode InitializeIndex(){
 	pthread_mutex_init(&mutexexact, 0);
 	pthread_mutex_init(&mutexdoc, 0);
 
-	for(int i =0;i<3;i++){
+	for(int i =0;i<4;i++){
 		end_flg[i] = 0;
 		pthread_cond_init(&(cond_end[i]), 0);
 		pthread_mutex_init(&(mutex_end[i]), 0);
 	}
 
 	pthread_cond_init(&cond_nonempty, 0);
-	// pthread_cond_init(&cond_q, 0);
 	pthread_cond_init(&cond_br, 0);
 	pthread_cond_init(&cond_br2, 0);
 
@@ -467,7 +443,7 @@ ErrorCode DestroyIndex(){
 	
 	if(flag_q){
 
-		J_s.j_list->job_insert(2222,"barrier",MT_EXACT_MATCH,0,BARRIER);
+		J_s.j_list->job_insert(3,"barrier",MT_EXACT_MATCH,0,BARRIER);
 
 		pthread_cond_signal(&cond_nonempty);
 		pthread_cond_wait(&cond_br2, &mutexAR2);
@@ -507,7 +483,6 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 
 	J_s.j_list->job_insert(query_id,query_str,match_type,match_dist,QUERY);		// bazw 1 query sto job list
 	pthread_cond_signal(&cond_nonempty);
-
 	return EC_SUCCESS;
 }
 
@@ -518,7 +493,6 @@ ErrorCode EndQuery(QueryID query_id){
 	
 	J_s.j_list->job_insert(query_id,"query_str",MT_EXACT_MATCH,0,END_QUERY);
 	pthread_cond_signal(&cond_nonempty);
-	
 	return EC_SUCCESS;
 }
 
@@ -527,10 +501,9 @@ ErrorCode MatchDocument(DocID doc_id, const char* doc_str)// for each document
 {
 	if(!flag_q){
 
-		J_s.j_list->job_insert(8008,doc_str,MT_EXACT_MATCH,0,BARRIER);
+		J_s.j_list->job_insert(1,doc_str,MT_EXACT_MATCH,0,BARRIER);
 	
 		pthread_cond_signal(&cond_nonempty);
-		// pthread_cond_wait(&cond_q, &mutexq);
 		flag_q = 1;
 	}
 
@@ -547,7 +520,7 @@ ErrorCode GetNextAvailRes(DocID* p_doc_id, unsigned int* p_num_res, QueryID** p_
 
 	if (flag_q){
 	
-		J_s.j_list->job_insert(1111,"barrier",MT_EXACT_MATCH,0,BARRIER);
+		J_s.j_list->job_insert(2,"barrier",MT_EXACT_MATCH,0,BARRIER);
 
 		pthread_cond_signal(&cond_nonempty);
 		pthread_cond_wait(&cond_br, &mutexAR);
